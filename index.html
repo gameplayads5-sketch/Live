@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>🎮 GameNest BD • User App</title>
+<style>
+:root{--bg:#07111f;--card:#0f1d30;--card2:#13263d;--line:#203650;--text:#eef6ff;--muted:#9db0c7;--accent:#18c58b;--blue:#4da3ff;--danger:#ff647c;--warn:#ffbd59}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#06101d,#0a1422 45%,#07111f);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Bengali",sans-serif;min-height:100vh}button,input{font:inherit}button{border:0;cursor:pointer}.hidden{display:none!important}
+.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:78px}.top{position:sticky;top:0;z-index:20;background:rgba(6,16,29,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 16px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;font-size:19px}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500}.iconbtn{width:40px;height:40px;border-radius:12px;background:var(--card2);color:#fff}
+main{padding:14px}.screen{display:none}.screen.active{display:block}.hero{border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(135deg,#123252,#102338);margin-bottom:14px}.hero h2{margin:0 0 6px;font-size:22px}.hero p{margin:0;color:var(--muted);font-size:13px}.balance{display:flex;gap:10px;margin-top:16px}.bal{flex:1;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:14px}.bal b{font-size:20px}.bal span{display:block;color:var(--muted);font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}.action{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:12px 5px;text-align:center;color:#fff}.action .i{font-size:22px;display:block;margin-bottom:4px}.action small{font-size:11px;color:#d9e7f6}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}.card h3{margin:0 0 12px;font-size:16px}.sectiontitle{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 10px}.sectiontitle h3{margin:0;font-size:16px}.muted{color:var(--muted);font-size:12px}
+.game{display:flex;flex-direction:column;gap:10px;align-items:stretch;background:var(--card);border:1px solid var(--line);border-radius:17px;padding:12px;margin-bottom:10px;overflow:hidden}.game img{width:100%;height:175px;border-radius:14px;object-fit:contain;background:#0a1625;display:block}.game .info{min-width:0;width:100%;overflow:hidden}.mygame{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:13px;margin-bottom:10px}.mygame h4{margin:0 0 6px}.mygame .code{font-size:20px;letter-spacing:2px;font-weight:900;color:#7de9c4;background:#091625;border:1px dashed #315676;padding:10px;border-radius:10px;text-align:center;margin:8px 0}.minirow{display:flex;gap:8px}.minirow button{flex:1;padding:9px;border-radius:10px;background:#18304a;color:#fff;font-weight:700}.minirow a{flex:1;text-align:center;text-decoration:none;padding:9px;border-radius:10px;background:var(--accent);color:#04120d;font-weight:800}.game h4{margin:0 0 4px;font-size:15px}.game p{margin:3px 0;color:var(--muted);font-size:11px}.game button{margin-top:7px;background:var(--accent);color:#04120d;padding:8px 12px;border-radius:10px;font-weight:800;font-size:12px}
+.list{display:flex;flex-direction:column;gap:9px}.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 12px;background:#0b1829;border:1px solid #1b3048;border-radius:13px}.row .left{min-width:0}.row b{font-size:13px}.row small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.status{font-size:10px;padding:5px 8px;border-radius:8px;background:#203650;color:#d8e9ff}.status.approved{background:#123d32;color:#62efbd}.status.pending{background:#3d3018;color:#ffd177}.status.rejected{background:#431d28;color:#ff91a3}
+.form{display:grid;gap:10px}.field label{display:block;color:#b9c9da;font-size:11px;margin:0 0 5px}.field input,.field select{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#091625;color:#fff;outline:none}.field select option{background:#091625;color:#fff}.field input:focus{border-color:var(--blue)}.pinwrap{position:relative}.pinwrap input{padding-right:48px}.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:9px;background:#18304a;color:#fff;border:0;font-size:16px}.primary{width:100%;padding:13px;border-radius:12px;background:var(--accent);color:#04120d;font-weight:800}.secondary{width:100%;padding:12px;border-radius:12px;background:#18304a;color:#fff;font-weight:700}.danger{background:#461b28;color:#ff9bad}.tabs{display:flex;background:#0b1829;border:1px solid var(--line);padding:4px;border-radius:13px;margin-bottom:12px}.tabs button{flex:1;padding:9px;border-radius:9px;background:transparent;color:var(--muted)}.tabs button.active{background:#18304a;color:#fff}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}.authbox{width:100%;max-width:430px}.logo{text-align:center;font-size:31px;font-weight:900;margin-bottom:5px}.tag{text-align:center;color:var(--muted);font-size:12px;margin-bottom:20px}.authcard{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}.authswitch{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}.link{color:#69b4ff;font-weight:700;cursor:pointer}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);height:68px;background:rgba(7,17,31,.96);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:30}.nav{background:none;color:var(--muted);font-size:10px}.nav .i{display:block;font-size:20px;margin-bottom:2px}.nav.active{color:#69dcb5}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:flex;align-items:flex-end}.sheet{width:min(520px,100%);margin:auto 0 0;background:#0b1829;border:1px solid var(--line);border-radius:22px 22px 0 0;padding:17px;max-height:90vh;overflow:auto}.sheet h3{margin:0 0 12px}.sheet .primary{display:flex;width:100%;min-height:50px;box-sizing:border-box;align-items:center;justify-content:center;margin:0;border-radius:14px;text-decoration:none;white-space:normal;overflow-wrap:anywhere;text-align:center;line-height:1.25}.modalActions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px;width:100%}.modalActions>*{width:100%!important;height:52px!important;min-height:52px!important;margin:0!important;padding:0 12px!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;border-radius:14px!important;text-decoration:none!important;white-space:normal!important;line-height:1.2!important;font-weight:800!important}.modalActions .gameLinkAction{background:#20c997!important;color:#06131f!important}.modalActions .buyAction{background:#ef3340!important;color:#fff!important}.sheet .notice{margin-bottom:0}.close{float:right;background:#18304a;color:#fff;width:34px;height:34px;border-radius:10px}.notice{padding:11px 12px;border-radius:12px;background:#10243a;border:1px solid #24435f;color:#cfe2f5;font-size:12px;margin-bottom:10px}.notice.warn{background:#302616;border-color:#594a2b;color:#ffda8a}.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#13263d;border:1px solid #2a4968;color:#fff;padding:10px 14px;border-radius:12px;z-index:100;max-width:90%;font-size:12px}.empty{text-align:center;padding:22px;color:var(--muted);font-size:12px}
+
+/* Final package grid: 2 games side-by-side */
+#gamesHome,#gamesList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
+#gamesHome .game,#gamesList .game{display:flex;flex-direction:column;gap:8px;align-items:stretch;background:var(--card);border:1px solid var(--line);border-radius:17px;padding:10px;margin:0;overflow:hidden;min-width:0}
+#gamesHome .game img,#gamesList .game img{width:100%!important;height:190px!important;border-radius:12px;object-fit:contain;background:#091625;display:block}
+#gamesHome .game .info,#gamesList .game .info{min-width:0;width:100%;overflow:hidden}
+#gamesHome .game h4,#gamesList .game h4{margin:0 0 3px;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#gamesHome .game p,#gamesList .game p{margin:3px 0;color:var(--muted);font-size:11px;line-height:1.3}
+#gamesHome .gameActions,#gamesList .gameActions{display:flex;align-items:center;gap:6px;width:100%;margin-top:7px}
+#gamesHome .gameActions .gamePlayBtn,#gamesHome .gameActions .gameBuyBtn,#gamesList .gameActions .gamePlayBtn,#gamesList .gameActions .gameBuyBtn{display:flex!important;flex:1 1 0!important;width:auto!important;min-width:0!important;height:34px!important;min-height:34px!important;margin:0!important;padding:0 6px!important;border:0;border-radius:9px;align-items:center;justify-content:center;text-align:center;text-decoration:none;white-space:nowrap;overflow:hidden;font-size:9px;font-weight:800;line-height:1}
+#gamesHome .gameActions .gamePlayBtn,#gamesList .gameActions .gamePlayBtn{background:#07090d!important;color:#fff!important;border:1px solid #26384b!important}
+#gamesHome .gameActions .gameBuyBtn,#gamesList .gameActions .gameBuyBtn{background:#ef3340!important;color:#fff!important}
+#gamesHome .game .gameBuyBtn:hover,#gamesList .game .gameBuyBtn:hover{background:#d92b37!important}
+#gamesHome .game .gamePlayBtn:hover,#gamesList .game .gamePlayBtn:hover{background:#11151b!important}
+#gamesHome .gameActions .gamePlayBtn,#gamesList .gameActions .gamePlayBtn{font-size:10px!important}
+#gamesHome .gameActions .gameBuyBtn,#gamesList .gameActions .gameBuyBtn{font-size:9px!important}
+#gamesHome .game .gamePlayBtn,#gamesList .game .gamePlayBtn{margin-top:0!important}
+#gamesHome .game .gameBuyBtn,#gamesList .game .gameBuyBtn{margin-top:0!important}
+@media(max-width:380px){#gamesHome,#gamesList{gap:7px}#gamesHome .game,#gamesList .game{padding:8px;border-radius:14px}#gamesHome .game img,#gamesList .game img{height:155px!important}#gamesHome .game h4,#gamesList .game h4{font-size:13px}#gamesHome .game p,#gamesList .game p{font-size:10px}#gamesHome .gameActions,#gamesList .gameActions{gap:4px;justify-content:center}#gamesHome .gameActions .gamePlayBtn,#gamesHome .gameActions .gameBuyBtn,#gamesList .gameActions .gamePlayBtn,#gamesList .gameActions .gameBuyBtn{flex:1 1 0!important;width:auto!important;min-width:0!important;height:30px!important;min-height:30px!important;font-size:8px;padding:0 3px!important}}
+</style>
+</head>
+<body>
+<div id="authView" class="auth"><div class="authbox">
+  <div class="logo">🎮 GameNest BD</div><div class="tag">খেলুন • জিতুন • নিরাপদে থাকুন</div>
+  <div class="authcard">
+    <div class="tabs"><button id="loginTab" class="active" onclick="showAuth('login')">লগইন</button><button id="signupTab" onclick="showAuth('signup')">সাইন আপ</button></div>
+    <form id="loginForm" class="form">
+      <div class="field"><label>মোবাইল নম্বর</label><input id="loginMobile" inputmode="numeric" placeholder="01XXXXXXXXX" required></div>
+      <div class="field"><label>PIN (৬–১২ সংখ্যা)</label><div class="pinwrap"><input id="loginPin" type="password" inputmode="numeric" minlength="6" maxlength="12" required><button type="button" class="eye" onclick="togglePin('loginPin',this)">👁️</button></div></div>
+      <button class="primary">লগইন</button>
+    </form>
+    <form id="signupForm" class="form hidden">
+      <div class="field"><label>নাম</label><input id="suName" required></div>
+      <div class="field"><label>মোবাইল নম্বর</label><input id="suMobile" inputmode="numeric" placeholder="01XXXXXXXXX" required></div>
+      <div class="field"><label>PIN (৬–১২ সংখ্যা)</label><div class="pinwrap"><input id="suPin" type="password" inputmode="numeric" minlength="6" maxlength="12" required><button type="button" class="eye" onclick="togglePin('suPin',this)">👁️</button></div></div>
+      <div class="field"><label>PIN আবার দিন</label><div class="pinwrap"><input id="suPin2" type="password" inputmode="numeric" minlength="6" maxlength="12" required><button type="button" class="eye" onclick="togglePin('suPin2',this)">👁️</button></div></div>
+      <div class="field"><label>রেফার কোড / মোবাইল (ঐচ্ছিক)</label><input id="suRef" inputmode="numeric" placeholder="01XXXXXXXXX"></div>
+      <button class="primary">অ্যাকাউন্ট তৈরি</button>
+    </form>
+    <div class="authswitch">সহায়তা প্রয়োজন? <span class="link" onclick="contactWhatsApp()">WhatsApp-এ যোগাযোগ</span></div>
+  </div>
+</div></div>
+
+<div id="appView" class="app hidden">
+<header class="top"><div class="brand">🎮 GameNest BD<small id="hello">স্বাগতম</small></div><button class="iconbtn" onclick="go('profile')">👤</button></header>
+<main>
+<section id="home" class="screen active">
+<div class="hero"><h2>স্বাগতম, <span id="userName">User</span> 👋</h2><p>আপনার গেম, ব্যালেন্স ও লেনদেন এক জায়গায়।</p><div class="balance"><div class="bal"><span>ব্যালেন্স</span><b id="balance">৳0.00</b></div><div class="bal"><span>বোনাস</span><b id="bonus">৳0.00</b></div></div></div>
+<div class="grid"><button class="action" onclick="openMoney('deposit')"><span class="i">💳</span><small>জমা</small></button><button class="action" onclick="openMoney('withdraw')"><span class="i">💸</span><small>উত্তোলন</small></button><button class="action" onclick="go('games')"><span class="i">🎮</span><small>গেম</small></button><button class="action" onclick="openReferral()"><span class="i">🤝</span><small>রেফার</small></button></div>
+<div class="sectiontitle"><h3>🎮 গেম প্যাকেজ</h3><span class="muted">Admin থেকে নিয়ন্ত্রিত</span></div><div id="gamesHome"></div><div class="sectiontitle"><h3>🔑 আমার গেম</h3><span class="muted">কেনা প্যাকেজ</span></div><div id="myGamesHome"></div>
+<div class="sectiontitle"><h3>📢 নোটিশ</h3><button class="secondary" style="width:auto;padding:7px 12px;font-size:11px" onclick="openNotices()">সব নোটিশ</button></div><div id="notices"></div>
+</section>
+<section id="games" class="screen"><div class="sectiontitle"><h3>🎮 সব গেম</h3><span class="muted">প্যাকেজ কিনে কোড নিন</span></div><div id="gamesList"></div><div class="sectiontitle"><h3>🔑 আমার গেম</h3><span class="muted">Active প্যাকেজ</span></div><div id="myGamesList"></div></section>
+<section id="history" class="screen"><div class="tabs"><button id="ht1" class="active" onclick="historyTab('money')">জমা/উত্তোলন</button><button id="ht2" onclick="historyTab('game')">গেম</button></div><div id="historyList"></div></section>
+<section id="profile" class="screen"><div class="card"><h3>👤 আমার প্রোফাইল</h3><div class="list" id="profileData"></div></div><div class="card"><h3>🔐 PIN নিরাপত্তা</h3><p class="muted">বর্তমান PIN দিয়ে নতুন PIN সেট করুন।</p><button class="primary" onclick="openResetPin()">🔑 PIN রিসেট করুন</button></div><div class="card"><h3>🏆 ম্যাচ উইনার যাচাই</h3><p class="muted">পুরস্কারের টাকা পেতে আপনার প্যাকেজ কোড এবং ম্যাচ জয়ের স্ক্রিনশট এখানে জমা দিন। অ্যাডমিন তথ্য যাচাই করে অনুমোদন দিলে পুরস্কারের টাকা আপনার অ্যাকাউন্টে যোগ করা হবে।</p><button class="primary" onclick="openIdentityVerification()">🎟️ ম্যাচ উইনার যাচাই</button><div id="identityStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><h3>📱 WhatsApp</h3><p class="muted">Admin-এর সেট করা নম্বরে যোগাযোগ করুন।</p><button class="primary" onclick="contactWhatsApp()">WhatsApp-এ যোগাযোগ</button></div><div class="card"><button class="secondary danger" onclick="logout()">লগআউট</button></div></section>
+</main>
+<nav class="bottom"><button class="nav active" data-screen="home" onclick="go('home')"><span class="i">⌂</span>হোম</button><button class="nav" data-screen="games" onclick="go('games')"><span class="i">🎮</span>গেম</button><button class="nav" data-screen="history" onclick="go('history')"><span class="i">🧾</span>হিস্টরি</button><button class="nav" data-screen="profile" onclick="go('profile')"><span class="i">👤</span>প্রোফাইল</button></nav>
+</div>
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="sheet"><button class="close" onclick="closeModal()">✕</button><div id="modalBody"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updatePassword,reauthenticateWithCredential,EmailAuthProvider} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {getDatabase,ref,set,get,push,onValue,update,query,orderByChild,equalTo} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+const firebaseConfig={apiKey:"AIzaSyD2DBF_GTIkQfa6G_3gZLfZ5n0MaUEBQ48",authDomain:"gamenest-bd.firebaseapp.com",databaseURL:"https://gamenest-bd-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"gamenest-bd",storageBucket:"gamenest-bd.firebasestorage.app",messagingSenderId:"1020093526765",appId:"1:1020093526765:web:525b5f303e0f08d7b692e4"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+// Cloudinary free-plan direct image upload. Configure these two values in your own Cloudinary account.
+const CLOUDINARY_CLOUD_NAME="mu60fehg";
+const CLOUDINARY_UPLOAD_PRESET="gamenest_winner_unsigned";
+// Telegram Bot Token is never read by the User App. Admin Panel will keep it private and use it for notifications.
+let me=null,meData={},settings={whatsapp:"",withdrawFeePercent:10,depositMethods:{}},listeners=[];
+const $=id=>document.getElementById(id),money=n=>"৳"+Number(n||0).toFixed(2);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const norm=v=>{v=String(v||"").replace(/\D/g,"");return v.startsWith("01")?"88"+v:v};
+const email=m=>norm(m)+"@gamenestbd.app";
+const pinOK=p=>/^\d{6,12}$/.test(p);
+function toast(t){$("toast").textContent=t;$("toast").classList.remove("hidden");clearTimeout(window.tt);window.tt=setTimeout(()=>$("toast").classList.add("hidden"),2800)}
+function showAuth(t){let l=t==="login";$("loginForm").classList.toggle("hidden",!l);$("signupForm").classList.toggle("hidden",l);$("loginTab").classList.toggle("active",l);$("signupTab").classList.toggle("active",!l)}window.showAuth=showAuth;
+function friendly(e){if(e.code==="auth/invalid-credential")return"মোবাইল বা PIN ভুল";if(e.code==="auth/email-already-in-use")return"এই মোবাইল দিয়ে অ্যাকাউন্ট আছে";if(e.code==="auth/weak-password")return"PIN ৬–১২ সংখ্যার হতে হবে";return e.message||"অজানা সমস্যা"}
+
+
+window.togglePin=(id,btn)=>{
+  let el=$(id);
+  if(!el)return;
+  let show=el.type==="password";
+  el.type=show?"text":"password";
+  btn.textContent=show?"🙈":"👁️";
+};
+
+function appUrlWithRef(mobile){
+  let base=location.origin+location.pathname;
+  return base+"?ref="+encodeURIComponent(String(mobile||""));
+}
+
+window.copyReferralLink=async()=>{
+  let link=appUrlWithRef(meData.mobile);
+  try{
+    await navigator.clipboard.writeText(link);
+    toast("রেফার লিংক কপি হয়েছে");
+  }catch(e){
+    let ta=document.createElement("textarea");
+    ta.value=link;document.body.appendChild(ta);ta.select();
+    document.execCommand("copy");ta.remove();
+    toast("রেফার লিংক কপি হয়েছে");
+  }
+};
+
+window.shareReferral=async()=>{
+  let link=appUrlWithRef(meData.mobile);
+  let text=`GameNest BD-তে যোগ দিন। আমার রেফার লিংক:\\n${link}`;
+  try{
+    if(navigator.share) await navigator.share({title:"GameNest BD",text});
+    else await navigator.clipboard.writeText(link);
+  }catch(e){}
+};
+
+window.openResetPin=()=>{
+  $("modalBody").innerHTML=`<h3>🔐 PIN রিসেট করুন</h3>
+    <div class="notice">প্রথমে আপনার বর্তমান PIN দিন। এরপর নতুন PIN দুইবার দিয়ে Submit করুন। PIN ৬–১২ সংখ্যার হতে হবে।</div>
+    <form id="resetPinForm" class="form">
+      <div class="field"><label>বর্তমান PIN</label><div class="pinwrap"><input id="oldPin" type="password" inputmode="numeric" minlength="6" maxlength="12" required><button type="button" class="eye" onclick="togglePin('oldPin',this)">👁️</button></div></div>
+      <div class="field"><label>নতুন PIN</label><div class="pinwrap"><input id="newPin" type="password" inputmode="numeric" minlength="6" maxlength="12" required><button type="button" class="eye" onclick="togglePin('newPin',this)">👁️</button></div></div>
+      <div class="field"><label>নতুন PIN আবার দিন</label><div class="pinwrap"><input id="newPin2" type="password" inputmode="numeric" minlength="6" maxlength="12" required><button type="button" class="eye" onclick="togglePin('newPin2',this)">👁️</button></div></div>
+      <button class="primary">Submit</button>
+    </form>`;
+  $("modal").classList.remove("hidden");
+
+  $("resetPinForm").onsubmit=async e=>{
+    e.preventDefault();
+    let oldP=$("oldPin").value,newP=$("newPin").value,newP2=$("newPin2").value;
+    if(!pinOK(oldP)||!pinOK(newP)||!pinOK(newP2))return toast("সব PIN ৬–১২ সংখ্যার হতে হবে");
+    if(newP!==newP2)return toast("নতুন দুই PIN মিলছে না");
+    if(oldP===newP)return toast("নতুন PIN বর্তমান PIN-এর মতো হতে পারবে না");
+    try{
+      let cred=EmailAuthProvider.credential(me.email,oldP);
+      await reauthenticateWithCredential(me,cred);
+      await updatePassword(me,newP);
+      closeModal();
+      toast("✅ PIN সফলভাবে রিসেট হয়েছে");
+    }catch(x){
+      if(x.code==="auth/invalid-credential"||x.code==="auth/wrong-password")return toast("বর্তমান PIN ভুল");
+      if(x.code==="auth/requires-recent-login")return toast("নিরাপত্তার জন্য আবার লগইন করুন");
+      toast("PIN রিসেট ব্যর্থ: "+friendly(x));
+    }
+  };
+};
+
+function showResetAfterLogin(){
+  try{
+    if(sessionStorage.getItem("gamenest_reset_prompt")==="1")return;
+    sessionStorage.setItem("gamenest_reset_prompt","1");
+  }catch(e){}
+  setTimeout(()=>openResetPin(),450);
+}
+
+function showAuthResult(title,message,kind="success"){
+  const icon=kind==="success"?"✅":kind==="warning"?"⚠️":kind==="error"?"❌":"ℹ️";
+  $("modalBody").innerHTML=`<h3>${icon} ${esc(title)}</h3><div class="notice">${esc(message)}</div><button class="primary" onclick="closeModal()">ঠিক আছে</button>`;
+  $("modal").classList.remove("hidden");
+}
+function setAuthBusy(formId,busy,label){
+  const form=$(formId); if(!form)return;
+  const btn=form.querySelector('button[type="submit"],button:not([type])');
+  if(!btn)return;
+  if(busy){btn.dataset.oldText=btn.textContent;btn.disabled=true;btn.textContent=label||"অপেক্ষা করুন…";}
+  else{btn.disabled=false;if(btn.dataset.oldText){btn.textContent=btn.dataset.oldText;delete btn.dataset.oldText;}}
+}
+
+$("loginForm").onsubmit=async e=>{
+  e.preventDefault();
+  const m=$("loginMobile").value.trim(),p=$("loginPin").value;
+  if(!pinOK(p))return toast("PIN ৬–১২ সংখ্যা হতে হবে");
+  setAuthBusy("loginForm",true,"লগইন হচ্ছে…");
+  try{
+    const cred=await signInWithEmailAndPassword(auth,email(m),p);
+    const snap=await get(ref(db,"users/"+cred.user.uid));
+    if(!snap.exists()){
+      await signOut(auth);
+      showAuth("signup");$("suMobile").value=m;$("suPin").value=p;$("suPin2").value=p;
+      showAuthResult("প্রোফাইল অসম্পূর্ণ","এই নম্বরের Auth অ্যাকাউন্ট আছে, কিন্তু প্রোফাইল নেই। একই নম্বর ও PIN দিয়ে সাইন আপ ফর্ম পূরণ করে প্রোফাইল পুনরুদ্ধার করুন।","warning");
+      return;
+    }
+    const d=snap.val()||{};
+    if(!d.mobile){
+      await signOut(auth);
+      showAuth("signup");$("suMobile").value=m;$("suPin").value=p;$("suPin2").value=p;$("suName").value=d.name||"";
+      showAuthResult("প্রোফাইল অসম্পূর্ণ","এই অ্যাকাউন্টে মোবাইল নম্বর সংরক্ষিত নেই। একই নম্বর ও PIN দিয়ে সাইন আপ ফর্মে নামসহ তথ্য পূরণ করে প্রোফাইল ঠিক করুন।","warning");
+      return;
+    }
+    toast("লগইন সফল হয়েছে");
+  }catch(x){console.error("Login failed",x);toast("লগইন ব্যর্থ: "+friendly(x));}
+  finally{setAuthBusy("loginForm",false);}
+};
+
+async function writeUserProfile(uid,name,mobile,refMobile,now){
+  const mk=norm(mobile),base="users/"+uid;
+  // Save the profile fields one by one to match the existing per-child Firebase Rules.
+  const fields={uid,name,mobile: String(mobile).trim(),mobileKey:mk,referrerMobile:refMobile?norm(refMobile):"",bonus:0,createdAt:now,status:"active"};
+  for(const [k,v] of Object.entries(fields)){
+    try{await set(ref(db,base+"/"+k),v);}
+    catch(err){console.error("Profile field write failed:",k,err);throw new Error("Firebase অনুমতি/সংরক্ষণ সমস্যা: users/"+uid+"/"+k+" — "+(err?.code||err?.message||"Permission denied"));}
+  }
+  // Check the stored values before reporting success.
+  let verify;
+  try{verify=await get(ref(db,base));}
+  catch(err){throw new Error("প্রোফাইল যাচাই করা যায়নি: "+(err?.code||err?.message||"Permission denied"));}
+  const saved=verify.val()||{};
+  if(saved.uid!==uid||String(saved.mobile||"").trim()!==String(mobile).trim()||saved.name!==name){
+    throw new Error("প্রোফাইল সংরক্ষণের পর যাচাই মেলেনি। users/"+uid+"-এ mobile/name পরীক্ষা করুন।");
+  }
+  // Mobile index is secondary. Some existing Rules deny reading an absent index,
+  // so do not mark the whole signup as failed after the profile itself was saved.
+  try{
+    const ix=await get(ref(db,"usersByMobile/"+mk));
+    if(!ix.exists())await set(ref(db,"usersByMobile/"+mk),{uid,mobile:mk});
+    else if(ix.child("uid").val()!==uid)console.warn("Mobile index belongs to another UID; admin review needed.");
+  }catch(err){
+    console.warn("Mobile index could not be checked/saved; profile was saved. Review usersByMobile Rules.",err);
+  }
+  if(refMobile){
+    try{await push(ref(db,"referrals"),{referrerMobile:norm(refMobile),refereeUid:uid,refereeMobile:String(mobile).trim(),createdAt:now,status:"pending"});}
+    catch(err){console.warn("Optional referral record was not saved",err);}
+  }
+}
+
+$("signupForm").onsubmit=async e=>{
+  e.preventDefault();
+  const name=$("suName").value.trim(),mobile=$("suMobile").value.trim(),p=$("suPin").value,p2=$("suPin2").value,refMobile=$("suRef").value.trim();
+  if(!name||!mobile)return toast("নাম ও মোবাইল দিন");
+  if(!pinOK(p))return toast("PIN ৬–১২ সংখ্যা হতে হবে");
+  if(p!==p2)return toast("দুই PIN মিলছে না");
+  if(norm(mobile).length<11)return toast("সঠিক মোবাইল নম্বর দিন");
+  setAuthBusy("signupForm",true,"অ্যাকাউন্ট তৈরি হচ্ছে…");
+  let cred=null,created=false;
+  try{
+    try{cred=await createUserWithEmailAndPassword(auth,email(mobile),p);created=true;}
+    catch(createErr){
+      if(createErr.code!=="auth/email-already-in-use")throw createErr;
+      // Existing Auth user: same PIN proves access; repair only an incomplete profile.
+      cred=await signInWithEmailAndPassword(auth,email(mobile),p);
+      const existing=await get(ref(db,"users/"+cred.user.uid));
+      const old=existing.val()||{};
+      if(old.mobile && String(norm(old.mobile))!==String(norm(mobile))){
+        await signOut(auth);
+        showAuthResult("এই অ্যাকাউন্ট আগে থেকেই আছে","এই লগইন অ্যাকাউন্টে অন্য মোবাইল নম্বর সংরক্ষিত আছে। নতুন অ্যাকাউন্ট তৈরি না করে সঠিক নম্বর দিয়ে লগইন করুন।","warning");
+        return;
+      }
+      if(old.mobile && old.name && old.uid===cred.user.uid){
+        await signOut(auth);
+        showAuthResult("অ্যাকাউন্ট আগে থেকেই আছে","এই মোবাইল নম্বর দিয়ে অ্যাকাউন্ট আগে থেকেই সম্পূর্ণ তৈরি আছে। লগইন ট্যাব থেকে প্রবেশ করুন।","info");
+        return;
+      }
+    }
+    await writeUserProfile(cred.user.uid,name,mobile,refMobile,Date.now());
+    showAuthResult(" সাইন আপ সফল হয়েছে","আপনার GameNest BD অ্যাকাউন্ট প্রস্তুত। এখন অ্যাপ ব্যবহার করতে পারবেন।","success");
+  }catch(x){
+    console.error("Signup/profile repair failed",x);
+    try{if(auth.currentUser)await signOut(auth);}catch(signoutErr){console.warn("Could not sign out after incomplete signup",signoutErr);}
+    // Show the real failure instead of a malformed/false success message.
+    const msg = (typeof friendly === "function") ? friendly(x) : (x?.message || "ইন্টারনেট বা Firebase অনুমতির সমস্যা");
+    showAuthResult("❌ সাইন আপ সম্পূর্ণ হয়নি", String(msg) + "। তথ্য সংরক্ষণ হয়নি হলে আবার চেষ্টা করুন; সমস্যা থাকলে এই বার্তার স্ক্রিনশট Admin-কে দিন।", "error");
+  }finally{setAuthBusy("signupForm",false);}
+};
+try{
+  let incoming=new URLSearchParams(location.search).get("ref");
+  if(incoming && $("suRef")) $("suRef").value=incoming.replace(/\D/g,"");
+}catch(e){}
+
+onAuthStateChanged(auth,async u=>{if(!u){me=null;$("authView").classList.remove("hidden");$("appView").classList.add("hidden");return}me=u;$("authView").classList.add("hidden");$("appView").classList.remove("hidden");await loadMe(); if(meData.status==="blocked"){await signOut(auth);return toast("এই অ্যাকাউন্টটি Block করা হয়েছে।")}bind();showResetAfterLogin();renderIdentityStatus()});
+async function loadMe(){let s=await get(ref(db,"users/"+me.uid));if(!s.exists()){await signOut(auth);return}meData=s.val()||{};renderMe()}
+function renderMe(){$("userName").textContent=meData.name||"User";$("hello").textContent=(meData.mobile||"")+" • অনলাইন";$("balance").textContent=money(meData.balance);$("bonus").textContent=money(meData.bonus);renderProfile()}
+function bind(){
+  listeners.forEach(x=>x&&x());listeners=[];
+  listeners.push(onValue(ref(db,"users/"+me.uid),s=>{meData=s.val()||{};renderMe()}));
+  listeners.push(onValue(ref(db,"settings/public"),s=>{settings=s.val()||{};settings.withdrawFeePercent=(settings.withdrawFeePercent===undefined||settings.withdrawFeePercent===null)?10:Number(settings.withdrawFeePercent)}));
+  listeners.push(onValue(ref(db,"games"),s=>renderGames(s.val()||{})));
+  listeners.push(onValue(ref(db,"notices"),s=>renderNotices(s.val()||{})));
+  listeners.push(onValue(ref(db,"purchases/"+me.uid),s=>renderMyGames(s.val()||{})));
+}
+function go(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.screen===id));if(id==="history")loadMoneyHistory();scrollTo(0,0)}window.go=go;
+function safeGameUrl(u){
+  u=String(u||"").trim();
+  if(!u)return "";
+  if(/^(javascript|data|vbscript):/i.test(u))return "";
+  if(/^https?:\/\//i.test(u))return u;
+  // একই hosting/site-এ থাকা game file, যেমন Carrom.html, ব্যবহার করা যাবে।
+  if(/^[A-Za-z0-9._\/-]+(?:\?[A-Za-z0-9._=&%-]*)?(?:#[A-Za-z0-9._-]*)?$/i.test(u))return u;
+  return "";
+}
+function gameCard(g){
+  let url=safeGameUrl(g.gameUrl||g.link||g.url);
+  if(url){
+    try{const u=new URL(url,location.href);u.searchParams.set("gameId",g.id||"");url=u.href;}catch(e){}
+  }
+  let play=url?`<a class="primary gamePlayBtn" href="${esc(url)}" >🎮 Play</a>`:"";
+  return `<div class="game">
+    <img src="${esc(g.imageUrl||g.image||"")}" alt="${esc(g.name||"Game")}" onerror="this.style.objectFit='contain';this.style.opacity='0.25'">
+    <div class="info">
+      <h4>${esc(g.name||"Game")}</h4>
+      <p>${esc(g.description||"")}</p>
+      <p>মূল্য: <b>${money(g.price)}</b></p>
+      <div class="gameActions">
+        ${play}
+        <button class="gameBuyBtn" type="button" onclick="buyPackage('${esc(g.id)}')">🛒 Buy</button>
+      </div>
+    </div>
+  </div>`
+}
+function renderGames(d){let a=Object.entries(d).map(([id,v])=>({id,...v})).filter(x=>x.active!==false);let h=a.length?a.map(gameCard).join(""):'<div class="empty">এখন কোনো গেম প্যাকেজ নেই।</div>';$("gamesHome").innerHTML=h;$("gamesList").innerHTML=h}
+function removeForbiddenPackageLinkButtons(){
+  // পুরোনো/cached markup থাকলে শুধু আগের legacy link button-এর layout reset করা হবে;
+  // বর্তমান package popup-এ Game Link এবং Purchase Request দুটো সমান থাকবে।
+}
+
+
+window.buyPackage=async id=>{
+  let s=await get(ref(db,"games/"+id));if(!s.exists())return toast("গেম পাওয়া যায়নি");
+  let g=s.val();
+  $("modalBody").innerHTML=`<h3>🎮 ${esc(g.name)}</h3>
+    <div class="notice">${esc(g.description||"")}<br>প্যাকেজ মূল্য: <b>${money(g.price)}</b><br><span class="muted">Buy করলে Admin-এর কাছে আলাদা Request যাবে। Admin Approve বা Reject করলে History → Game-এ ফলাফল দেখা যাবে। Room ID আলাদাভাবে Room Manager থেকে দেওয়া হবে। আগের প্যাকেজ বা Room ID থাকলেও আপনি আবার Buy করতে পারবেন।</span></div>
+    <div class="modalActions"><button class="buyAction" type="button" onclick="requestPurchase('${esc(id)}')">🛒 প্যাকেজ কেনার অনুরোধ</button></div>`;
+  $("modal").classList.remove("hidden");
+};
+
+function renderMyGames(d){
+  let a=Object.entries(d).map(([id,v])=>({id,...v})).filter(x=>x.status==="active"||x.status==="approved").sort((x,y)=>(Number(y.createdAt||y.approvedAt||y.updatedAt||0)-Number(x.createdAt||x.approvedAt||x.updatedAt||0))).slice(0,10);
+  let h=a.length?`<div class="muted" style="margin-bottom:8px">সর্বশেষ ১০টি Active/Approved প্যাকেজ দেখানো হচ্ছে। পুরোনো হিসাব Firebase/Admin থেকে মুছে ফেলা হবে না।</div>`+a.map(x=>{
+    let roomId=String(x.roomId||x.roomCode||"").trim();
+    let url=safeGameUrl(x.gameUrl||x.link||"");
+    const bet=Number(x.betAmount||x.price||0);
+    const prize=Math.round(bet*2*100)/100;
+    if(url){
+      try{
+        const u=new URL(url,location.href);
+        if(x.gameId)u.searchParams.set("gameId",x.gameId);
+        if(roomId)u.searchParams.set("room",roomId);
+        if(x.id)u.searchParams.set("purchaseId",x.id);
+        if(x.packageCode)u.searchParams.set("packageCode",x.packageCode);
+        if(me?.uid)u.searchParams.set("uid",me.uid);
+        if(meData?.name)u.searchParams.set("name",meData.name);
+        if(meData?.mobile)u.searchParams.set("mobile",meData.mobile);
+        url=u.href;
+      }catch(e){}
+    }
+    let play=url?`<a class="gamePlayBtn" href="${esc(url)}">🎮 Play</a>`:"";
+    return `<div class="mygame">
+      <h4>🎮 ${esc(x.gameName||"Game")}</h4>
+      <div class="muted">প্যাকেজ: ${money(x.price||0)} • Match Entry: ${money(bet)} • দুইজনের মোট: ${money(prize)}</div>
+      <div class="code">🎟️ Package Code: ${esc(x.packageCode||"Admin এখনো Code দেননি")}</div>
+      <div class="code">🆔 Match / Room Code: ${esc(roomId||"Admin এখনো Room দেননি")}</div>
+      <div class="notice" style="margin-top:8px">🎮 এই রুম কোডের মাধ্যমে গেমে জয়েন করুন। দ্বিতীয় প্লেয়ারের জন্য গেমের ভিতরে অপেক্ষা করুন। কিছু সময়ের মধ্যেই আপনাদের ম্যাচ শুরু হয়ে যাবে।</div>
+      <div class="minirow">
+        <button onclick="navigator.clipboard?.writeText(${JSON.stringify(x.packageCode||"")});toast('Package Code কপি হয়েছে')">📋 Copy Code</button>
+        <button onclick="navigator.clipboard?.writeText(${JSON.stringify(roomId)});toast('Match Code কপি হয়েছে')">🆔 Copy Match</button>
+        ${play}
+      </div>
+    </div>`;
+  }).join(""):'<div class="empty">আপনার কোনো Active গেম প্যাকেজ নেই।</div>';
+  if($("myGamesHome"))$("myGamesHome").innerHTML=h;
+  if($("myGamesList"))$("myGamesList").innerHTML=h;
+}
+window.requestPurchase=async id=>{
+  try{
+    const s=await get(ref(db,"games/"+id));
+    if(!s.exists()) return toast("গেম পাওয়া যায়নি");
+    const g=s.val();
+    const price=Number(g.price||0), bet=Number(g.betAmount||0);
+    if(price<=0 || bet<=0) return toast("এই Game Package-এর Price/Entry Amount Admin সেট করেনি");
+    if(Math.abs(price-bet)>0.0001) return toast("নিরাপত্তার জন্য Package Price এবং Match Entry সমান হতে হবে");
+    const bal=Number(meData.balance||0);
+    // প্রতিটি Buy আলাদা request হবে। আগের approved/active/pending request থাকলেও Buy বন্ধ হবে না।
+    if(bal<price)return toast("ব্যালেন্স কম। আগে টাকা জমা দিন।");
+    const requestId=push(ref(db,"purchaseRequests")).key;
+    const now=Date.now();
+    const requestData={id:requestId,uid:me.uid,userName:meData.name||"",userMobile:meData.mobile||"",gameId:id,gameName:g.name||"",gameUrl:g.gameUrl||g.link||"",price:price,betAmount:bet,status:"pending",createdAt:now};
+    await set(ref(db,"purchaseRequests/"+requestId),requestData);
+    toast("✅ নতুন Game Purchase Request Admin-এর কাছে পাঠানো হয়েছে"); closeModal();
+  }catch(err){console.error(err);toast("❌ Request পাঠানো যায়নি: "+(err?.message||"Unknown error"));}
+};
+
+async function sha256Hex(value){
+  const data=new TextEncoder().encode(String(value||"").trim().toUpperCase().replace(/\s+/g,""));
+  const buf=await crypto.subtle.digest("SHA-256",data);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+window.openIdentityVerification=async()=>{
+  const snap=await get(ref(db,"winningClaims")).catch(()=>null);
+  const claims=snap?.exists()?snap.val():{};
+  const existing=Object.values(claims||{}).find(c=>c&&c.uid===me.uid&&["pending","approved"].includes(String(c.status||"").toLowerCase()));
+  if(existing)return toast(existing.status==="approved"?"এই জয়ের দাবি ইতোমধ্যে অনুমোদিত হয়েছে":"আপনার একটি জয়ের দাবি যাচাইয়ের অপেক্ষায় আছে");
+  $("modalBody").innerHTML=`<h3>🏆 ম্যাচ উইনার যাচাই</h3><div class="notice">আপনার গেমের <b>Package Code</b> দিন—Room/Match Code নয়। এরপর জয়ের স্ক্রিনশট নির্বাচন করে জমা দিন। ছবিটি অ্যাপ থেকেই Firebase-এ আপলোড হবে; আলাদা লিংক কপি করতে হবে না।</div><form id="identityForm" class="form"><div class="field"><label>Package Code (Room Code নয়)</label><input id="idNumber" autocomplete="off" autocapitalize="characters" required placeholder="যেমন PK3MDY0546"></div><div class="field"><label>ম্যাচ জয়ের স্ক্রিনশট</label><input id="winnerShotFile" type="file" accept="image/*" required></div><p class="muted">শুধু ছবি দিন (PNG/JPG/WebP), সর্বোচ্চ 5 MB।</p><button class="primary" type="submit">📩 প্যাকেজ কোড ও স্ক্রিনশট জমা দিন</button></form>`
+  $("modal").classList.remove("hidden");
+  $("identityForm").onsubmit=async e=>{
+    e.preventDefault();
+    const submitForm=e.currentTarget;
+    const submitButton=submitForm.querySelector('button[type="submit"],button:not([type])');
+    const originalButtonText=submitButton?.textContent||"📩 প্যাকেজ কোড ও স্ক্রিনশট জমা দিন";
+    const code=$("idNumber").value.trim().toUpperCase().replace(/\s+/g,"");
+    const screenshotFile=$("winnerShotFile").files?.[0];
+    if(!code)return toast("আপনার প্যাকেজ কোড লিখুন");
+    if(!screenshotFile)return toast("ম্যাচ জয়ের স্ক্রিনশট নির্বাচন করুন");
+    if(!String(screenshotFile.type||"").startsWith("image/"))return toast("শুধু ছবি ফাইল আপলোড করা যাবে");
+    if(screenshotFile.size>5*1024*1024)return toast("ছবির সাইজ 5 MB-এর কম হতে হবে");
+    if(submitButton){submitButton.disabled=true;submitButton.textContent="⏳ জমা হচ্ছে…";submitButton.style.opacity=".75";}
+    let submitStage="প্যাকেজ কোড যাচাই";
+    const showStage=(label)=>{if(submitButton)submitButton.textContent="⏳ "+label+"…";};
+    try{
+      showStage("প্যাকেজ কোড যাচাই");
+      const tokenSnap=await get(ref(db,"gameTokens/"+code));
+      if(!tokenSnap.exists())return toast("সঠিক Package Code দিন (যেমন PK3MDY0546)। Room/Match Code এখানে দেবেন না।");
+      const token=tokenSnap.val()||{};
+      if(token.uid!==me.uid)return toast("এই প্যাকেজ কোড আপনার অ্যাকাউন্টের নয়");
+      const claimRef=push(ref(db,"winningClaims"));
+      const claimId=claimRef.key;
+      if(!CLOUDINARY_CLOUD_NAME||CLOUDINARY_CLOUD_NAME==="YOUR_CLOUDINARY_CLOUD_NAME"||!CLOUDINARY_UPLOAD_PRESET||CLOUDINARY_UPLOAD_PRESET==="YOUR_UNSIGNED_UPLOAD_PRESET"){
+        return toast("❌ ছবি আপলোড চালুর আগে Cloudinary Cloud Name ও Upload Preset সেট করতে হবে।");
+      }
+      const uploadForm=new FormData();
+      uploadForm.append("file",screenshotFile);
+      uploadForm.append("upload_preset",CLOUDINARY_UPLOAD_PRESET);
+      uploadForm.append("folder","gamenest-winner-claims");
+      submitStage="Cloudinary-তে স্ক্রিনশট আপলোড";showStage(submitStage);
+      const cloudResp=await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(CLOUDINARY_CLOUD_NAME)}/image/upload`,{method:"POST",body:uploadForm});
+      const cloudData=await cloudResp.json().catch(()=>({}));
+      if(!cloudResp.ok||!cloudData.secure_url)throw new Error(cloudData.error?.message||"Cloudinary upload ব্যর্থ হয়েছে");
+      const screenshotUrl=cloudData.secure_url;
+      const imagePath=cloudData.public_id||"";
+      const matchId=String(token.matchId||token.roomId||token.roomCode||"");
+      const claimData={claimId,uid:me.uid,userId:me.uid,winnerUid:me.uid,name:meData.name||"",userName:meData.name||"",mobile:meData.mobile||"",packageCode:code,purchaseId:token.purchaseId||"",gameId:token.gameId||"",gameName:token.gameName||"",matchId,matchCode:matchId,roomId:matchId,opponentUid:token.opponentUid||"",playerUids:token.playerUids||[],betAmount:Number(token.entryAmount||token.betAmount||token.amount||0),winningAmount:Number(token.winningAmount||Number(token.entryAmount||token.betAmount||token.amount||0)*2),status:"pending",verificationScore:null,createdAt:Date.now(),credited:false,screenshot:screenshotUrl,screenshotUrl,screenshotPath:imagePath,storageProvider:"cloudinary"};
+      submitStage="Firebase Realtime Database-এ Claim জমা";showStage(submitStage);
+      await set(claimRef,claimData);
+      showStage("জমা সম্পন্ন");
+      closeModal();toast("✅ জয়ের দাবি জমা হয়েছে। Admin Panel-এ রিয়েল-টাইমে দেখা যাবে।");renderIdentityStatus();
+    }catch(err){console.error("Winner claim failed at",submitStage,err);const msg=String(err?.message||err);if(/permission_denied|permission denied|unauthorized/i.test(msg)){if(submitStage.includes("Cloudinary"))toast("❌ Cloudinary upload অনুমতি নেই। Upload Preset-এর unsigned সেটিংস যাচাই করুন।");else if(submitStage.includes("Realtime Database"))toast("❌ Claim জমা দেওয়ার অনুমতি নেই। Realtime Database Rules যাচাই করুন।");else toast("❌ Package Code যাচাইয়ে অনুমতি নেই। Database Rules-এ gameTokens পড়ার অনুমতি পরীক্ষা করুন।");}else if(/object not found|does not exist/i.test(msg))toast("❌ স্ক্রিনশট আপলোডের ফাইল পাওয়া যায়নি। আবার ছবি নির্বাচন করুন।");else toast("❌ "+submitStage+" ব্যর্থ: "+msg);
+    }finally{if(submitButton){submitButton.disabled=false;submitButton.textContent=originalButtonText;submitButton.style.opacity="";}}
+  };
+};
+async function renderIdentityStatus(){
+  const e=$("identityStatus"); if(!e||!me)return;
+  const s=await get(ref(db,"winningClaims")).catch(()=>null);
+  const all=s?.exists()?s.val():{};
+  const v=Object.values(all||{}).filter(c=>c&&c.uid===me.uid).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0];
+  e.textContent=v?({pending:"⏳ জয়ের দাবি অ্যাডমিন যাচাই করছেন",approved:"✅ জয়ের দাবি অনুমোদিত",rejected:"❌ জয়ের দাবি বাতিল হয়েছে"}[String(v.status||"").toLowerCase()]||"জয়ের দাবির অবস্থা: "+v.status):"এখনো কোনো জয়ের দাবি জমা দেওয়া হয়নি।";
+}
+window.openMoney=async type=>{
+  let dep=type==="deposit",fee=Number(settings.withdrawFeePercent||0);
+
+  if(dep){
+    // শুধু নিজের pending lock পড়া হবে; পুরো depositRequests collection নয়।
+    let pendingSnap;
+    try{ pendingSnap=await get(ref(db,"users/"+me.uid+"/pendingDeposit")); }catch(err){ pendingSnap=null; }
+    let pending=pendingSnap?.exists()?pendingSnap.val():null;
+    if(pending){
+      // Lock-এর requestId থাকলে মূল depositRequests record থেকে সর্বশেষ/সম্পূর্ণ তথ্য নেওয়া হবে।
+      // এতে পুরোনো বা অসম্পূর্ণ pendingDeposit data থাকলেও Amount/Transaction ID ঠিকভাবে দেখাবে।
+      let details=pending;
+      try{
+        if(pending.requestId){
+          const reqSnap=await get(ref(db,"depositRequests/"+pending.requestId));
+          if(reqSnap.exists()) details={...pending,...(reqSnap.val()||{})};
+        }else if(!pending.amount || !pending.transactionId){
+          // পুরোনো অসম্পূর্ণ lock হলে একবার মূল collection থেকে নিজের Pending request খোঁজা হবে।
+          const allSnap=await get(ref(db,"depositRequests"));
+          const found=Object.values(allSnap.val()||{}).find(x=>x?.uid===me.uid && x?.status==="pending");
+          if(found) details={...pending,...found};
+        }
+      }catch(err){}
+
+      const shownAmount=Number(details.amount||0);
+      const shownMethod=details.method||"";
+      const shownTrx=details.transactionId||"";
+      const shownSender=details.senderMobile||"";
+      $("modalBody").innerHTML=`<h3>💳 টাকা জমা</h3>
+      <div class="notice warn">আপনার একটি ডিপোজিট রিপোর্ট ইতোমধ্যে Admin-এর কাছে পাঠানো হয়েছে।<br><br>
+      পরিমাণ: <b>${money(shownAmount)}</b><br>
+      মাধ্যম: <b>${esc(shownMethod||"তথ্য পাওয়া যায়নি")}</b><br>
+      যে নম্বর থেকে পাঠিয়েছেন: <b>${esc(shownSender||"তথ্য পাওয়া যায়নি")}</b><br>
+      Transaction ID: <b>${esc(shownTrx||"তথ্য পাওয়া যায়নি")}</b><br><br>
+      <b>Admin Approve অথবা Reject না করা পর্যন্ত নতুন ডিপোজিট রিকোয়েস্ট দিতে পারবেন না।</b></div>`;
+      $("modal").classList.remove("hidden");
+      return;
+    }
+
+    const dm=settings.depositMethods||{};
+    const getMethod=(key)=>{
+      const v=dm[key]||{};
+      if(typeof v==="string") return {number:v,instruction:"সেন্ট মানি করে Transaction ID জমা করুন।"};
+      return {number:v.number||"",instruction:v.instruction||"সেন্ট মানি করে Transaction ID জমা করুন।"};
+    };
+    const b=getMethod("bKash"),n=getMethod("Nagad"),r=getMethod("Rocket");
+
+    $("modalBody").innerHTML=`<h3>💳 টাকা জমা</h3>
+      <div class="notice" id="depositInfo">সর্বনিম্ন ডিপোজিট ৳৫০। Payment মাধ্যম নির্বাচন করলে Admin-এর সেট করা নম্বর ও নিয়ম এখানে দেখানো হবে।</div>
+      <form id="moneyForm" class="form">
+        <div class="field"><label>পরিমাণ (সর্বনিম্ন ৳৫০)</label><input id="amount" type="number" min="50" required></div>
+        <div class="field"><label>পেমেন্ট মাধ্যম</label>
+          <select id="method" required>
+            <option value="">একটি মাধ্যম নির্বাচন করুন</option>
+            <option value="bKash">bKash</option>
+            <option value="Nagad">Nagad</option>
+            <option value="Rocket">Rocket</option>
+          </select>
+        </div>
+        <div class="field"><label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label><input id="sender" inputmode="numeric" placeholder="01XXXXXXXXX" required></div>
+        <div class="field"><label>Transaction ID</label><input id="trx" required></div>
+        <button class="primary">জমার রিপোর্ট পাঠান</button>
+      </form>`;
+
+    $("method").onchange=()=>{
+      let key=$("method").value, x=key==="bKash"?b:key==="Nagad"?n:r;
+      $("depositInfo").innerHTML=`<b>${esc(key||"Payment")}</b><br>
+        টাকা পাঠাবেন: <b>${esc(x.number||"Admin এখনো নম্বর সেট করেননি")}</b><br>
+        <span>${esc(x.instruction||"")}</span>`;
+    };
+
+    $("modal").classList.remove("hidden");
+    let depositSubmitting=false;
+    $("moneyForm").onsubmit=async e=>{
+      e.preventDefault();
+      if(depositSubmitting)return;
+      depositSubmitting=true;
+      let submitBtn=e.currentTarget.querySelector('button[type="submit"]');
+      if(submitBtn){submitBtn.disabled=true;submitBtn.textContent="পাঠানো হচ্ছে..."}
+      try{
+        let a=Number($("amount").value||0), method=$("method").value;
+        if(a<50)return toast("সর্বনিম্ন ডিপোজিট ৳৫০");
+        if(!method)return toast("পেমেন্ট মাধ্যম নির্বাচন করুন");
+
+        // Submit-এর ঠিক আগেও নিজের pending lock যাচাই করা হচ্ছে।
+        let freshPending=await get(ref(db,"users/"+me.uid+"/pendingDeposit"));
+        if(freshPending.exists() && freshPending.val()?.status==="pending")
+          return toast("আপনার একটি ডিপোজিট ইতোমধ্যে Pending আছে। Admin Approve/Reject করা পর্যন্ত অপেক্ষা করুন।");
+
+        let id=push(ref(db,"depositRequests")).key;
+        let now=Date.now();
+        let data={
+          id,uid:me.uid,name:meData.name,mobile:meData.mobile,
+          amount:a,method,accountNumber:settings.depositMethods?.[method]?.number||"",
+          senderMobile:$("sender").value,transactionId:$("trx").value,
+          status:"pending",createdAt:now
+        };
+
+        // Request এবং নিজের pending lock একই atomic update-এ লেখা হচ্ছে।
+        // ফলে request তৈরি হয়ে lock না বসার মতো অসম্পূর্ণ অবস্থা হবে না।
+        await update(ref(db),{
+          ["depositRequests/"+id]:data,
+          ["users/"+me.uid+"/pendingDeposit"]:{
+            requestId:id,amount:a,method,accountNumber:data.accountNumber,
+            senderMobile:data.senderMobile,transactionId:data.transactionId,
+            status:"pending",createdAt:now
+          }
+        });
+
+        closeModal();
+        $("modalBody").innerHTML=`<h3>✅ ডিপোজিট রিপোর্ট পাঠানো হয়েছে</h3>
+          <div class="notice">সফলভাবে ডিপোজিট Admin-এর কাছে পাঠানো হয়েছে।<br><br>
+          <b>পরিমাণ:</b> ${money(a)}<br>
+          <b>মাধ্যম:</b> ${esc(method)}<br>
+          <b>Transaction ID:</b> ${esc($("trx").value)}<br><br>
+          <b>Admin Approve বা Reject না করা পর্যন্ত অপেক্ষা করুন।</b></div>
+          <button class="primary" onclick="closeModal()">ঠিক আছে</button>`;
+        $("modal").classList.remove("hidden");
+      }catch(err){
+        console.error("Deposit request failed",err);
+        toast("ডিপোজিট রিকোয়েস্ট পাঠানো যায়নি: "+friendly(err));
+      }finally{
+        depositSubmitting=false;
+        if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="জমার রিপোর্ট পাঠান"}
+      }
+    };
+  }else{
+    let pendingW=meData.pendingWithdraw;
+    if(pendingW && pendingW.status==="pending"){
+      $("modalBody").innerHTML=`<h3>💸 টাকা উত্তোলন</h3>
+        <div class="notice warn">আপনার একটি উত্তোলন রিকোয়েস্ট ইতোমধ্যে Pending আছে।<br><br>
+        উত্তোলন: <b>${money(pendingW.amount)}</b><br>
+        চার্জ: <b>${Number(pendingW.feePercent||0)}% = ${money(pendingW.feeAmount||0)}</b><br>
+        আপনি পাবেন: <b>${money(pendingW.receiveAmount||0)}</b><br><br>
+        <b>Admin Approve বা Reject না করা পর্যন্ত দ্বিতীয় উত্তোলন রিকোয়েস্ট পাঠাতে পারবেন না।</b></div>`;
+      $("modal").classList.remove("hidden");
+      return;
+    }
+
+    $("modalBody").innerHTML=`<h3>💸 টাকা উত্তোলন</h3>
+      <div class="notice">বর্তমান ব্যালেন্স: <b>${money(meData.balance)}</b><br>
+      সর্বনিম্ন উত্তোলন: <b>৳১০০</b><br>
+      Admin নির্ধারিত উত্তোলন চার্জ: <b>${fee}%</b></div>
+      <form id="moneyForm" class="form">
+        <div class="field"><label>উত্তোলনের পরিমাণ (সর্বনিম্ন ৳১০০)</label><input id="amount" type="number" min="100" required></div>
+        <div class="field"><label>মাধ্যম</label>
+          <select id="method" required><option value="">একটি মাধ্যম নির্বাচন করুন</option><option>bKash</option><option>Nagad</option><option>Rocket</option></select>
+        </div>
+        <div class="field"><label>যে নম্বরে টাকা নেবেন</label><input id="sender" inputmode="numeric" placeholder="01XXXXXXXXX" required></div>
+        <div id="withdrawCalc" class="notice">পরিমাণ দিলে চার্জ বাদ দিয়ে আপনি কত টাকা পাবেন তার হিসাব এখানে দেখাবে।</div>
+        <button class="primary">উত্তোলনের অনুরোধ পাঠান</button>
+      </form>`;
+    $("modal").classList.remove("hidden");
+
+    $("amount").oninput=()=>{
+      let a=Number($("amount").value||0),f=a*fee/100,r=a-f;
+      $("withdrawCalc").innerHTML=`<b>উত্তোলন: ${money(a)}</b><br>
+        চার্জ: <b>${fee}% = ${money(f)}</b><br>
+        আপনার হাতে পাবেন: <b>${money(r)}</b>`;
+    };
+
+    $("moneyForm").onsubmit=async e=>{
+      e.preventDefault();
+      let a=Number($("amount").value||0), f=a*fee/100, r=a-f;
+      if(a<100)return toast("সর্বনিম্ন উত্তোলন ৳১০০");
+      if(a>Number(meData.balance||0))return toast("আপনার ব্যালেন্স যথেষ্ট নয়");
+
+      // Re-check pending status immediately before creating a request.
+      let fresh=await get(ref(db,"users/"+me.uid+"/pendingWithdraw"));
+      if(fresh.exists() && fresh.val() && fresh.val().status==="pending"){
+        closeModal(); return toast("আপনার একটি উত্তোলন রিকোয়েস্ট Pending আছে");
+      }
+
+      let id=push(ref(db,"withdrawRequests")).key,now=Date.now();
+      let data={
+        id,uid:me.uid,name:meData.name,mobile:meData.mobile,amount:a,
+        method:$("method").value,accountNumber:$("sender").value,
+        feePercent:fee,feeAmount:f,receiveAmount:r,
+        status:"pending",createdAt:now
+      };
+
+      // Request এবং pending lock একই atomic update-এ লেখা হয়; একটি সফল আর অন্যটি ব্যর্থ হবে না।
+      try{
+        await update(ref(db),{
+          ["withdrawRequests/"+id]:data,
+          ["users/"+me.uid+"/pendingWithdraw"]:{
+            requestId:id,amount:a,feePercent:fee,feeAmount:f,receiveAmount:r,
+            method:data.method,accountNumber:data.accountNumber,
+            status:"pending",createdAt:now
+          }
+        });
+      }catch(err){
+        console.error("Withdraw request failed",err);
+        return toast("উত্তোলনের রিকোয়েস্ট পাঠানো যায়নি: "+friendly(err));
+      }
+
+      closeModal();
+      $("modalBody").innerHTML=`<h3>✅ উত্তোলনের রিকোয়েস্ট সফল হয়েছে</h3>
+        <div class="notice">
+          আপনার উত্তোলনের রিকোয়েস্ট সফলভাবে Admin-এর কাছে পাঠানো হয়েছে।<br><br>
+          <b>উত্তোলন:</b> ${money(a)}<br>
+          <b>চার্জ:</b> ${fee}% = ${money(f)}<br>
+          <b>আপনি পাবেন:</b> ${money(r)}<br><br>
+          <b>Admin Approve বা Reject না করা পর্যন্ত নতুন উত্তোলন রিকোয়েস্ট পাঠাতে পারবেন না।</b>
+        </div>
+        <button class="primary" onclick="closeModal()">ঠিক আছে</button>`;
+      $("modal").classList.remove("hidden");
+    };
+  }
+};
+window.openReferral=()=>{
+  let link=appUrlWithRef(meData.mobile);
+  $("modalBody").innerHTML=`<h3>🤝 রেফার করুন</h3>
+    <div class="notice">আপনার রেফার কোড: <b>${esc(meData.mobile)}</b></div>
+    <div class="field"><label>আপনার রেফার লিংক</label><input value="${esc(link)}" readonly></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="secondary" onclick="copyReferralLink()">📋 কপি</button>
+      <button class="primary" onclick="shareReferral()">📤 শেয়ার</button>
+    </div>`;
+  $("modal").classList.remove("hidden");
+};
+window.closeModal=()=>$("modal").classList.add("hidden");
+function contactWhatsApp(){let n=String(settings.whatsapp||"").replace(/\D/g,"");if(!n)return toast("Admin এখনো WhatsApp নম্বর সেট করেননি");location.href="https://wa.me/"+n+"?text="+encodeURIComponent("GameNest BD Support - আমি সাহায্য চাই।")}window.contactWhatsApp=contactWhatsApp;
+let noticeCache={};
+
+function maybePopupNotice(d){
+  let a=Object.entries(d).map(([id,v])=>({id,...v})).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+  if(!a.length)return;
+  let key="gamenest_notice_seen_"+a[0].id;
+  try{if(localStorage.getItem(key))return;localStorage.setItem(key,"1")}catch(e){}
+  setTimeout(()=>{if(!$("modalBody"))return;$("modalBody").innerHTML=`<h3>📢 ${esc(a[0].title||"নোটিশ")}</h3><div class="notice">${esc(a[0].text||"")}</div><button class="primary" onclick="closeModal()">ঠিক আছে</button>`;$("modal").classList.remove("hidden")},500);
+}
+function renderNotices(d){maybePopupNotice(d);
+  noticeCache=d||{};
+  let a=Object.entries(noticeCache).map(([id,x])=>({id,...x})).filter(x=>x.active!==false).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!a.length){$("notices").innerHTML='<div class="empty">কোনো নতুন নোটিশ নেই।</div>';return}
+  let x=a[0];
+  $("notices").innerHTML=`<button class="notice" style="width:100%;text-align:left;cursor:pointer" onclick="openNotice('${esc(x.id)}')"><b>📢 ${esc(x.title||"নোটিশ")}</b><br>${esc(x.text||"").slice(0,110)}${String(x.text||"").length>110?"…":""}<br><span class="muted">বিস্তারিত দেখতে চাপুন</span></button>`;
+}
+window.openNotice=id=>{
+  let x=noticeCache[id];if(!x)return;
+  $("modalBody").innerHTML=`<h3>📢 ${esc(x.title||"নোটিশ")}</h3><div class="notice">${esc(x.text||"")}</div>`;
+  $("modal").classList.remove("hidden");
+};
+window.openNotices=()=>{
+  let a=Object.entries(noticeCache).map(([id,x])=>({id,...x})).filter(x=>x.active!==false).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  $("modalBody").innerHTML=`<h3>📢 সব নোটিশ</h3>`+(a.length?a.map(x=>`<div class="notice"><b>${esc(x.title||"নোটিশ")}</b><br>${esc(x.text||"")}</div>`).join(""):'<div class="empty">কোনো নতুন নোটিশ নেই।</div>');
+  $("modal").classList.remove("hidden");
+};
+async function loadMoneyHistory(){try{if(!me?.uid)throw new Error("লগইন তথ্য পাওয়া যায়নি");const [d,w]=await Promise.all([get(query(ref(db,"depositRequests"),orderByChild("uid"),equalTo(me.uid))),get(query(ref(db,"withdrawRequests"),orderByChild("uid"),equalTo(me.uid)))]);let a=[...Object.entries(d.val()||{}).map(([id,x])=>({id,...x,_kind:"deposit"})),...Object.entries(w.val()||{}).map(([id,x])=>({id,...x,_kind:"withdraw"}))].sort((a,b)=>(Number(b.createdAt||0)-Number(a.createdAt||0)));const statusLabel={pending:"অপেক্ষমাণ",approved:"অনুমোদিত",completed:"সম্পন্ন",rejected:"বাতিল",processing:"প্রক্রিয়াধীন",paid:"পরিশোধিত",failed:"ব্যর্থ"};$("historyList").innerHTML=a.length?a.slice(0,10).map(x=>{const dep=x._kind==="deposit";const label=dep?"💰 ডিপোজিট":"💸 উইথড্র";const status=String(x.status||"pending").toLowerCase();return `<div class="row"><div class="left"><b>${label} • ${money(x.amount)}</b><small>মাধ্যম: ${esc(x.method||"—")} • ${new Date(Number(x.createdAt||0)).toLocaleString("bn-BD")}${x.transactionId||x.trxId?`<br>Transaction ID: ${esc(x.transactionId||x.trxId)}`:""}${!dep&&(x.receiveAmount!=null||x.netAmount!=null)?`<br>প্রাপ্য: ${money(x.receiveAmount??x.netAmount)}`:""}</small></div><span class="status ${esc(status)}">${esc(statusLabel[status]||x.status||"অপেক্ষমাণ")}</span></div>`}).join(""):'<div class="empty">এখনো কোনো ডিপোজিট বা উইথড্র রেকর্ড নেই।</div>';}catch(err){console.error("Transaction history read failed:",err);$("historyList").innerHTML='<div class="empty">লেনদেনের হিস্টোরি লোড হয়নি। Firebase Rules ও ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>';}}
+window.historyTab=async t=>{document.querySelectorAll("#history .tabs button").forEach((b,i)=>b.classList.toggle("active",t==="money"?i===0:i===1));if(t==="money")return loadMoneyHistory();try{if(!me?.uid)throw new Error("লগইন তথ্য পাওয়া যায়নি");let s=await get(ref(db,"gameHistory/"+me.uid)),a=Object.entries(s.val()||{}).map(([id,x])=>({id,...x})).sort((x,y)=>(Number(y.createdAt||0)-Number(x.createdAt||0)));const labels={pending:"অপেক্ষমাণ",approved:"অনুমোদিত",rejected:"বাতিল",active:"সক্রিয়",completed:"সম্পন্ন",processing:"প্রক্রিয়াধীন"};$("historyList").innerHTML=a.length?`<div class="muted" style="margin-bottom:8px">সর্বশেষ ১০টি গেম হিস্টোরি দেখানো হচ্ছে। পুরোনো রেকর্ড মুছে ফেলা হবে না।</div>`+a.slice(0,10).map(x=>{const dt=x.createdAt?new Date(Number(x.createdAt)).toLocaleString("bn-BD"):"সময় নেই";const status=String(x.status||"completed").toLowerCase();return `<div class="row"><div class="left"><b>🎮 ${esc(x.gameName||x.game||"Carrom Game")}</b><small>${x.recordType==="purchase"?`কেনার অনুরোধ • মূল্য: ${money(x.price||0)}`:`ফলাফল: ${esc(x.result||x.winnerName||"রেকর্ড করা হয়নি")}`} • ${dt}${x.matchCode||x.roomId?`<br>Match/Room: ${esc(x.matchCode||x.roomId)}`:""}${x.packageCode?`<br>Package Code: ${esc(x.packageCode)}`:""}${x.rejectNote?`<br>কারণ: ${esc(x.rejectNote)}`:""}${x.winningAmount!=null?`<br>পুরস্কার: ${money(x.winningAmount)}`:""}</small></div><span class="status ${esc(status)}">${esc(labels[status]||x.status||"সম্পন্ন")}</span></div>`}).join(""):'<div class="empty">এখনো কোনো গেম হিস্টরি নেই।</div>'}catch(err){console.error("Game history read failed:",err);$("historyList").innerHTML='<div class="empty">গেম হিস্টোরি লোড হয়নি। Firebase Rules ও ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>'}}
+function renderProfile(){$("profileData").innerHTML=`<div class="row"><div class="left"><b>নাম</b></div><span>${esc(meData.name||"")}</span></div><div class="row"><div class="left"><b>মোবাইল</b></div><span>${esc(meData.mobile||"")}</span></div><div class="row"><div class="left"><b>ব্যালেন্স</b></div><span>${money(meData.balance)}</span></div>`}
+window.logout=()=>signOut(auth);
+</script>
+</body>
+</html>

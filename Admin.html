@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>🎮 GameNest BD • Admin Panel</title>
+<style>
+:root{--bg:#07111f;--card:#0f1d30;--card2:#13263d;--line:#203650;--text:#eef6ff;--muted:#9db0c7;--accent:#18c58b;--blue:#4da3ff;--danger:#ff647c;--warn:#ffbd59}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#06101d,#0a1422 45%,#07111f);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Bengali",sans-serif}
+button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.hidden{display:none!important}.wrap{max-width:1100px;margin:auto;padding:14px}.top{position:sticky;top:0;z-index:20;background:rgba(6,16,29,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:12px 14px;display:flex;justify-content:space-between;align-items:center}.brand{font-weight:900;font-size:19px}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}.authbox{width:100%;max-width:430px}.logo{text-align:center;font-size:31px;font-weight:900}.tag{text-align:center;color:var(--muted);font-size:12px;margin:5px 0 20px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}.form{display:grid;gap:10px}.field label{display:block;color:#b9c9da;font-size:11px;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid var(--line);background:#091625;color:#fff;outline:none}.field textarea{min-height:80px;resize:vertical}.primary{width:100%;padding:12px;border-radius:11px;background:var(--accent);color:#04120d;font-weight:900}.secondary{padding:9px 11px;border-radius:10px;background:#18304a;color:#fff;font-weight:700}.danger{background:#461b28;color:#ff9bad}.warn{background:#4b3718;color:#ffd177}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}.stat span{display:block;color:var(--muted);font-size:11px}.stat b{font-size:24px}.tabs{display:flex;gap:7px;overflow:auto;margin:14px 0}.tabs button{white-space:nowrap;padding:9px 12px;border-radius:10px;background:#10243a;color:var(--muted)}.tabs button.active{background:#18304a;color:#fff}.list{display:grid;gap:10px}.row{background:#0b1829;border:1px solid #1b3048;border-radius:14px;padding:12px}.rowhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.muted{color:var(--muted);font-size:11px}.status{font-size:10px;padding:5px 8px;border-radius:8px;background:#203650}.approved{background:#123d32;color:#62efbd}.pending{background:#3d3018;color:#ffd177}.rejected{background:#431d28;color:#ff91a3}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.actions button{padding:8px 10px;border-radius:9px;background:#18304a;color:#fff;font-weight:700}.modal{position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:50;display:flex;align-items:flex-end}.sheet{width:min(650px,100%);margin:auto auto 0;background:#0b1829;border:1px solid var(--line);border-radius:20px 20px 0 0;padding:16px;max-height:92vh;overflow:auto}.close{float:right;background:#18304a;color:#fff;width:35px;height:35px;border-radius:10px}.notice{padding:11px 12px;border-radius:12px;background:#10243a;border:1px solid #24435f;color:#cfe2f5;font-size:12px;margin-bottom:10px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#13263d;border:1px solid #2a4968;color:#fff;padding:10px 14px;border-radius:12px;z-index:100;max-width:90%;font-size:12px}
+@media(max-width:700px){.grid4{grid-template-columns:repeat(2,1fr)}.wrap{padding:10px}.stat b{font-size:21px}}
+</style>
+</head>
+<body>
+<div id="auth" class="auth"><div class="authbox">
+  <div class="logo">🎮 GameNest BD</div><div class="tag">Admin Control Panel</div>
+  <div class="card">
+    <form id="loginForm" class="form">
+      <div class="field"><label>Admin Gmail</label><input id="gmail" type="email" autocomplete="username" placeholder="admin@gmail.com" required></div>
+      <div class="field"><label>Admin Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Gmail Password" required></div>
+      <div id="loginMsg" class="notice hidden"></div><button class="primary" type="submit">🔐 Admin Login</button>
+    </form>
+  </div>
+</div></div>
+
+<div id="app" class="hidden">
+  <div class="top"><div class="brand">🎮 GameNest BD <small>Admin Panel</small></div><button class="secondary" onclick="logout()">লগআউট</button></div>
+  <div class="wrap">
+    <div class="grid4">
+      <div class="stat"><span>Users</span><b id="sUsers">0</b></div>
+      <div class="stat"><span>Balance</span><b id="sBalance">৳0</b></div>
+      <div class="stat"><span>Pending Deposit</span><b id="sDep">0</b></div>
+      <div class="stat"><span>Pending Withdraw</span><b id="sWith">0</b></div>
+      <div class="stat"><span>🎮 Pending Game Purchase</span><b id="sPurchases">0</b></div>
+      <div class="stat"><span>🏆 Pending Winner</span><b id="sWinners">0</b></div>
+    </div>
+
+    <div class="tabs">
+      <button class="active" onclick="tab('dashboard',this)">Dashboard</button>
+      <button onclick="tab('deposits',this)">Deposit</button>
+      <button onclick="tab('withdraws',this)">Withdraw</button>
+      <button onclick="tab('purchases',this)">Game Purchase</button><button onclick="tab('winningClaims',this)">🏆 Winning Claims</button>
+      <button onclick="tab('rooms',this)">Room Manager</button>
+      <button onclick="tab('games',this)">Games</button>
+      <button onclick="tab('users',this)">Users</button><button onclick="tab('identity',this)">🪪 Identity</button>
+      <button onclick="tab('notices',this)">Notice</button>
+      <button onclick="tab('settings',this)">Settings</button>
+    </div>
+
+    <section id="dashboard" class="tabsec">
+      <div class="card"><h3>⚙️ Admin Control</h3><div class="notice">এই Admin Panel থেকে User App-এর Deposit, Withdraw, Games, Purchase, Notice, Payment Number, Withdraw Fee এবং Telegram settings নিয়ন্ত্রণ করা যাবে। Telegram Bot Token শুধুমাত্র Admin settings-এ থাকবে; User App-এ পাঠানো হবে না।</div></div>
+    </section>
+
+    <section id="deposits" class="tabsec hidden"><div class="card"><h3>📥 Deposit Requests</h3><div id="depositList" class="list"></div></div></section>
+    <section id="withdraws" class="tabsec hidden"><div class="card"><h3>📤 Withdraw Requests</h3><div id="withdrawList" class="list"></div></div></section>
+    <section id="purchases" class="tabsec hidden"><div class="card"><h3>🎮 Game Purchase Requests</h3><div id="purchaseList" class="list"></div></div></section>    <section id="winningClaims" class="tabsec hidden">
+      <div class="card"><h3>🏆 Winning Claims</h3><div class="notice">Winner-এর Screenshot যাচাই করে Approve করলে Winning Amount User Balance-এ যোগ হবে। Reject করলে ৳0 যোগ হবে। একই Claim দ্বিতীয়বার Approve করা যাবে না।</div><div class="form" style="margin:10px 0">
+        <div class="field"><label>🔎 Match Code / Room ID</label><input id="claimSearchMatch" placeholder="Match Code লিখুন" oninput="renderWinningClaims()"></div>
+        <div class="field"><label>Winner ID / Opponent ID</label><input id="claimSearchUid" placeholder="UID লিখুন" oninput="renderWinningClaims()"></div>
+        <div class="field"><label>Status</label><select id="claimSearchStatus" onchange="renderWinningClaims()"><option value="all">সব Claim</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="processing">Processing</option></select></div>
+        <div class="actions"><button type="button" class="secondary" onclick="document.getElementById('claimSearchMatch').value='';document.getElementById('claimSearchUid').value='';document.getElementById('claimSearchStatus').value='all';renderWinningClaims()">Search Clear</button></div>
+      </div><div id="winningClaimList" class="list"></div></div>
+    </section>
+
+    <section id="rooms" class="tabsec hidden">
+      <div class="card">
+        <h3>🎮 Room Manager</h3>
+        <div class="notice">Room প্রথমে Pending Approval থাকবে। মোবাইল নম্বর বা UID দিয়ে ঠিক দুইজন Player খুঁজে নির্বাচন করুন। Admin Approve করার আগে Entry Fee কাটবে না; Approve সফল হলে শুধু নির্বাচিত দুই User-এর My Games-এ Room/Match Code প্রকাশ হবে।</div>
+        <form id="roomForm" class="form">
+          <div class="field"><label>Game</label><select id="roomGame" required></select></div>
+          <div class="field"><label>Room Name</label><input id="roomName" placeholder="যেমন: Ok Room 01" required></div>
+          <div class="field"><label>Room ID</label><div style="display:flex;gap:7px"><input id="roomId" placeholder="Generate চাপুন" readonly style="flex:1"><button class="secondary" type="button" onclick="generateRoomId()">✨ Generate</button></div></div>
+          <div class="field"><label>Room Password (ঐচ্ছিক)</label><input id="roomPassword" placeholder="যদি password থাকে"></div>
+          <div class="field"><label>💰 Entry Amount (প্রতি User)</label><input id="roomBetAmount" type="number" min="0" step="0.01" value="0" required></div>
+          <div class="field"><label>🏆 Winning Amount</label><input id="roomPrizeAmount" type="number" min="0" step="0.01" value="0" required></div>
+          <div class="field"><label>🔎 Player 1 খুঁজুন (মোবাইল / UID / নাম)</label><input id="roomPlayer1Search" placeholder="মোবাইল নম্বর অথবা UID লিখুন" oninput="filterRoomPlayers(1)"><select id="roomPlayer1" required><option value="">Player 1 নির্বাচন করুন</option></select></div>
+          <div class="field"><label>🔎 Player 2 খুঁজুন (মোবাইল / UID / নাম)</label><input id="roomPlayer2Search" placeholder="মোবাইল নম্বর অথবা UID লিখুন" oninput="filterRoomPlayers(2)"><select id="roomPlayer2" required><option value="">Player 2 নির্বাচন করুন</option></select></div>
+          <div class="muted">দুই Player নির্বাচন করলে শুধু এই দুই UID-এর User ম্যাচে Join করতে পারবে। Entry/Prize Amount Admin-এর দেওয়া তথ্য হিসেবে সংরক্ষিত হবে।</div>
+          <div class="actions"><button class="primary" type="submit">💾 Save Room</button><button class="secondary" type="button" onclick="resetRoomForm()">Clear</button></div>
+        </form>
+      </div>
+      <div class="card"><h3>📋 Created Rooms</h3><div id="roomList" class="list"></div></div>
+    </section>
+
+    <section id="games" class="tabsec hidden">
+      <div class="card">
+        <h3>➕ Game Add / Edit</h3>
+        <form id="gameForm" class="form">
+          <input type="hidden" id="gameId">
+          <div class="field"><label>Game ID</label><input id="gameIdShow" readonly placeholder="Save Game করলে Game ID তৈরি হবে"><div class="muted" style="margin-top:4px">এই ID-টাই User App ও গেমের মধ্যে সংযোগের পরিচয়।</div></div>
+          <div class="field"><label>গেমের নাম</label><input id="gameName" required></div>
+          <div class="field"><label>গেমের ছবি URL</label><input id="gameImage" placeholder="https://..."></div>
+          <div class="field"><label>গেমের লিংক</label><input id="gameUrl" placeholder="Carrom.html অথবা https://..."><div class="muted" style="margin-top:4px">Carrom.html একই hosting folder-এ থাকলে শুধু <b>Carrom.html</b> লিখতে পারবেন।</div></div>
+          <div class="field"><label>প্যাকেজ মূল্য</label><input id="gamePrice" type="number" min="0" required></div>          <div class="field"><label>🎯 Match Entry Amount</label><input id="gameBet" type="number" min="0.01" step="0.01" required><div class="muted" style="margin-top:4px">নিরাপত্তার জন্য Package Price = Match Entry Amount হতে হবে। যেমন ৳20 Package হলে Entry-ও শুধু ৳20। User কোনো Amount লিখে পরিবর্তন করতে পারবে না। দুইজনের Entry মিললে মোট Pool = Entry × 2 এবং Game Commission = ৳0। Withdrawal Fee শুধু User App-এর Withdrawal সময় প্রযোজ্য হবে।</div></div>
+          <div class="field"><label>Description</label><textarea id="gameDesc"></textarea></div>
+          <div class="field"><label>Status</label><select id="gameActive"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+          <div class="actions"><button class="primary" type="submit">💾 Save Game</button><button class="secondary" type="button" onclick="resetGameForm()">Clear</button></div>
+        </form>
+      </div>
+      <div class="card"><h3>🎮 Games List</h3><div id="gameList" class="list"></div></div>
+    </section>
+
+    <section id="users" class="tabsec hidden"><div class="card"><h3>👥 Users</h3><div id="userList" class="list"></div></div></section>
+    <section id="identity" class="tabsec hidden"><div class="card"><h3>🪪 Identity Verification</h3><div class="notice">একটি ID Hash একবার ব্যবহার হলে দ্বিতীয় User একই ID ব্যবহার করতে পারবে না। Duplicate হলে Verification Block করুন।</div><div id="identityList" class="list"></div></div></section>
+
+    <section id="notices" class="tabsec hidden">
+      <div class="card">
+        <h3>📢 Notice</h3>
+        <form id="noticeForm" class="form"><input type="hidden" id="noticeId">
+          <div class="field"><label>শিরোনাম</label><input id="noticeTitle" required></div>
+          <div class="field"><label>নোটিশ</label><textarea id="noticeText" required></textarea></div>
+          <div class="actions"><button class="primary">💾 Save Notice</button><button type="button" class="secondary" onclick="resetNotice()">Clear</button></div>
+        </form>
+      </div>
+      <div class="card"><div id="noticeList" class="list"></div></div>
+    </section>
+
+    <section id="settings" class="tabsec hidden">
+      <div class="card">
+        <h3>💳 Payment + Withdraw Settings</h3>
+        <form id="settingsForm" class="form">
+          <div class="field"><label>WhatsApp Number</label><input id="whatsapp"></div>
+          <div class="field"><label>Withdraw Fee %</label><input id="fee" type="number" min="0" max="100" step="0.01"></div>
+          <div class="field"><label>bKash Number</label><input id="bkash"></div><div class="field"><label>bKash Instruction</label><input id="bkashIns" placeholder="Send Money / Cash Out..."></div>
+          <div class="field"><label>Nagad Number</label><input id="nagad"></div><div class="field"><label>Nagad Instruction</label><input id="nagadIns"></div>
+          <div class="field"><label>Rocket Number</label><input id="rocket"></div><div class="field"><label>Rocket Instruction</label><input id="rocketIns"></div>
+          <button class="primary">💾 Save Public Settings</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>🤖 Telegram Notification</h3>
+        <div class="notice">Bot Token এবং Chat ID এখানে রাখুন। এগুলো User App-এর settings/public-এ যাবে না।</div>
+        <form id="telegramForm" class="form">
+          <div class="field"><label>Telegram Bot Token</label><input id="tgToken" type="password" autocomplete="off"></div>
+          <div class="field"><label>Telegram Chat ID</label><input id="tgChat"></div>
+          <div class="actions"><button class="primary">💾 Save Telegram</button><button type="button" class="secondary" onclick="testTelegram()">📨 Test</button></div>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  var f=document.getElementById("loginForm");
+  if(f){
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+    },true);
+  }
+});
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig={
+apiKey:"AIzaSyD2DBF_GTIkQfa6G_3gZLfZ5n0MaUEBQ48",
+authDomain:"gamenest-bd.firebaseapp.com",
+databaseURL:"https://gamenest-bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"gamenest-bd",
+storageBucket:"gamenest-bd.firebasestorage.app",
+messagingSenderId:"1020093526765",
+appId:"1:1020093526765:web:525b5f303e0f08d7b692e4",
+measurementId:"G-Z66KWE43M6"};
+
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.database();
+// Winner screenshots are rendered from the direct image URL saved in Firebase Realtime Database.
+// Spark-safe architecture: keep game rooms in a separate RTDB path
+// inside the SAME Firebase project so Firebase Auth UIDs and Rules match.
+const carromDb=db;
+const $=id=>document.getElementById(id);
+
+let users={},deposits={},withdraws={},purchases={},winningClaims={},games={},notices={},rooms={},identityVerifications={};
+let publicSettings={},privateSettings={};
+const ADMIN_UID="sGUKxYJ4yUTAoM7MhUZAirxUoM73";
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+function money(v){return "৳"+Number(v||0).toFixed(2);}
+function toast(msg){
+  const e=$("toast"); e.textContent=msg; e.classList.remove("hidden");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>e.classList.add("hidden"),2600);
+}
+function showMsg(msg,type){
+  const e=$("loginMsg"); if(!e)return;
+  e.textContent=msg;
+  e.className="notice";
+  if(type==="error") e.style.borderColor="#ff647c";
+  e.classList.remove("hidden");
+}
+function closeModal(){$("modal").classList.add("hidden");$("modalBody").innerHTML="";}
+window.closeModal=closeModal;
+function tab(id,btn){
+  document.querySelectorAll(".tabsec").forEach(x=>x.classList.add("hidden"));
+  const sec=$(id); if(sec)sec.classList.remove("hidden");
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));
+  if(btn)btn.classList.add("active");
+}
+window.tab=tab;
+
+$("loginForm").onsubmit=async e=>{
+ e.preventDefault();
+ try{
+   $("loginMsg").classList.add("hidden");
+   const gmail=$("gmail").value.trim();
+   const password=$("password").value;
+   if(!gmail || !password) throw new Error("GMAIL_PASSWORD_REQUIRED");
+   const c=await auth.signInWithEmailAndPassword(gmail,password);
+   if(c.user.uid!==ADMIN_UID){
+     await auth.signOut();
+     throw new Error("ADMIN_ONLY");
+   }
+ }catch(x){
+   const msg=x.code==="auth/invalid-credential"||x.code==="auth/wrong-password"?"Gmail অথবা Password সঠিক নয়।":x.message==="ADMIN_ONLY"?"এই Gmail দিয়ে Admin Access নেই।":"Login ব্যর্থ: "+x.message;
+   showMsg(msg,"error");
+ }
+};
+
+auth.onAuthStateChanged(async u=>{
+ if(!u||u.uid!==ADMIN_UID){$("auth").classList.remove("hidden");$("app").classList.add("hidden");return}
+ $("auth").classList.add("hidden");$("app").classList.remove("hidden");bind();
+});
+
+const telegramSeen={deposit:false,withdraw:false,claim:false};
+const telegramKnown={deposit:new Set(),withdraw:new Set(),claim:new Set()};
+function tgDate(v){
+  const n=Number(v||Date.now());
+  try{return new Date(n).toLocaleString("bn-BD",{dateStyle:"medium",timeStyle:"short"});}catch(e){return new Date(n).toLocaleString();}
+}
+function tgText(v){return String(v??"—").replace(/[\r\n]+/g," ").trim()||"—";}
+async function sendTelegramNotice(message){
+  const token=String(privateSettings.telegramBotToken||$("tgToken")?.value||"").trim();
+  const chat=String(privateSettings.telegramChatId||$("tgChat")?.value||"").trim();
+  if(!token||!chat){console.warn("Telegram token/chat ID missing");return false;}
+  const response=await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`,{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({chat_id:chat,text:message,disable_web_page_preview:true})
+  });
+  const result=await response.json();
+  if(!response.ok||!result.ok)throw new Error(result.description||"Telegram send failed");
+  return true;
+}
+function requestNotice(kind,id,x){
+  const isDeposit=kind==="deposit";
+  const title=isDeposit?"💳 নতুন ডিপোজিট রিকোয়েস্ট":"💸 নতুন উইথড্র রিকোয়েস্ট";
+  const lines=[
+    "🎮 ক্রয়-বিক্রয় | Admin Notice",
+    title,
+    "👤 নাম: "+tgText(x.userName||x.name),
+    "📱 মোবাইল: "+tgText(x.mobile||x.phone),
+    (isDeposit?"💰 জমার পরিমাণ: ৳":"💰 উত্তোলনের পরিমাণ: ৳")+tgText(x.amount),
+    ...(isDeposit?[
+      "🏦 মাধ্যম: "+tgText(x.method),
+      "🧾 Transaction ID: "+tgText(x.transactionId||x.trxId||x.txnId),
+      "📤 প্রেরকের নম্বর: "+tgText(x.senderNumber||x.paymentNumber)
+    ]:[
+      "🧾 অ্যাডমিন ফি: ৳"+tgText(x.feeAmount??x.adminFee),
+      "💵 ইউজার পাবেন: ৳"+tgText(x.receiveAmount??x.netAmount??x.userWillReceive),
+      "🏦 মাধ্যম: "+tgText(x.method),
+      "📥 গ্রহণের নম্বর: "+tgText(x.paymentNumber||x.accountNumber)
+    ]),
+    "⏳ স্ট্যাটাস: "+tgText(x.status||"pending").toUpperCase(),
+    "🆔 User UID: "+tgText(x.uid||x.userId),
+    "🕒 সময়: "+tgDate(x.createdAt||x.timestamp),
+    "🔖 Request ID: "+tgText(id)
+  ];
+  return sendTelegramNotice(lines.join("\n"));
+}
+function purchaseNotice(id,x){
+  const lines=[
+    "🎮 GameNest BD | নতুন প্যাকেজ নোটিশ",
+    "🛒 নতুন প্যাকেজ কেনার অনুরোধ",
+    "👤 নাম: "+tgText(x.userName||x.name),
+    "📱 মোবাইল: "+tgText(x.mobile||x.phone),
+    "🎲 প্যাকেজ/গেম: "+tgText(x.gameName||x.packageName||x.gameId),
+    "💰 মূল্য: ৳"+tgText(x.price??x.amount),
+    "⏳ স্ট্যাটাস: "+tgText(x.status||"pending").toUpperCase(),
+    "🆔 User UID: "+tgText(x.uid||x.userId),
+    "🕒 সময়: "+tgDate(x.createdAt||x.timestamp),
+    "🔖 Purchase Request ID: "+tgText(id)
+  ];
+  return sendTelegramNotice(lines.join("\n"));
+}
+function claimNotice(id,x){
+  const lines=[
+    "🎮 ক্রয়-বিক্রয় | গেম জয়ের নোটিশ",
+    "🏆 নতুন Winning Claim",
+    "🎲 গেম: "+tgText(x.gameName||"Game"),
+    "👤 বিজয়ী: "+tgText(x.userName||x.name),
+    "📱 মোবাইল: "+tgText(x.mobile),
+    "💰 জয়ের পুরস্কার: ৳"+tgText(x.winningAmount),
+    "🎟️ Entry/Bet: ৳"+tgText(x.betAmount),
+    "⏳ স্ট্যাটাস: "+tgText(x.status||"pending").toUpperCase(),
+    "🆔 User UID: "+tgText(x.uid||x.userId),
+    "🏠 Room: "+tgText(x.roomId),
+    "🕒 সময়: "+tgDate(x.createdAt),
+    "🔖 Claim ID: "+tgText(id),
+    "🖼️ স্ক্রিনশট: "+tgText(x.screenshotUrl||x.screenshot),
+    "ℹ️ পুরস্কার এখনো অনুমোদিত/পরিশোধিত হয়েছে—এমন নয়।"
+  ];
+  return sendTelegramNotice(lines.join("\n"));
+}
+let telegramWatchStarted=false;
+function watchTelegramRequests(kind,path,notifyFn){
+ const node=db.ref(path);
+ // Existing requests are remembered first, so opening/reloading Admin Panel does not spam old notices.
+ node.once("value").then(snapshot=>{
+   snapshot.forEach(child=>telegramKnown[kind].add(child.key));
+   node.on("child_added", child=>{
+     const id=child.key, x=child.val()||{};
+     if(telegramKnown[kind].has(id))return;
+     telegramKnown[kind].add(id);
+     if(String(x.status||"pending").toLowerCase()!=="pending")return;
+     Promise.resolve(notifyFn(id,x)).catch(e=>console.error("Telegram notification failed:",e));
+   }, err=>console.error("Telegram request listener failed for "+path,err));
+ }).catch(err=>console.error("Could not initialize Telegram listener for "+path,err));
+}
+function startTelegramRequestWatchers(){
+ if(telegramWatchStarted)return;
+ telegramWatchStarted=true;
+ watchTelegramRequests("deposit","depositRequests",(id,x)=>requestNotice("deposit",id,x));
+ watchTelegramRequests("withdraw","withdrawRequests",(id,x)=>requestNotice("withdraw",id,x));
+ watchTelegramRequests("purchase","purchaseRequests",(id,x)=>purchaseNotice(id,x));
+ watchTelegramRequests("claim","winningClaims",(id,x)=>claimNotice(id,x));
+}
+
+function bind(){
+ db.ref("users").on("value", s=>{users=s.val()||{};renderAll();fillRoomPlayers()});
+ db.ref("depositRequests").on("value", s=>{deposits=s.val()||{};renderAll()});
+ db.ref("withdrawRequests").on("value", s=>{withdraws=s.val()||{};renderAll()});
+ db.ref("purchaseRequests").on("value", s=>{
+    purchases=s.val()||{};
+    renderAll();
+  }, err=>{
+    console.error("purchaseRequests listener failed:",err);
+    const list=$("purchaseList");
+    if(list)list.innerHTML='<div class="notice" style="border-color:#ff647c">❌ Purchase Request পড়া যাচ্ছে না। Firebase Rules-এ Admin UID/Read permission পরীক্ষা করুন। বিস্তারিত Console-এ দেখুন।</div>';
+  });
+ db.ref("winningClaims").on("value", s=>{winningClaims=s.val()||{};renderAll()});
+ startTelegramRequestWatchers();
+ db.ref("games").on("value", s=>{games=s.val()||{};renderAll()});
+ db.ref("rooms").on("value", s=>{rooms=s.val()||{};renderAll()});
+ db.ref("notices").on("value", s=>{notices=s.val()||{};renderAll()});
+ db.ref("settings/public").on("value", s=>{publicSettings=s.val()||{};fillSettings()});
+ db.ref("settings/private").on("value", s=>{privateSettings=s.val()||{};$("tgToken").value=privateSettings.telegramBotToken||"";$("tgChat").value=privateSettings.telegramChatId||""});
+}
+function renderAll(){
+ let ua=Object.values(users),da=Object.values(deposits).filter(x=>x.status==="pending"),wa=Object.values(withdraws).filter(x=>x.status==="pending");
+ const pa=Object.values(purchases||{}).filter(x=>String(x.status||"pending").toLowerCase()==="pending");
+ const wca=Object.values(winningClaims||{}).filter(x=>String(x.status||"pending").toLowerCase()==="pending");
+ $("sUsers").textContent=ua.length;$("sBalance").textContent=money(ua.reduce((a,x)=>a+Number(x.balance||0),0));$("sDep").textContent=da.length;$("sWith").textContent=wa.length;
+ $("sPurchases").textContent=pa.length;$("sWinners").textContent=wca.length;
+ renderDeposits();renderWithdraws();renderPurchases();renderWinningClaims();renderGames();renderUsers();renderIdentity();renderNotices();renderRooms();fillRoomGames();
+}
+function renderDeposits(){
+ let a=Object.entries(deposits||{}).map(([id,x])=>({id,...(x||{})})).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+ $("depositList").innerHTML=a.length?a.map(x=>{
+   // User App-এর request-এ UID থাকে; Admin-এর local users cache থেকেই User তথ্য নেওয়া হবে।
+   const u=(x.uid&&users[x.uid])||{};
+   const displayName=u.name||x.name||"User";
+   const displayMobile=u.mobile||x.mobile||"";
+   const balance=u.balance;
+   return `<div class="row"><div class="rowhead"><div><b>💳 ${esc(displayName)}</b><div class="muted">📱 ${esc(displayMobile)} • ${esc(x.method||"")} • ${money(x.amount)}</div></div><span class="status ${esc(x.status||"")}">${esc(x.status||"")}</span></div>
+   <div class="notice">👤 User: <b>${esc(displayName)}</b><br>📱 User Mobile: <b>${esc(displayMobile)}</b><br>💰 বর্তমান Balance: <b>${balance==null?"User record পাওয়া যায়নি":money(balance)}</b><br>🏦 Method: <b>${esc(x.method||"")}</b><br>📲 যে নম্বর থেকে পাঠিয়েছে: <b>${esc(x.senderMobile||"")}</b><br>💵 পাঠানো টাকা: <b>${money(x.amount)}</b><br>🧾 Transaction ID: <b>${esc(x.transactionId||"")}</b><br>🕒 Request: ${new Date(x.createdAt||0).toLocaleString("bn-BD")}</div>
+   ${x.status==="pending"?`<div class="actions"><button onclick="approveDeposit('${esc(x.id)}')">✅ Approve</button><button class="danger" onclick="rejectRequest('depositRequests','${esc(x.id)}')">❌ Reject</button></div>`:""}</div>`;
+ }).join(""):'<div class="notice">কোনো Deposit Request নেই।</div>';
+}
+function renderWithdraws(){
+ let a=Object.values(withdraws).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+ $("withdrawList").innerHTML=a.length?a.map(x=>`<div class="row"><div class="rowhead"><div><b>💸 ${esc(x.name||"User")}</b><div class="muted">${esc(x.mobile||"")} • ${esc(x.method||"")} • ${money(x.amount)}</div></div><span class="status ${esc(x.status)}">${esc(x.status||"")}</span></div>
+ <div class="notice">বর্তমান Balance: <b>${money(users[x.uid]?.balance)}</b><br>উত্তোলন: <b>${money(x.amount)}</b><br>Fee: <b>${Number(x.feePercent||0)}% = ${money(x.feeAmount||0)}</b><br>User পাবে: <b>${money(x.receiveAmount||0)}</b><br>নম্বর: <b>${esc(x.accountNumber||"")}</b></div>
+ ${x.status==="pending"?`<div class="actions"><button onclick="approveWithdraw('${esc(x.id)}')">✅ Approve</button><button class="danger" onclick="rejectRequest('withdrawRequests','${esc(x.id)}')">❌ Reject</button></div>`:""}</div>`).join(""):'<div class="notice">কোনো Withdraw Request নেই।</div>';
+}
+function renderPurchases(){
+ let a=Object.values(purchases).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+ $("purchaseList").innerHTML=a.length?a.map(x=>{
+   const status=String(x.status||"pending").toLowerCase();
+   const statusBn={pending:"অপেক্ষমাণ",approved:"অনুমোদিত",rejected:"বাতিল"}[status]||status;
+   return `<div class="row"><div class="rowhead"><div><b>🎮 ${esc(x.gameName||"Game")}</b><div class="muted">${esc(x.userName||"")} • ${esc(x.userMobile||"")} • Price: ${money(x.price)}</div></div><span class="status ${esc(status)}">${esc(statusBn)}</span></div>
+   <div class="notice">👤 User: <b>${esc(x.userName||"User")}</b> • 📱 ${esc(x.userMobile||"")}<br>🆔 Request ID: <b>${esc(x.id||"")}</b><br>💰 Package Price: <b>${money(x.price||0)}</b><br>🕒 Request: ${new Date(Number(x.createdAt||0)).toLocaleString("bn-BD")}<br>ℹ️ প্রতিটি Buy আলাদা রেকর্ড। Approve/Reject-এর ফল User App → History → Game-এ দেখা যাবে। Room ID নির্ধারণের পরও User আবার Buy করতে পারবেন.${x.approvedAt?`<br>🕒 Approved: ${new Date(x.approvedAt).toLocaleString("bn-BD")}`:""}${x.rejectedAt?`<br>🕒 Rejected: ${new Date(x.rejectedAt).toLocaleString("bn-BD")}`:""}</div>
+   ${status==="pending"?`<div class="actions"><button onclick="approvePurchase('${esc(x.id)}')">✅ Approve</button><button class="danger" onclick="rejectRequest('purchaseRequests','${esc(x.id)}')">❌ Reject</button></div>`:`<div class="notice">${status==="approved"?"✅ অনুমোদিত। Room Manager আলাদাভাবে পরিচালিত হবে।":"❌ বাতিল করা হয়েছে। User আবার Buy করতে পারবেন।"}</div>`}</div>`;
+ }).join(""):'<div class="notice">কোনো Game Purchase নেই।</div>';
+}
+function winningClaimScore(x){
+ const checks=[
+  !!x.packageCode && !!x.purchaseId,
+  !!(x.matchId||x.roomId) && !!x.gameId,
+  !!x.uid && !!x.winnerUid && String(x.winnerUid)===String(x.uid),
+  (typeof x.screenshot==="string" && x.screenshot.length>20)
+ ];
+ const score=(checks[0]?25:0)+(checks[1]?25:0)+(checks[2]?30:0)+(checks[3]?20:0);
+ return {score,checks};
+}
+function renderWinningClaims(){
+ const qMatch=String($("claimSearchMatch")?.value||"").trim().toLowerCase();
+ const qUid=String($("claimSearchUid")?.value||"").trim().toLowerCase();
+ const qStatus=String($("claimSearchStatus")?.value||"all");
+ let a=Object.entries(winningClaims||{}).map(([id,x])=>({id,...(x||{})}))
+   .filter(x=>(qStatus==="all"||String(x.status||"pending")===qStatus))
+   .filter(x=>!qMatch||[x.matchCode,x.matchId,x.roomId,x.packageCode].some(v=>String(v||"").toLowerCase().includes(qMatch)))
+   .filter(x=>!qUid||[x.uid,x.userId,x.winnerUid,x.opponentUid,...(x.playerUids||[])].some(v=>String(v||"").toLowerCase().includes(qUid)))
+   .sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+ const e=$("winningClaimList"); if(!e)return;
+ e.innerHTML=a.length?a.map(x=>{
+   const u=users[x.uid]||{};
+   const nm=u.name||x.userName||"User", mobile=u.mobile||x.mobile||"";
+   const review=winningClaimScore(x);
+   const actions=x.status==="pending"?`<div class="actions"><button onclick="approveWinningClaim('${esc(x.id)}')">✅ Approve +${money(x.winningAmount)}</button><button class="danger" onclick="rejectWinningClaim('${esc(x.id)}')">❌ Reject</button></div>`:"";
+   const screenshotUrl=x.screenshotUrl||x.screenshot; const shot=(screenshotUrl && /^https?:\/\//i.test(screenshotUrl)?`<div style="margin-top:8px"><a href="${esc(screenshotUrl)}" target="_blank" rel="noopener noreferrer">🔗 স্ক্রিনশট URL খুলুন</a><img src="${esc(screenshotUrl)}" alt="Winning screenshot" referrerpolicy="no-referrer" style="max-width:100%;max-height:360px;border-radius:12px;border:1px solid #2a4968;display:block;margin-top:8px" onerror="this.style.display='none' ; this.insertAdjacentHTML('afterend','<div class=\'muted\'>ছবিটি সরাসরি দেখানো যাচ্ছে না; URL খুলে দেখুন।</div>')"></div>`:"<div class='notice'>Screenshot পাওয়া যায়নি বা Claim-এ ছবি URL নেই।</div>");
+   return `<div class="row"><div class="rowhead"><div><b>🏆 ${esc(nm)}</b><div class="muted">UID: ${esc(x.uid||"")} • 📱 ${esc(mobile)}</div></div><span class="status ${esc(x.status||"pending")}">${esc(x.status||"pending")}</span></div>
+   <div class="notice">👤 User ID: <b>${esc(x.userId||x.uid||"")}</b><br>💰 Balance: <b>${money(u.balance)}</b><br>🎮 Game: <b>${esc(x.gameName||"")}</b><br>🆔 Game ID: <b>${esc(x.gameId||"")}</b><br>🎟️ Package Code: <b>${esc(x.packageCode||"Not supplied")}</b><br>🆔 Match Code: <b>${esc(x.matchCode||x.matchId||x.roomId||"")}</b><br>👥 Opponent: <b>${esc(x.opponentName||"Opponent")}</b> • UID: <b>${esc(x.opponentUid||"Not supplied")}</b><br>👥 Players: <b>${esc((x.playerUids||[]).join(" vs ")||"Not supplied")}</b><br>📋 Match Record: <b>${esc(x.matchRecord?("Winner "+(x.matchRecord.winner||"")+" • Remaining coins "+(x.matchRecord.coinCount??"—")):"Not supplied")}</b><br>📊 Verification Score: <b>${review.score}/100</b><br>🔎 Package/Purchase: ${review.checks[0]?"সম্ভাব্য মিল":"তথ্য অনুপস্থিত"} • Match: ${review.checks[1]?"তথ্য আছে":"তথ্য অনুপস্থিত"} • Winner UID: ${review.checks[2]?"মিলেছে":"নিশ্চিত নয়"} • Screenshot: ${review.checks[3]?"আছে":"নেই"}<br>🚪 Room: <b>${esc(x.roomId||"")}</b><br>🎯 Bet: <b>${money(x.betAmount)}</b><br>🏆 Winning Amount: <b>${money(x.winningAmount)}</b><br>🕒 ${new Date(x.createdAt||0).toLocaleString("bn-BD")}</div>${shot}${actions}</div>`;
+ }).join(""):'<div class="notice">কোনো Winning Claim নেই।</div>';
+}
+window.approveWinningClaim=async id=>{
+ const c=winningClaims[id]; if(!c)return toast("Claim পাওয়া যায়নি।");
+ const amount=Number(c.winningAmount||0);
+ if(!Number.isFinite(amount)||amount<=0)return toast("Winning Amount সঠিক নয়।");
+ if(!c.uid)return toast("Claim-এ User UID নেই।");
+ if(!auth.currentUser)return toast("Admin login প্রয়োজন।");
+ if(c.status!=="pending")return toast("শুধু Pending Claim Approve করা যাবে।");
+ const claimRef=db.ref("winningClaims/"+id), token=auth.currentUser.uid+"_"+Date.now();
+ try{
+   // আগে Claim-কে processing lock করি, যাতে একই Claim-এ দুই Admin একসঙ্গে credit করতে না পারেন।
+   const lock=await claimRef.transaction(v=>{
+     if(!v||v.status!=="pending")return;
+     return {...v,status:"processing",processingAt:Date.now(),processingBy:auth.currentUser.uid,approvalToken:token};
+   });
+   if(!lock.committed)return toast("এই Claim আর Pending নেই।");
+   const userRef=db.ref("users/"+c.uid);
+   const creditKey=String(id).replace(/[.#$\[\]\/]/g,"_");
+   const userTx=await userRef.transaction(u=>{
+     if(!u)return;
+     u.creditedWinningClaims=u.creditedWinningClaims||{};
+     if(u.creditedWinningClaims[creditKey])return u;
+     u.balance=Number(u.balance||0)+amount;
+     u.creditedWinningClaims[creditKey]={amount,claimId:id,creditedAt:Date.now(),creditedBy:auth.currentUser.uid};
+     return u;
+   });
+   if(!userTx.committed)throw new Error("User record পাওয়া যায়নি; Balance পরিবর্তন হয়নি।");
+   const credit=userTx.snapshot.val()?.creditedWinningClaims?.[creditKey];
+   const finish=await claimRef.transaction(v=>{
+     if(!v||v.status!=="processing"||v.approvalToken!==token)return;
+     return {...v,status:"approved",approvedAt:Date.now(),approvedBy:auth.currentUser.uid,
+       balanceAdded:credit?.amount||0,balanceAfter:Number(userTx.snapshot.val()?.balance||0),
+       creditLedgerKey:creditKey,verificationScore:winningClaimScore(v).score};
+   });
+   if(!finish.committed)throw new Error("Balance ledger সংরক্ষিত, কিন্তু Claim status আপডেট হয়নি। Admin refresh করে পরীক্ষা করুন।");
+   toast(credit?.creditedAt?"✅ Approved — Claim ID অনুযায়ী একবারই Balance-এ টাকা যোগ হয়েছে":"Claim status update হয়েছে।");
+ }catch(err){
+   console.error(err);
+   await claimRef.transaction(v=>{
+     if(v&&v.status==="processing"&&v.approvalToken===token)return {...v,status:"pending",processingAt:null,processingBy:null,approvalToken:null,lastApprovalError:String(err?.message||err)};
+     return v;
+   }).catch(()=>{});
+   toast("❌ Approve হয়নি: "+(err.message||err));
+ }
+};
+window.rejectWinningClaim=async id=>{
+ const c=winningClaims[id]; if(!c||c.status!=="pending")return toast("এই Claim আর Pending নেই।");
+ const reason=prompt("Reject করার কারণ লিখুন:","Match/Screenshot যাচাইয়ে অমিল"); if(reason===null)return;
+ try{
+   const tx=await db.ref("winningClaims/"+id).transaction(v=>{
+     if(!v || v.status!=="pending")return;
+     return {...v,status:"rejected",rejectedAt:Date.now(),rejectedBy:auth.currentUser?.uid||ADMIN_UID,balanceAdded:0,rejectReason:reason.trim()||"তথ্য যাচাই হয়নি",verificationScore:winningClaimScore(v).score};
+   });
+   toast(tx.committed?"❌ Claim Rejected • Balance +৳0":"এই Claim আর Pending নেই।");
+ }catch(err){toast("❌ Reject হয়নি: "+(err.message||err));}
+};
+
+function renderGames(){
+ let a=Object.entries(games).map(([id,x])=>({id,...x}));
+ $("gameList").innerHTML=a.length?a.map(x=>`<div class="row"><div class="rowhead"><div><b>🎮 ${esc(x.name)}</b><div class="muted">Game ID: <b>${esc(x.id)}</b> • Package ${money(x.price)} • Bet ${money(x.betAmount)} • ${x.active===false?"Inactive":"Active"}</div></div></div><div class="actions"><button onclick="editGame('${esc(x.id)}')">✏️ Edit</button><button class="danger" onclick="deleteGame('${esc(x.id)}')">🗑️ Delete</button></div></div>`).join(""):'<div class="notice">কোনো Game নেই।</div>';
+}
+function renderUsers(){
+ let a=Object.values(users).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+ $("userList").innerHTML=a.length?a.map(x=>`<div class="row"><div class="rowhead"><div><b>${esc(x.name||"User")}</b><div class="muted">${esc(x.mobile||"")} • UID: ${esc(x.uid||"")}</div></div><b>${money(x.balance)}</b></div><div class="actions"><button onclick="editBalance('${esc(x.uid)}')">💰 Balance</button></div></div>`).join(""):'<div class="notice">কোনো User নেই।</div>';
+}
+function renderIdentity(){
+ const a=Object.values(identityVerifications||{}).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
+ $("identityList").innerHTML=a.length?a.map(x=>{const u=users[x.uid]||{};return `<div class="row"><div class="rowhead"><div><b>🪪 ${esc(u.name||x.name||"User")}</b><div class="muted">UID: ${esc(x.uid||"")} • Mobile: ${esc(u.mobile||x.mobile||"")}</div></div><span class="status ${esc(x.status||"pending")}">${esc(x.status||"pending")}</span></div><div class="notice">ID Hash: <b>${esc(x.idHash||"")}</b><br>Request: ${new Date(x.createdAt||0).toLocaleString("bn-BD")}</div>${x.idPhoto?`<img src="${esc(x.idPhoto)}" style="max-width:100%;max-height:360px;border-radius:12px;border:1px solid #2a4968">`:""}<div class="actions">${x.status==="pending"?`<button onclick="approveIdentity('${esc(x.uid)}')">✅ Approve</button><button class="danger" onclick="blockIdentity('${esc(x.uid)}')">🚫 Block</button>`:`<button class="danger" onclick="blockIdentity('${esc(x.uid)}')">🚫 Block User</button>`}</div></div>`}).join(""):'<div class="notice">কোনো Identity Request নেই।</div>';
+}
+window.approveIdentity=async uid=>{await db.ref("identityVerifications/"+uid).update({status:"approved",approvedAt:Date.now(),approvedBy:auth.currentUser?.uid||ADMIN_UID});await db.ref("users/"+uid+"/identityVerified").set(true);toast("✅ Identity Approved");};
+window.blockIdentity=async uid=>{if(!confirm("এই User-এর Identity/Account Block করবেন?"))return;await db.ref("identityVerifications/"+uid).update({status:"blocked",blockedAt:Date.now(),blockedBy:auth.currentUser?.uid||ADMIN_UID});await db.ref("users/"+uid+"/status").set("blocked");toast("🚫 User Blocked");};
+function renderNotices(){
+ let a=Object.entries(notices).map(([id,x])=>({id,...x}));
+ $("noticeList").innerHTML=a.length?a.map(x=>`<div class="row"><b>${esc(x.title||"Notice")}</b><div class="muted">${esc(x.text||"")}</div><div class="actions"><button onclick="editNotice('${esc(x.id)}')">✏️ Edit</button><button class="danger" onclick="deleteNotice('${esc(x.id)}')">🗑️ Delete</button></div></div>`).join(""):'<div class="notice">কোনো Notice নেই।</div>';
+}
+async function getDepositUser(x){
+  // User App creates users/{uid}; use the request UID as the primary key.
+  if(x?.uid){
+    const snap = await db.ref("users/"+x.uid).once("value");
+    if(snap.exists()) return {key:x.uid,data:snap.val()||{}};
+  }
+
+  // Backward-compatible fallback for older records.
+  const mobile = String(x?.mobile||"").trim();
+  if(mobile){
+    const snap = await db.ref("users").once("value");
+    const all = snap.val()||{};
+    for(const [key,u] of Object.entries(all)){
+      if(String(u?.mobile||"").trim()===mobile ||
+         String(u?.mobileKey||"").trim()===mobile){
+        return {key,data:u||{}};
+      }
+    }
+  }
+  return null;
+}
+
+async function approveDeposit(id){
+  const x=deposits[id];
+  if(!x || x.status!=="pending") return toast("এই Deposit আর Pending নেই।");
+
+  let userInfo;
+  try{
+    userInfo=await getDepositUser(x);
+  }catch(err){
+    console.error("getDepositUser:",err);
+    return toast("❌ User data পড়া যাচ্ছে না: "+(err?.message||err));
+  }
+
+  // Even if the current balance cannot be read, show all request details.
+  // Approval itself uses ServerValue.increment so it does not need a prior balance read.
+  const u=userInfo?.data||{};
+  const userKey=userInfo?.key||x.uid||"";
+  const amount=Number(x.amount||0);
+
+  if(!Number.isFinite(amount) || amount<=0)
+    return toast("Deposit amount সঠিক নয়।");
+
+  const currentBalance = userInfo ? money(u.balance) : "অ্যাক্সেস করা যাচ্ছে না";
+  const afterBalance = userInfo ? money(Number(u.balance||0)+amount) : "Approve-এর পর বর্তমান Balance + "+money(amount);
+
+  $("modalBody").innerHTML=
+    `<h3>💳 Deposit Approve</h3>
+     <div class="notice">
+       👤 ইউজারের নাম: <b>${esc(u.name||x.name||"")}</b><br>
+       📱 ইউজার মোবাইল: <b>${esc(u.mobile||x.mobile||"")}</b><br>
+       💰 বর্তমান Balance: <b>${currentBalance}</b><br>
+       🏦 Payment Method: <b>${esc(x.method||"")}</b><br>
+       📲 যে নম্বর থেকে টাকা পাঠিয়েছে: <b>${esc(x.senderMobile||"")}</b><br>
+       💵 পাঠানো টাকা: <b>${money(amount)}</b><br>
+       🧾 Transaction ID: <b>${esc(x.transactionId||"")}</b><br>
+       🕒 Request Time: <b>${new Date(x.createdAt||0).toLocaleString("bn-BD")}</b><br>
+       📈 Approve করলে Balance: <b>${afterBalance}</b>
+     </div>
+     <button id="confirmDepositBtn" class="primary"
+       onclick="confirmDeposit('${esc(id)}')">✅ Confirm Approve</button>`;
+  $("modal").classList.remove("hidden");
+}
+window.approveDeposit=approveDeposit;
+
+window.confirmDeposit=async id=>{
+  const btn=$("confirmDepositBtn");
+  if(btn){btn.disabled=true;btn.textContent="⏳ Approving...";}
+
+  try{
+    // Re-read the request so a stale modal cannot approve an already handled request.
+    const reqSnap=await db.ref("depositRequests/"+id).once("value");
+    const x=reqSnap.val();
+    if(!x || x.status!=="pending"){
+      closeModal();
+      return toast("এই Deposit ইতোমধ্যে Approve/Reject করা হয়েছে।");
+    }
+
+    const amount=Number(x.amount||0);
+    if(!Number.isFinite(amount) || amount<=0)
+      throw new Error("Deposit amount সঠিক নয়।");
+
+    const userKey=x.uid;
+    if(!userKey) throw new Error("Deposit request-এ User UID নেই।");
+
+    // Atomic balance increment: no need to read the current balance first.
+    // The request status and balance are changed together.
+    const now=Date.now();
+    const updates={};
+    updates["users/"+userKey+"/balance"]=firebase.database.ServerValue.increment(amount);
+    updates["depositRequests/"+id+"/status"]="approved";
+    // Approve হলেই User-এর একবারের Deposit lock খুলে যাবে।
+    updates["users/"+userKey+"/pendingDeposit"]=null;
+    updates["depositRequests/"+id+"/approvedAt"]=now;
+    updates["depositRequests/"+id+"/approvedBy"]=auth.currentUser?.uid||"admin";
+    updates["depositRequests/"+id+"/userKey"]=userKey;
+
+    await db.ref().update(updates);
+
+    const verify=await db.ref("depositRequests/"+id+"/status").once("value");
+    if(verify.val()!=="approved")
+      throw new Error("Firebase status update verify failed");
+
+    closeModal();
+    toast("✅ Deposit Approved — Balance-এ টাকা যোগ হয়েছে।");
+  }catch(err){
+    console.error("confirmDeposit error:",err);
+    if(btn){btn.disabled=false;btn.textContent="✅ Confirm Approve";}
+    toast("❌ Approve হয়নি: "+(err?.message||err));
+  }
+};
+
+async function approveWithdraw(id){
+ let x=withdraws[id];if(!x||x.status!=="pending")return;
+ let u=users[x.uid];if(!u)return toast("User পাওয়া যায়নি");
+ let bal=Number(u.balance||0);
+ $("modalBody").innerHTML=`<h3>💸 Withdraw Approve</h3><div class="notice">User: <b>${esc(x.name)}</b><br>Mobile: <b>${esc(x.mobile)}</b><br>বর্তমান Balance: <b>${money(bal)}</b><br>উত্তোলন: <b>${money(x.amount)}</b><br>Fee: <b>${Number(x.feePercent||0)}% = ${money(x.feeAmount||0)}</b><br>User পাবে: <b>${money(x.receiveAmount||0)}</b><br>Approve করলে Balance হবে: <b>${money(bal-Number(x.amount||0))}</b></div><button class="primary" onclick="confirmWithdraw('${esc(id)}')">Confirm Approve</button>`;$("modal").classList.remove("hidden");
+}
+window.approveWithdraw=approveWithdraw;
+window.confirmWithdraw=async id=>{
+ let x=withdraws[id];if(!x||x.status!=="pending")return;
+ let u=users[x.uid];if(!u)return;
+ let bal=Number(u.balance||0),amt=Number(x.amount||0);if(amt>bal)return toast("User-এর Balance এখন যথেষ্ট নয়");
+ await db.ref().update({["users/"+x.uid+"/balance"]:bal-amt,["users/"+x.uid+"/pendingWithdraw/status"]:"approved",["withdrawRequests/"+id+"/status"]:"approved",["withdrawRequests/"+id+"/approvedAt"]:Date.now()});
+ closeModal();toast("Withdraw Approved");
+};
+window.rejectRequest=async(path,id)=>{
+  const source=path==="depositRequests"?deposits:(path==="withdrawRequests"?withdraws:purchases);
+  const x=source[id];
+  if(!x || x.status!=="pending") return toast("এই Request আর Pending নেই।");
+
+  const userName=x.name||x.userName||"User";
+  const userMobile=x.mobile||x.userMobile||"";
+  const amount=Number(x.amount||x.price||0);
+
+  $("modalBody").innerHTML=
+    `<h3>❌ ${path==="depositRequests"?"Deposit":"Request"} Reject</h3>
+     <div class="notice">
+       👤 User: <b>${esc(userName)}</b><br>
+       📱 Mobile: <b>${esc(userMobile)}</b><br>
+       ${path==="depositRequests"?`🏦 Method: <b>${esc(x.method||"")}</b><br>
+       📲 যে নম্বর থেকে পাঠিয়েছে: <b>${esc(x.senderMobile||"")}</b><br>
+       💵 Amount: <b>${money(amount)}</b><br>
+       🧾 Transaction ID: <b>${esc(x.transactionId||"")}</b><br>`:""}
+       আপনি Confirm Reject না চাপা পর্যন্ত Request <b>Pending</b> থাকবে।
+     </div>
+     <div class="field">
+       <label>Reject Note (ঐচ্ছিক)</label>
+       <textarea id="rejectNoteInput" placeholder="যেমন: Transaction ID ভুল"></textarea>
+     </div>
+     <div class="actions">
+       <button class="secondary" onclick="closeModal()">↩️ Cancel</button>
+       <button id="confirmRejectBtn" class="danger" onclick="confirmReject('${esc(path)}','${esc(id)}')">❌ Confirm Reject</button>
+     </div>`;
+  $("modal").classList.remove("hidden");
+};
+
+window.confirmReject=async(path,id)=>{
+  const btn=$("confirmRejectBtn");
+  if(btn){btn.disabled=true;btn.textContent="⏳ Rejecting...";}
+
+  try{
+    const snap=await db.ref(path+"/"+id).once("value");
+    const x=snap.val();
+    if(!x || x.status!=="pending"){
+      closeModal();
+      return toast("এই Request ইতোমধ্যে Approve/Reject করা হয়েছে।");
+    }
+
+    const note=($("rejectNoteInput")?.value||"").trim()||"Rejected by Admin";
+    const updates={};
+    updates[path+"/"+id+"/status"]="rejected";
+    // শুধু Deposit Reject হলে Deposit lock খুলবে।
+    if(path==="depositRequests" && x.uid) updates["users/"+x.uid+"/pendingDeposit"]=null;
+    updates[path+"/"+id+"/rejectNote"]=note;
+    updates[path+"/"+id+"/rejectedAt"]=Date.now();
+    updates[path+"/"+id+"/rejectedBy"]=auth.currentUser?.uid||"admin";
+    if(path==="purchaseRequests" && x.uid){
+      updates["gameHistory/"+x.uid+"/"+id]={id,requestId:id,recordType:"purchase",gameId:x.gameId||"",gameName:x.gameName||"Carrom",price:Number(x.price||0),status:"rejected",rejectNote:note,createdAt:Number(x.createdAt||Date.now()),updatedAt:Date.now(),rejectedAt:Date.now()};
+    }
+
+    await db.ref().update(updates);
+
+    const verify=await db.ref(path+"/"+id+"/status").once("value");
+    if(verify.val()!=="rejected") throw new Error("Firebase status update verify failed");
+
+    closeModal();
+    toast("✅ Request Rejected");
+  }catch(err){
+    console.error("confirmReject error:",err);
+    if(btn){btn.disabled=false;btn.textContent="❌ Confirm Reject";}
+    toast("❌ Reject হয়নি: "+(err?.message||err));
+  }
+};
+
+function makeRoomId(){return "GN"+Date.now().toString(36).slice(-5).toUpperCase()+Math.floor(10+Math.random()*90)}
+function generateRoomId(){ const e=$("roomId"); if(e) e.value=makeRoomId(); }
+window.generateRoomId=generateRoomId;
+function filterRoomPlayers(playerNo){
+ const sel=$("roomPlayer"+playerNo),search=$("roomPlayer"+playerNo+"Search");if(!sel)return;
+ const old=sel.value,q=String(search?.value||"").trim().toLowerCase();
+ const matches=Object.entries(users||{}).filter(([uid,u])=>!q||[uid,u.name,u.displayName,u.mobile,u.phone].some(v=>String(v||"").toLowerCase().includes(q)));
+ sel.innerHTML='<option value="">Player '+playerNo+' নির্বাচন করুন</option>'+matches.map(([uid,u])=>`<option value="${esc(uid)}">${esc(u.name||u.displayName||"User")} • ${esc(u.mobile||u.phone||"")} • ${esc(uid)}</option>`).join("");
+ if(old&&[...sel.options].some(o=>o.value===old))sel.value=old;
+}
+window.filterRoomPlayers=filterRoomPlayers;
+function fillRoomPlayers(){filterRoomPlayers(1);filterRoomPlayers(2)}
+function fillRoomGames(){
+ fillRoomPlayers();
+ const s=$("roomGame"); if(!s)return; const old=s.value;
+ s.innerHTML=Object.entries(games||{}).filter(([id,g])=>g&&g.active!==false).map(([id,g])=>`<option value="${esc(id)}">${esc(g.name||id)}</option>`).join("");
+ if(old && [...s.options].some(o=>o.value===old))s.value=old;
+}
+function renderRooms(){
+ const a=Object.entries(rooms||{}).map(([id,x])=>({id,...(x||{})})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ const e=$("roomList"); if(!e)return;
+ e.innerHTML=a.length?a.map(x=>{
+   const p1=x.allowedPlayers?.[0]||"",p2=x.allowedPlayers?.[1]||"";
+   const status=x.status||"pendingApproval";
+   const statusLabel=status==="pendingApproval"?"PENDING APPROVAL":status==="active"||status==="approved"?"READY":status.toUpperCase();
+   const statusClass=status==="pendingApproval"?"pending":status==="rejected"?"rejected":"approved";
+   const canApprove=status==="pendingApproval";
+   return `<div class="row"><div class="rowhead"><div><b>🎮 ${esc(x.gameName||"Game")}</b><div class="muted">${esc(x.name||"Room")} • ${new Date(x.createdAt||0).toLocaleString("bn-BD")}</div></div><span class="status ${statusClass}">${statusLabel}</span></div><div class="notice">🆔 Match Code: <b>${esc(x.roomId||x.id)}</b><br>💰 Entry (প্রতি User): <b>${money(x.betAmount||0)}</b><br>🏆 Prize: <b>${money(x.winningAmount||0)}</b><br>👥 Player 1: <b>${esc(p1||"নির্বাচিত নয়")}</b><br>👥 Player 2: <b>${esc(p2||"নির্বাচিত নয়")}</b>${x.password?`<br>🔐 Password: <b>${esc(x.password)}</b>`:""}${x.approvedAt?`<br>✅ Approved: ${new Date(x.approvedAt).toLocaleString("bn-BD")}`:""}${status==="pendingApproval"?"<br>⏳ এখনো টাকা কাটা হয়নি; Code User App-এ প্রকাশ হয়নি।":""}</div><div class="actions">${canApprove?`<button class="primary" onclick="approveRoom('${esc(x.id)}')">✅ Approve + Entry কেটে প্রকাশ</button><button class="danger" onclick="rejectRoom('${esc(x.id)}')">Reject</button>`:""}<button class="danger" onclick="deleteRoom('${esc(x.id)}')">Delete</button></div></div>`;
+ }).join(""):'<div class="notice">কোনো Room তৈরি করা হয়নি।</div>';
+}
+window.useRoomForPurchase=(roomId,password)=>{tab("purchases",document.querySelectorAll(".tabs button")[3]); if($("purchaseRoomId")){$("purchaseRoomId").value=roomId;$("purchaseRoomPassword").value=password||"";}};
+window.deleteRoom=async id=>{
+  if(!confirm("এই Room User/Admin ও Carrom Match দুই জায়গা থেকেই মুছবেন?"))return;
+  try{
+    await deleteCarromRoomOnServer(id).catch(()=>{});
+    await db.ref("rooms/"+id).remove();
+    toast("Room deleted");
+  }catch(err){console.error(err);toast("❌ Room delete হয়নি: "+(err.message||err));}
+};
+function resetRoomForm(){if($("roomGame"))$("roomGame").selectedIndex=0;if($("roomName"))$("roomName").value="";if($("roomId"))$("roomId").value="";if($("roomPassword"))$("roomPassword").value="";if($("roomBetAmount"))$("roomBetAmount").value="0";if($("roomPrizeAmount"))$("roomPrizeAmount").value="0";if($("roomPlayer1"))$("roomPlayer1").value="";if($("roomPlayer2"))$("roomPlayer2").value="";if($("roomPlayer1Search"))$("roomPlayer1Search").value="";if($("roomPlayer2Search"))$("roomPlayer2Search").value="";fillRoomPlayers();}
+window.resetRoomForm=resetRoomForm;
+async function createCarromRoomOnServer(roomId,gameId,betAmount=0,winningAmount=0,allowedPlayers=[],status="pendingApproval"){
+  const user=auth.currentUser;
+  if(!user || user.uid!==ADMIN_UID) throw new Error("Admin authentication required");
+  const g=games[gameId]||{};
+  const bet=Math.max(0,Number(betAmount||0)),prize=Math.max(0,Number(winningAmount||0));
+  const coins=[{id:"q",x:400,y:400,c:"red",in:false}];let n=0;
+  for(const ring of [{r:52,n:6},{r:102,n:12}])for(let i=0;i<ring.n;i++){const a=2*Math.PI*i/ring.n+(ring.r>60?Math.PI/ring.n:0);coins.push({id:"c"+(++n),x:400+Math.cos(a)*ring.r,y:400+Math.sin(a)*ring.r,c:n%2?"white":"black",in:false,vx:0,vy:0});}
+  const state={players:[],playerMap:{},turn:"",striker:{x:400,y:690,vx:0,vy:0},coins,playerColors:{},playerProfiles:{},playerPackages:{},queenPending:false,queenOwner:null,queenCovered:false,turnOwnCoinPocketed:false,shotOwner:null,shotActive:false,version:Date.now(),winner:null,betAmount:bet,winningAmount:prize,gameId,gameName:g.name||"Carrom",allowedPlayers};
+  await carromDb.ref("carromRooms/"+roomId).set({gameId,gameName:g.name||"Carrom",host:user.uid,createdAt:Date.now(),betAmount:bet,winningAmount:prize,allowedPlayers,members:{},status,state,packageCode:"ADMIN"});
+}
+async function deleteCarromRoomOnServer(roomId){const user=auth.currentUser;if(!user||user.uid!==ADMIN_UID)throw new Error("Admin authentication required");await carromDb.ref("carromRooms/"+roomId).remove();}
+window.approveRoom=async id=>{
+ if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID)return toast("Admin permission required");
+ try{
+  const snap=await db.ref("rooms/"+id).once("value"),r=snap.val();
+  if(!r)return toast("Room পাওয়া যায়নি");
+  if((r.status||"pendingApproval")!=="pendingApproval")return toast("এই Room ইতোমধ্যে Approve/Reject হয়েছে।");
+  const players=Array.isArray(r.allowedPlayers)?r.allowedPlayers.filter(Boolean):[];
+  if(players.length!==2||players[0]===players[1])return toast("Approve করতে আলাদা দুইজন User নির্বাচন করুন।");
+  const fee=Number(r.betAmount||0);if(!Number.isFinite(fee)||fee<0)return toast("Entry Amount সঠিক নয়।");
+  const [s1,s2]=await Promise.all([db.ref("users/"+players[0]).once("value"),db.ref("users/"+players[1]).once("value")]);
+  if(!s1.exists()||!s2.exists())return toast("নির্বাচিত User পাওয়া যায়নি।");
+  const u1=s1.val()||{},u2=s2.val()||{};
+  if(Number(u1.balance||0)<fee)return toast(`${u1.name||"Player 1"}-এর ব্যালেন্স কম। প্রয়োজন ${money(fee)}, আছে ${money(u1.balance||0)}`);
+  if(Number(u2.balance||0)<fee)return toast(`${u2.name||"Player 2"}-এর ব্যালেন্স কম। প্রয়োজন ${money(fee)}, আছে ${money(u2.balance||0)}`);
+  if(!confirm(`Approve করলে ${u1.name||"Player 1"} এবং ${u2.name||"Player 2"}-এর ব্যালেন্স থেকে ${money(fee)} করে কাটা হবে। তারপর শুধু এই দুইজনের My Games-এ Match Code প্রকাশ হবে। চালাবেন?`))return;
+  await createCarromRoomOnServer(id,r.gameId,fee,Number(r.winningAmount||0),players,"pendingApproval");
+  const now=Date.now(),updates={};
+  updates[`users/${players[0]}/balance`]=Number(u1.balance||0)-fee;
+  updates[`users/${players[1]}/balance`]=Number(u2.balance||0)-fee;
+  updates[`rooms/${id}/status`]="active";updates[`rooms/${id}/approvedAt`]=now;updates[`rooms/${id}/approvedBy`]=auth.currentUser.uid;
+  updates[`carromRooms/${id}/status`]="ready";updates[`carromRooms/${id}/approvedAt`]=now;
+  for(let i=0;i<2;i++){
+   const uid=players[i],u=i===0?u1:u2,g=games[r.gameId]||{},purchaseId="room_"+id+"_"+uid;
+   const userCode=makePackageCode();
+   const opponentUid=players[i===0?1:0];
+   const purchase={id:purchaseId,uid,gameId:r.gameId,gameName:r.gameName||g.name||"Carrom",gameUrl:g.gameUrl||g.link||"Carrom.html",price:fee,betAmount:fee,winningAmount:Number(r.winningAmount||0),status:"active",roomId:id,roomPassword:r.password||"",packageCode:userCode,roomApproval:true,createdAt:now,approvedAt:now,approvedBy:auth.currentUser.uid,opponentUid,entryDeducted:fee};
+   updates[`purchases/${uid}/${purchaseId}`]=purchase;
+   updates[`gameTokens/${userCode}`]={code:userCode,uid,purchaseId,gameId:r.gameId,gameName:r.gameName||g.name||"Carrom",roomId:id,matchId:id,betAmount:fee,entryAmount:fee,winningAmount:Number(r.winningAmount||0),opponentUid,playerUids:players,freePlay:false,status:"active",createdAt:now};
+   updates[`users/${uid}/lastRoomApprovalAt`]=now;
+  }
+  // RTDB multipath update is atomic: both balance writes and publication either succeed together or fail together.
+  await db.ref().update(updates);
+  toast("✅ Approve সফল! দুজনের Entry Fee কাটা হয়েছে এবং শুধু ওই দুই User-এর My Games-এ Match Code প্রকাশ হয়েছে।");
+ }catch(err){console.error(err);toast("❌ Approve হয়নি: "+(err?.message||err)+"। টাকা/রুমের অবস্থা যাচাই করুন।");}
+};
+window.rejectRoom=async id=>{try{const s=await db.ref("rooms/"+id).once("value"),r=s.val();if(!r||r.status!=="pendingApproval")return toast("শুধু Pending Room Reject করা যাবে।");await db.ref("rooms/"+id).update({status:"rejected",rejectedAt:Date.now(),rejectedBy:auth.currentUser?.uid||ADMIN_UID});toast("Room Reject হয়েছে; কোনো টাকা কাটা হয়নি।");}catch(e){toast("Reject হয়নি: "+(e.message||e));}};
+$("roomForm") && ($("roomForm").onsubmit=async e=>{
+ e.preventDefault();const gameId=$("roomGame").value,g=games[gameId]||{};
+ const roomId=$("roomId").value.trim()||makeRoomId(),name=$("roomName").value.trim(),password=$("roomPassword").value.trim();
+ const betAmount=Number($("roomBetAmount")?.value||0),winningAmount=Number($("roomPrizeAmount")?.value||0),p1=$("roomPlayer1")?.value||"",p2=$("roomPlayer2")?.value||"";
+ const allowedPlayers=[p1,p2].filter(Boolean);
+ if(!p1||!p2)return toast("Player 1 এবং Player 2—দুজনকেই নির্বাচন করুন।");
+ if(p1===p2)return toast("Player 1 ও Player 2 আলাদা হতে হবে।");
+ if(!Number.isFinite(betAmount)||betAmount<0||!Number.isFinite(winningAmount)||winningAmount<0)return toast("Entry/Winning Amount সঠিক নয়।");
+ if(!name||!gameId)return toast("Room Name এবং Game নির্বাচন করুন।");
+ try{
+  const exists=await db.ref("rooms/"+roomId).once("value");if(exists.exists())return toast("এই Match Code আগে থেকেই আছে; Generate করুন।");
+  const data={roomId,name,password,gameId,gameName:g.name||"Game",gameUrl:g.gameUrl||g.link||"Carrom.html",createdAt:Date.now(),createdBy:auth.currentUser?.uid||ADMIN_UID,status:"pendingApproval",carromCreated:false,betAmount,winningAmount,allowedPlayers,freePlay:betAmount===0&&winningAmount===0};
+  await db.ref("rooms/"+roomId).set(data);
+  $("roomId").value=roomId;toast("✅ Room Pending Approval-এ সেভ হয়েছে। এখন Approve করলে Entry কাটবে এবং দুই User-এর কাছে Code প্রকাশ হবে।");resetRoomForm();
+ }catch(err){console.error(err);toast("❌ Room সেভ হয়নি: "+(err.message||err));}
+});
+function makePackageCode(){return "PK"+Date.now().toString(36).slice(-6).toUpperCase()+Math.floor(10+Math.random()*90)}
+window.approvePurchase=async id=>{
+ const x=purchases[id];
+ if(!x||x.status!=="pending")return toast("এই Purchase আর Pending নেই।");
+ const u=users[x.uid];
+ if(!u)return toast("User পাওয়া যায়নি");
+ const price=Number(x.price||0);
+ if(!Number.isFinite(price)||price<=0)return toast("Package price সঠিক নয়।");
+ const currentBal=Number(u.balance||0);
+ 
+ 
+ $("modalBody").innerHTML=`<h3>🎮 Game Purchase Approve</h3>
+   <div class="notice">
+     👤 User: <b>${esc(x.userName||u.name||"User")}</b><br>
+     📱 Mobile: <b>${esc(x.userMobile||u.mobile||"")}</b><br>
+     🎮 Game: <b>${esc(x.gameName||"Game")}</b><br>
+     💰 Package Price: <b>${money(price)}</b><br>
+     💳 Current Balance: <b>${money(currentBal)}</b><br>
+     ✅ Approve করলে Balance থেকে কোনো টাকা কাটা হবে না। Entry/penalty হিসাব গেমের নির্ধারিত সিস্টেমে হবে।<br>
+     ℹ️ Room ID/Password এখানে দিতে হবে না। Room/Match আলাদা Room Manager সিস্টেমে পরিচালিত হবে।
+   </div>
+   <div class="actions"><button class="secondary" onclick="closeModal()">↩️ Cancel</button><button id="confirmPurchaseBtn" class="primary" onclick="confirmPurchase('${esc(id)}')">✅ Approve (No Balance Cut)</button></div>`;
+ $("modal").classList.remove("hidden");
+};
+window.confirmPurchase=async id=>{
+ const btn=$("confirmPurchaseBtn"); if(btn){btn.disabled=true;btn.textContent="⏳ Processing...";}
+ try{
+   const reqRef=db.ref("purchaseRequests/"+id);
+   const snap=await reqRef.once("value");
+   const x=snap.val();
+   if(!x||x.status!=="pending")throw new Error("এই Purchase আর Pending নেই।");
+   const now=Date.now();
+   // Admin approval only records the decision. No package/room code, purchase token,
+   // user-facing notification, balance change, or active purchase is created here.
+   const updates={};
+   updates["purchaseRequests/"+id+"/status"]="approved";
+   updates["purchaseRequests/"+id+"/approvedAt"]=now;
+   updates["purchaseRequests/"+id+"/approvedBy"]=auth.currentUser?.uid||"admin";
+   updates["purchaseRequests/"+id+"/approvalMode"]="admin-only-pending-room-assignment";
+   updates["purchaseRequests/"+id+"/packageCode"]=null;
+   updates["purchaseRequests/"+id+"/roomCode"]=null;
+   updates["purchaseRequests/"+id+"/matchCode"]=null;
+   if(x.uid){updates["gameHistory/"+x.uid+"/"+id]={id,requestId:id,recordType:"purchase",gameId:x.gameId||"",gameName:x.gameName||"Carrom",price:Number(x.price||0),status:"approved",createdAt:Number(x.createdAt||now),updatedAt:now,approvedAt:now,approvedBy:auth.currentUser?.uid||"admin"};}
+   await db.ref().update(updates);
+   closeModal(); toast("✅ Purchase Approved। User-এর History → Game-এ Approved দেখাবে। Room Manager আলাদাভাবে পরিচালিত হবে।");
+ }catch(err){
+   console.error(err);
+   if(btn){btn.disabled=false;btn.textContent="✅ Approve (No Balance Cut)";}
+   toast("❌ Approve হয়নি: "+(err.message||err));
+ }
+};
+
+$("gameForm").onsubmit=async e=>{
+ e.preventDefault();
+ let id=$("gameId").value||db.ref("games").push().key;
+ await db.ref("games/"+id).set({id,name:$("gameName").value.trim(),imageUrl:$("gameImage").value.trim(),gameUrl:$("gameUrl").value.trim(),price:Number($("gamePrice").value||0),betAmount:Number($("gameBet").value||0),description:$("gameDesc").value.trim(),active:$("gameActive").value==="true",updatedAt:Date.now()});
+ $("gameId").value=id; if($("gameIdShow"))$("gameIdShow").value=id;
+ toast("Game saved • Game ID: "+id);
+ renderGames();
+};
+window.editGame=id=>{let x=games[id]||{};$("gameId").value=id;if($("gameIdShow"))$("gameIdShow").value=id;$("gameName").value=x.name||"";$("gameImage").value=x.imageUrl||"";$("gameUrl").value=x.gameUrl||"";$("gamePrice").value=x.price||0;$("gameBet").value=x.betAmount??x.price??0;$("gameDesc").value=x.description||"";$("gameActive").value=x.active===false?"false":"true";tab("games",document.querySelectorAll(".tabs button")[6])};
+window.deleteGame=async id=>{if(confirm("এই Game delete করবেন?")){await db.ref("games/"+id).remove();toast("Deleted")}};
+function resetGameForm(){$("gameId").value="";if($("gameIdShow"))$("gameIdShow").value="";$("gameName").value="";$("gameImage").value="";$("gameUrl").value="";$("gamePrice").value="";$("gameBet").value="";$("gameDesc").value="";$("gameActive").value="true"} window.resetGameForm=resetGameForm;
+
+window.deleteNotice=async id=>{
+ if(!id){toast("❌ Notice ID পাওয়া যায়নি");return}
+ if(!confirm("এই নোটিশটি স্থায়ীভাবে ডিলিট করবেন?"))return;
+ try{
+   await db.ref("notices").child(id).remove();
+   resetNotice();
+   toast("✅ Notice deleted");
+ }catch(err){
+   toast("❌ Notice delete হয়নি: "+(err.message||err));
+   console.error("Notice delete failed:",err);
+ }
+};
+$("noticeForm").onsubmit=async e=>{e.preventDefault();let id=$("noticeId").value||db.ref("notices").push().key;await db.ref("notices/"+id).set({id,title:$("noticeTitle").value.trim(),text:$("noticeText").value.trim(),createdAt:Date.now()});resetNotice();toast("Notice saved")};
+window.editNotice=id=>{let x=notices[id]||{};$("noticeId").value=id;$("noticeTitle").value=x.title||"";$("noticeText").value=x.text||"";tab("notices",document.querySelectorAll(".tabs button")[9])};
+function resetNotice(){$("noticeId").value="";$("noticeTitle").value="";$("noticeText").value=""} window.resetNotice=resetNotice;
+
+$("settingsForm").onsubmit=async e=>{
+ e.preventDefault();
+ await db.ref("settings/public").set({
+   whatsapp:$("whatsapp").value.trim(),withdrawFeePercent:Number($("fee").value||0),
+   depositMethods:{
+    bKash:{number:$("bkash").value.trim(),instruction:$("bkashIns").value.trim()},
+    Nagad:{number:$("nagad").value.trim(),instruction:$("nagadIns").value.trim()},
+    Rocket:{number:$("rocket").value.trim(),instruction:$("rocketIns").value.trim()}
+   }
+ });
+ toast("Public settings saved");
+};
+function fillSettings(){let p=publicSettings||{},d=p.depositMethods||{};$("whatsapp").value=p.whatsapp||"";$("fee").value=p.withdrawFeePercent??0;$("bkash").value=d.bKash?.number||"";$("bkashIns").value=d.bKash?.instruction||"";$("nagad").value=d.Nagad?.number||"";$("nagadIns").value=d.Nagad?.instruction||"";$("rocket").value=d.Rocket?.number||"";$("rocketIns").value=d.Rocket?.instruction||""}
+
+$("telegramForm").onsubmit=async e=>{e.preventDefault();await db.ref("settings/private").set({telegramBotToken:$("tgToken").value.trim(),telegramChatId:$("tgChat").value.trim(),updatedAt:Date.now()});toast("Telegram settings saved")};
+window.testTelegram=async()=>{
+ let token=$("tgToken").value.trim(),chat=$("tgChat").value.trim();
+ if(!token||!chat)return toast("Token ও Chat ID দিন");
+ try{
+   const r=await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`,{
+     method:"POST",headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({chat_id:chat,text:["🎮 GameNest BD Admin Test","✅ Telegram notification is working."].join("\\n"),disable_web_page_preview:true})
+   });
+   const j=await r.json();
+   toast(r.ok&&j.ok?"Telegram Test OK":"Telegram Test Failed: "+(j.description||"Unknown error"));
+ }catch(e){toast("Telegram request failed: "+(e.message||e))}
+};
+window.editBalance=async uid=>{let x=users[uid];if(!x)return;let v=prompt("নতুন Balance লিখুন:",String(Number(x.balance||0)));if(v===null)return;let n=Number(v);if(!Number.isFinite(n)||n<0)return toast("সঠিক amount দিন");await db.ref("users/"+uid+"/balance").set(n);toast("Balance updated")};
+window.logout=()=>auth.signOut();
+
+</script>
+</body>
+</html>
