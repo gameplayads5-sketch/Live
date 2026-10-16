@@ -80,7 +80,7 @@ main{padding:14px}.screen{display:none}.screen.active{display:block}.hero{border
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updatePassword,reauthenticateWithCredential,EmailAuthProvider} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import {getDatabase,ref,set,get,push,onValue,update,query,orderByChild,equalTo} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import {getDatabase,ref,set,get,push,onValue,update,query,orderByChild,equalTo,runTransaction,remove} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
 const firebaseConfig={apiKey:"AIzaSyD2DBF_GTIkQfa6G_3gZLfZ5n0MaUEBQ48",authDomain:"gamenest-bd.firebaseapp.com",databaseURL:"https://gamenest-bd-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"gamenest-bd",storageBucket:"gamenest-bd.firebasestorage.app",messagingSenderId:"1020093526765",appId:"1:1020093526765:web:525b5f303e0f08d7b692e4"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
@@ -430,6 +430,15 @@ window.openIdentityVerification=async()=>{
       if(!tokenSnap.exists())return toast("সঠিক Package Code দিন (যেমন PK3MDY0546)। Room/Match Code এখানে দেবেন না।");
       const token=tokenSnap.val()||{};
       if(token.uid!==me.uid)return toast("এই প্যাকেজ কোড আপনার অ্যাকাউন্টের নয়");
+      // Atomic package-code reservation: one normalized package can create only one claim.
+      const packageHash=await sha256Hex(code);
+      const packageLockRef=ref(db,"packageClaimLocks/"+packageHash);
+      const lockTx=await runTransaction(packageLockRef,old=>{
+        if(old!==null)return;
+        return {packageCode:code,uid:me.uid,status:"reserved",reservedAt:Date.now()};
+      },{applyLocally:false});
+      if(!lockTx.committed)return toast("❌ এই Package Code আগে জমা হয়েছে বা যাচাইয়ের অপেক্ষায় আছে। একই কোড দিয়ে দ্বিতীয়বার দাবি করা যাবে না।");
+      window.__activePackageClaimLock={path:"packageClaimLocks/"+packageHash,uid:me.uid,hash:packageHash};
       const claimRef=push(ref(db,"winningClaims"));
       const claimId=claimRef.key;
       if(!CLOUDINARY_CLOUD_NAME||CLOUDINARY_CLOUD_NAME==="YOUR_CLOUDINARY_CLOUD_NAME"||!CLOUDINARY_UPLOAD_PRESET||CLOUDINARY_UPLOAD_PRESET==="YOUR_UNSIGNED_UPLOAD_PRESET"){
@@ -449,10 +458,17 @@ window.openIdentityVerification=async()=>{
       const claimData={claimId,uid:me.uid,userId:me.uid,winnerUid:me.uid,name:meData.name||"",userName:meData.name||"",mobile:meData.mobile||"",packageCode:code,purchaseId:token.purchaseId||"",gameId:token.gameId||"",gameName:token.gameName||"",matchId,matchCode:matchId,roomId:matchId,opponentUid:token.opponentUid||"",playerUids:token.playerUids||[],betAmount:Number(token.entryAmount||token.betAmount||token.amount||0),winningAmount:Number(token.winningAmount||Number(token.entryAmount||token.betAmount||token.amount||0)*2),status:"pending",verificationScore:null,createdAt:Date.now(),credited:false,screenshot:screenshotUrl,screenshotUrl,screenshotPath:imagePath,storageProvider:"cloudinary"};
       submitStage="Firebase Realtime Database-এ Claim জমা";showStage(submitStage);
       await set(claimRef,claimData);
+      await update(packageLockRef,{status:"pending",claimId,submittedAt:Date.now()});
+      window.__activePackageClaimLock=null;
       showStage("জমা সম্পন্ন");
       closeModal();toast("✅ জয়ের দাবি জমা হয়েছে। Admin Panel-এ রিয়েল-টাইমে দেখা যাবে।");renderIdentityStatus();
     }catch(err){console.error("Winner claim failed at",submitStage,err);const msg=String(err?.message||err);if(/permission_denied|permission denied|unauthorized/i.test(msg)){if(submitStage.includes("Cloudinary"))toast("❌ Cloudinary upload অনুমতি নেই। Upload Preset-এর unsigned সেটিংস যাচাই করুন।");else if(submitStage.includes("Realtime Database"))toast("❌ Claim জমা দেওয়ার অনুমতি নেই। Realtime Database Rules যাচাই করুন।");else toast("❌ Package Code যাচাইয়ে অনুমতি নেই। Database Rules-এ gameTokens পড়ার অনুমতি পরীক্ষা করুন।");}else if(/object not found|does not exist/i.test(msg))toast("❌ স্ক্রিনশট আপলোডের ফাইল পাওয়া যায়নি। আবার ছবি নির্বাচন করুন।");else toast("❌ "+submitStage+" ব্যর্থ: "+msg);
-    }finally{if(submitButton){submitButton.disabled=false;submitButton.textContent=originalButtonText;submitButton.style.opacity="";}}
+    }finally{
+      // Release only an unfinished reservation created by this exact session; never release a submitted claim.
+      const activeLock=window.__activePackageClaimLock;
+      if(activeLock&&activeLock.uid===me.uid){try{const lr=ref(db,activeLock.path);const ls=await get(lr);if(ls.exists()&&ls.val().status==="reserved"&&ls.val().uid===me.uid)await remove(lr);}catch(lockErr){console.warn("Package reservation cleanup failed",lockErr);}window.__activePackageClaimLock=null;}
+      if(submitButton){submitButton.disabled=false;submitButton.textContent=originalButtonText;submitButton.style.opacity="";}
+    }
   };
 };
 async function renderIdentityStatus(){

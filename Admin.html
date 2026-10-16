@@ -427,6 +427,15 @@ window.approveWinningClaim=async id=>{
  if(!c.uid)return toast("Claim-এ User UID নেই।");
  if(!auth.currentUser)return toast("Admin login প্রয়োজন।");
  if(c.status!=="pending")return toast("শুধু Pending Claim Approve করা যাবে।");
+ // Reject legacy duplicate claims using the same package code before any balance credit.
+ const normalizedPackage=String(c.packageCode||"").trim().toUpperCase().replace(/\s+/g,"");
+ if(!normalizedPackage)return toast("Package Code নেই—Approve করা যাবে না।");
+ const duplicate=Object.entries(winningClaims||{}).find(([otherId,x])=>otherId!==id&&String(x?.packageCode||"").trim().toUpperCase().replace(/\s+/g,"")===normalizedPackage&&["approved","processing"].includes(String(x?.status||"").toLowerCase()));
+ if(duplicate)return toast("❌ এই Package Code অন্য Claim-এ ইতোমধ্যে ব্যবহার/অনুমোদন করা হয়েছে। টাকা যোগ করা বন্ধ রাখা হয়েছে।");
+ const packageHash=await (async value=>{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");})(normalizedPackage);
+ const packageLockRef=db.ref("packageClaimLocks/"+packageHash);
+ const packageLockSnap=await packageLockRef.once("value");
+ if(packageLockSnap.exists()&&packageLockSnap.val().claimId&&packageLockSnap.val().claimId!==id&&["pending","approved","processing"].includes(String(packageLockSnap.val().status||"").toLowerCase()))return toast("❌ Package Code ইতোমধ্যে অন্য Claim-এর জন্য সংরক্ষিত। Approve বন্ধ।");
  const claimRef=db.ref("winningClaims/"+id), token=auth.currentUser.uid+"_"+Date.now();
  try{
    // আগে Claim-কে processing lock করি, যাতে একই Claim-এ দুই Admin একসঙ্গে credit করতে না পারেন।
@@ -454,6 +463,7 @@ window.approveWinningClaim=async id=>{
        creditLedgerKey:creditKey,verificationScore:winningClaimScore(v).score};
    });
    if(!finish.committed)throw new Error("Balance ledger সংরক্ষিত, কিন্তু Claim status আপডেট হয়নি। Admin refresh করে পরীক্ষা করুন।");
+   await packageLockRef.transaction(v=>{if(!v)return {packageCode:normalizedPackage,uid:c.uid,claimId:id,status:"approved",approvedAt:Date.now()};if(v.claimId&&v.claimId!==id)return;return {...v,claimId:id,status:"approved",approvedAt:Date.now()};});
    toast(credit?.creditedAt?"✅ Approved — Claim ID অনুযায়ী একবারই Balance-এ টাকা যোগ হয়েছে":"Claim status update হয়েছে।");
  }catch(err){
    console.error(err);
