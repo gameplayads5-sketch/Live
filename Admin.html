@@ -125,7 +125,7 @@ button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.hidden
           <div class="field"><label>bKash Number</label><input id="bkash"></div><div class="field"><label>bKash Instruction</label><input id="bkashIns" placeholder="Send Money / Cash Out..."></div>
           <div class="field"><label>Nagad Number</label><input id="nagad"></div><div class="field"><label>Nagad Instruction</label><input id="nagadIns"></div>
           <div class="field"><label>Rocket Number</label><input id="rocket"></div><div class="field"><label>Rocket Instruction</label><input id="rocketIns"></div>
-          <button class="primary">💾 Save Public Settings</button>
+          <button class="primary" type="submit">💾 Save Public Settings</button>
         </form>
       </div>
       <div class="card">
@@ -134,7 +134,7 @@ button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.hidden
         <form id="telegramForm" class="form">
           <div class="field"><label>Telegram Bot Token</label><input id="tgToken" type="password" autocomplete="off"></div>
           <div class="field"><label>Telegram Chat ID</label><input id="tgChat"></div>
-          <div class="actions"><button class="primary">💾 Save Telegram</button><button type="button" class="secondary" onclick="testTelegram()">📨 Test</button></div>
+          <div class="actions"><button class="primary" type="submit">💾 Save Telegram</button><button type="button" class="secondary" onclick="testTelegram()">📨 Test</button></div>
         </form>
       </div>
     </section>
@@ -350,8 +350,8 @@ function bind(){
  db.ref("games").on("value", s=>{games=s.val()||{};renderAll()});
  db.ref("rooms").on("value", s=>{rooms=s.val()||{};renderAll()});
  db.ref("notices").on("value", s=>{notices=s.val()||{};renderAll()});
- db.ref("settings/public").on("value", s=>{publicSettings=s.val()||{};fillSettings()});
- db.ref("settings/private").on("value", s=>{privateSettings=s.val()||{};$("tgToken").value=privateSettings.telegramBotToken||"";$("tgChat").value=privateSettings.telegramChatId||""});
+ db.ref("settings/public").on("value", s=>{publicSettings=s.val()||{};fillSettings()}, err=>{console.error("Public settings read failed:",err);toast("❌ Public Settings লোড হয়নি: "+(err.message||err))});
+ db.ref("settings/private").on("value", s=>{privateSettings=s.val()||{};$("tgToken").value=privateSettings.telegramBotToken||"";$("tgChat").value=privateSettings.telegramChatId||""}, err=>{console.error("Private settings read failed:",err);toast("❌ Telegram Settings লোড হয়নি: "+(err.message||err))});
 }
 function renderAll(){
  let ua=Object.values(users),da=Object.values(deposits).filter(x=>x.status==="pending"),wa=Object.values(withdraws).filter(x=>x.status==="pending");
@@ -420,6 +420,13 @@ function renderWinningClaims(){
    <div class="notice">👤 User ID: <b>${esc(x.userId||x.uid||"")}</b><br>💰 Balance: <b>${money(u.balance)}</b><br>🎮 Game: <b>${esc(x.gameName||"")}</b><br>🆔 Game ID: <b>${esc(x.gameId||"")}</b><br>🎟️ Package Code: <b>${esc(x.packageCode||"Not supplied")}</b><br>🆔 Match Code: <b>${esc(x.matchCode||x.matchId||x.roomId||"")}</b><br>👥 Opponent: <b>${esc(x.opponentName||"Opponent")}</b> • UID: <b>${esc(x.opponentUid||"Not supplied")}</b><br>👥 Players: <b>${esc((x.playerUids||[]).join(" vs ")||"Not supplied")}</b><br>📋 Match Record: <b>${esc(x.matchRecord?("Winner "+(x.matchRecord.winner||"")+" • Remaining coins "+(x.matchRecord.coinCount??"—")):"Not supplied")}</b><br>📊 Verification Score: <b>${review.score}/100</b><br>🔎 Package/Purchase: ${review.checks[0]?"সম্ভাব্য মিল":"তথ্য অনুপস্থিত"} • Match: ${review.checks[1]?"তথ্য আছে":"তথ্য অনুপস্থিত"} • Winner UID: ${review.checks[2]?"মিলেছে":"নিশ্চিত নয়"} • Screenshot: ${review.checks[3]?"আছে":"নেই"}<br>🚪 Room: <b>${esc(x.roomId||"")}</b><br>🎯 Bet: <b>${money(x.betAmount)}</b><br>🏆 Winning Amount: <b>${money(x.winningAmount)}</b><br>🕒 ${new Date(x.createdAt||0).toLocaleString("bn-BD")}</div>${shot}${actions}</div>`;
  }).join(""):'<div class="notice">কোনো Winning Claim নেই।</div>';
 }
+async function sha256Hex(value){
+  const text=String(value||"").trim().toUpperCase().replace(/\s+/g,"");
+  if(globalThis.crypto?.subtle){const b=await globalThis.crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0x9bdc06a7,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],bytes=Array.from(new TextEncoder().encode(text)),bits=bytes.length*8;bytes.push(128);while(bytes.length%64!==56)bytes.push(0);const hi=Math.floor(bits/4294967296),lo=bits>>>0;for(let i=3;i>=0;i--)bytes.push((hi>>>(i*8))&255);for(let i=3;i>=0;i--)bytes.push((lo>>>(i*8))&255);const rr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let o=0;o<bytes.length;o+=64){const w=Array(64);for(let i=0;i<16;i++)w[i]=((bytes[o+4*i]<<24)|(bytes[o+4*i+1]<<16)|(bytes[o+4*i+2]<<8)|bytes[o+4*i+3])>>>0;for(let i=16;i<64;i++){let x=w[i-15],y=w[i-2];w[i]=(w[i-16]+(rr(x,7)^rr(x,18)^(x>>>3))+w[i-7]+(rr(y,17)^rr(y,19)^(y>>>10)))>>>0;}let [A,B,C,D,E,F,G,Q]=H;for(let i=0;i<64;i++){let t1=(Q+(rr(E,6)^rr(E,11)^rr(E,25))+((E&F)^(~E&G))+K[i]+w[i])>>>0,t2=((rr(A,2)^rr(A,13)^rr(A,22))+((A&B)^(A&C)^(B&C)))>>>0;Q=G;G=F;F=E;E=(D+t1)>>>0;D=C;C=B;B=A;A=(t1+t2)>>>0;}[A,B,C,D,E,F,G,Q].forEach((v,i)=>H[i]=(H[i]+v)>>>0);}return H.map(x=>x.toString(16).padStart(8,"0")).join("");
+}
 window.approveWinningClaim=async id=>{
  const c=winningClaims[id]; if(!c)return toast("Claim পাওয়া যায়নি।");
  const amount=Number(c.winningAmount||0);
@@ -430,14 +437,24 @@ window.approveWinningClaim=async id=>{
  // Reject legacy duplicate claims using the same package code before any balance credit.
  const normalizedPackage=String(c.packageCode||"").trim().toUpperCase().replace(/\s+/g,"");
  if(!normalizedPackage)return toast("Package Code নেই—Approve করা যাবে না।");
- const duplicate=Object.entries(winningClaims||{}).find(([otherId,x])=>otherId!==id&&String(x?.packageCode||"").trim().toUpperCase().replace(/\s+/g,"")===normalizedPackage&&["approved","processing"].includes(String(x?.status||"").toLowerCase()));
- if(duplicate)return toast("❌ এই Package Code অন্য Claim-এ ইতোমধ্যে ব্যবহার/অনুমোদন করা হয়েছে। টাকা যোগ করা বন্ধ রাখা হয়েছে।");
- const packageHash=await (async value=>{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");})(normalizedPackage);
- const packageLockRef=db.ref("packageClaimLocks/"+packageHash);
- const packageLockSnap=await packageLockRef.once("value");
- if(packageLockSnap.exists()&&packageLockSnap.val().claimId&&packageLockSnap.val().claimId!==id&&["pending","approved","processing"].includes(String(packageLockSnap.val().status||"").toLowerCase()))return toast("❌ Package Code ইতোমধ্যে অন্য Claim-এর জন্য সংরক্ষিত। Approve বন্ধ।");
- const claimRef=db.ref("winningClaims/"+id), token=auth.currentUser.uid+"_"+Date.now();
+ const duplicate=Object.entries(winningClaims||{}).find(([otherId,x])=>{
+   if(otherId===id||String(x?.packageCode||"").trim().toUpperCase().replace(/\s+/g,"")!==normalizedPackage)return false;
+   const status=String(x?.status||"pending").toLowerCase();
+   return ["approved","processing"].includes(status) || (status==="pending" && (Number(x?.createdAt||0)<Number(c.createdAt||0) || (Number(x?.createdAt||0)===Number(c.createdAt||0)&&otherId<id)));
+ });
+ if(duplicate)return toast("❌ একই Package Code-এর অন্য Claim আগে থেকেই আছে। পুরোনো Claim যাচাই করুন; এই duplicate Approve করা যাবে না।");
+ let packageLockRef=null,claimRef=null;
+ const token=auth.currentUser.uid+"_"+Date.now();
  try{
+   // Hashing and lock reads are also inside try/catch so failures show a visible error.
+   const packageHash=await sha256Hex(normalizedPackage);
+   packageLockRef=db.ref("packageClaimLocks/"+packageHash);
+   claimRef=db.ref("winningClaims/"+id);
+   const packageLockTx=await packageLockRef.transaction(v=>{
+     if(v&&v.claimId&&v.claimId!==id&&["pending","approved","processing"].includes(String(v.status||"").toLowerCase()))return;
+     return {...(v||{}),packageCode:normalizedPackage,uid:c.uid,claimId:id,status:"processing",processingAt:Date.now()};
+   });
+   if(!packageLockTx.committed)return toast("❌ Package Code অন্য Claim-এর জন্য লক করা আছে।");
    // আগে Claim-কে processing lock করি, যাতে একই Claim-এ দুই Admin একসঙ্গে credit করতে না পারেন।
    const lock=await claimRef.transaction(v=>{
      if(!v||v.status!=="pending")return;
@@ -467,10 +484,11 @@ window.approveWinningClaim=async id=>{
    toast(credit?.creditedAt?"✅ Approved — Claim ID অনুযায়ী একবারই Balance-এ টাকা যোগ হয়েছে":"Claim status update হয়েছে।");
  }catch(err){
    console.error(err);
-   await claimRef.transaction(v=>{
+   if(claimRef)await claimRef.transaction(v=>{
      if(v&&v.status==="processing"&&v.approvalToken===token)return {...v,status:"pending",processingAt:null,processingBy:null,approvalToken:null,lastApprovalError:String(err?.message||err)};
      return v;
    }).catch(()=>{});
+   if(packageLockRef)await packageLockRef.transaction(v=>{if(v&&v.claimId===id&&v.status==="processing")return {...v,status:"pending",processingAt:null,lastApprovalError:String(err?.message||err)};return v;}).catch(()=>{});
    toast("❌ Approve হয়নি: "+(err.message||err));
  }
 };
@@ -885,19 +903,37 @@ function resetNotice(){$("noticeId").value="";$("noticeTitle").value="";$("notic
 
 $("settingsForm").onsubmit=async e=>{
  e.preventDefault();
- await db.ref("settings/public").set({
-   whatsapp:$("whatsapp").value.trim(),withdrawFeePercent:Number($("fee").value||0),
-   depositMethods:{
-    bKash:{number:$("bkash").value.trim(),instruction:$("bkashIns").value.trim()},
-    Nagad:{number:$("nagad").value.trim(),instruction:$("nagadIns").value.trim()},
-    Rocket:{number:$("rocket").value.trim(),instruction:$("rocketIns").value.trim()}
-   }
- });
- toast("Public settings saved");
+ const btn=$("settingsForm").querySelector('button[type="submit"],button:not([type])');
+ if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent="Saving...";}
+ try{
+   const fee=Number($("fee").value||0);
+   if(!Number.isFinite(fee)||fee<0||fee>100) throw new Error("Withdraw Fee ০ থেকে ১০০-এর মধ্যে দিন");
+   await db.ref("settings/public").update({
+     whatsapp:$("whatsapp").value.trim(),withdrawFeePercent:fee,
+     depositMethods:{
+       bKash:{number:$("bkash").value.trim(),instruction:$("bkashIns").value.trim()},
+       Nagad:{number:$("nagad").value.trim(),instruction:$("nagadIns").value.trim()},
+       Rocket:{number:$("rocket").value.trim(),instruction:$("rocketIns").value.trim()}
+     }
+   });
+   toast("✅ Public Settings সেভ হয়েছে");
+ }catch(err){console.error("Public settings save failed:",err);toast("❌ সেভ হয়নি: "+(err.code==="PERMISSION_DENIED"?"Firebase Rules-এ settings/public অনুমতি নেই":(err.message||"আবার চেষ্টা করুন")));}
+ finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||"💾 Save Public Settings";}}
 };
 function fillSettings(){let p=publicSettings||{},d=p.depositMethods||{};$("whatsapp").value=p.whatsapp||"";$("fee").value=p.withdrawFeePercent??0;$("bkash").value=d.bKash?.number||"";$("bkashIns").value=d.bKash?.instruction||"";$("nagad").value=d.Nagad?.number||"";$("nagadIns").value=d.Nagad?.instruction||"";$("rocket").value=d.Rocket?.number||"";$("rocketIns").value=d.Rocket?.instruction||""}
 
-$("telegramForm").onsubmit=async e=>{e.preventDefault();await db.ref("settings/private").set({telegramBotToken:$("tgToken").value.trim(),telegramChatId:$("tgChat").value.trim(),updatedAt:Date.now()});toast("Telegram settings saved")};
+$("telegramForm").onsubmit=async e=>{
+ e.preventDefault();
+ const btn=$("telegramForm").querySelector('button[type="submit"],button:not([type])');
+ if(btn){btn.disabled=true;btn.dataset.oldText=btn.textContent;btn.textContent="Saving...";}
+ try{
+   const token=$("tgToken").value.trim(),chat=$("tgChat").value.trim();
+   if(!token||!chat) throw new Error("Bot Token এবং Chat ID দুটোই দিন");
+   await db.ref("settings/private").update({telegramBotToken:token,telegramChatId:chat,updatedAt:Date.now()});
+   toast("✅ Telegram Settings সেভ হয়েছে");
+ }catch(err){console.error("Telegram settings save failed:",err);toast("❌ সেভ হয়নি: "+(err.code==="PERMISSION_DENIED"?"Firebase Rules-এ settings/private অনুমতি নেই":(err.message||"আবার চেষ্টা করুন")));}
+ finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.oldText||"💾 Save Telegram";}}
+};
 window.testTelegram=async()=>{
  let token=$("tgToken").value.trim(),chat=$("tgChat").value.trim();
  if(!token||!chat)return toast("Token ও Chat ID দিন");
@@ -907,7 +943,7 @@ window.testTelegram=async()=>{
      body:JSON.stringify({chat_id:chat,text:["🎮 GameNest BD Admin Test","✅ Telegram notification is working."].join("\\n"),disable_web_page_preview:true})
    });
    const j=await r.json();
-   toast(r.ok&&j.ok?"Telegram Test OK":"Telegram Test Failed: "+(j.description||"Unknown error"));
+   toast(r.ok&&j.ok?"✅ Telegram Test সফল":"❌ Telegram Test ব্যর্থ: "+(j.description||"Unknown error"));
  }catch(e){toast("Telegram request failed: "+(e.message||e))}
 };
 window.editBalance=async uid=>{let x=users[uid];if(!x)return;let v=prompt("নতুন Balance লিখুন:",String(Number(x.balance||0)));if(v===null)return;let n=Number(v);if(!Number.isFinite(n)||n<0)return toast("সঠিক amount দিন");await db.ref("users/"+uid+"/balance").set(n);toast("Balance updated")};

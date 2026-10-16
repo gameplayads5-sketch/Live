@@ -69,7 +69,7 @@ main{padding:14px}.screen{display:none}.screen.active{display:block}.hero{border
 <div class="sectiontitle"><h3>📢 নোটিশ</h3><button class="secondary" style="width:auto;padding:7px 12px;font-size:11px" onclick="openNotices()">সব নোটিশ</button></div><div id="notices"></div>
 </section>
 <section id="games" class="screen"><div class="sectiontitle"><h3>🎮 সব গেম</h3><span class="muted">প্যাকেজ কিনে কোড নিন</span></div><div id="gamesList"></div><div class="sectiontitle"><h3>🔑 আমার গেম</h3><span class="muted">Active প্যাকেজ</span></div><div id="myGamesList"></div></section>
-<section id="history" class="screen"><div class="tabs"><button id="ht1" class="active" onclick="historyTab('money')">জমা/উত্তোলন</button><button id="ht2" onclick="historyTab('game')">গেম</button></div><div id="historyList"></div></section>
+<section id="history" class="screen"><div class="tabs"><button id="ht1" class="active" onclick="historyTab('money')">জমা/উত্তোলন</button><button id="ht2" onclick="historyTab('game')">গেম</button><button id="ht3" onclick="historyTab('winner')">🏆 উইনার</button></div><div id="historyList"></div></section>
 <section id="profile" class="screen"><div class="card"><h3>👤 আমার প্রোফাইল</h3><div class="list" id="profileData"></div></div><div class="card"><h3>🔐 PIN নিরাপত্তা</h3><p class="muted">বর্তমান PIN দিয়ে নতুন PIN সেট করুন।</p><button class="primary" onclick="openResetPin()">🔑 PIN রিসেট করুন</button></div><div class="card"><h3>🏆 ম্যাচ উইনার যাচাই</h3><p class="muted">পুরস্কারের টাকা পেতে আপনার প্যাকেজ কোড এবং ম্যাচ জয়ের স্ক্রিনশট এখানে জমা দিন। অ্যাডমিন তথ্য যাচাই করে অনুমোদন দিলে পুরস্কারের টাকা আপনার অ্যাকাউন্টে যোগ করা হবে।</p><button class="primary" onclick="openIdentityVerification()">🎟️ ম্যাচ উইনার যাচাই</button><div id="identityStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><h3>📱 WhatsApp</h3><p class="muted">Admin-এর সেট করা নম্বরে যোগাযোগ করুন।</p><button class="primary" onclick="contactWhatsApp()">WhatsApp-এ যোগাযোগ</button></div><div class="card"><button class="secondary danger" onclick="logout()">লগআউট</button></div></section>
 </main>
 <nav class="bottom"><button class="nav active" data-screen="home" onclick="go('home')"><span class="i">⌂</span>হোম</button><button class="nav" data-screen="games" onclick="go('games')"><span class="i">🎮</span>গেম</button><button class="nav" data-screen="history" onclick="go('history')"><span class="i">🧾</span>হিস্টরি</button><button class="nav" data-screen="profile" onclick="go('profile')"><span class="i">👤</span>প্রোফাইল</button></nav>
@@ -84,6 +84,8 @@ import {getDatabase,ref,set,get,push,onValue,update,query,orderByChild,equalTo,r
 
 const firebaseConfig={apiKey:"AIzaSyD2DBF_GTIkQfa6G_3gZLfZ5n0MaUEBQ48",authDomain:"gamenest-bd.firebaseapp.com",databaseURL:"https://gamenest-bd-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"gamenest-bd",storageBucket:"gamenest-bd.firebasestorage.app",messagingSenderId:"1020093526765",appId:"1:1020093526765:web:525b5f303e0f08d7b692e4"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);
+// Public support settings must load on the login screen too, before a user signs in.
+onValue(ref(db,"settings/public"),s=>{settings={...settings,...(s.val()||{})};settings.withdrawFeePercent=(settings.withdrawFeePercent===undefined||settings.withdrawFeePercent===null)?10:Number(settings.withdrawFeePercent)});
 // Cloudinary free-plan direct image upload. Configure these two values in your own Cloudinary account.
 const CLOUDINARY_CLOUD_NAME="mu60fehg";
 const CLOUDINARY_UPLOAD_PRESET="gamenest_winner_unsigned";
@@ -399,9 +401,18 @@ window.requestPurchase=async id=>{
 };
 
 async function sha256Hex(value){
-  const data=new TextEncoder().encode(String(value||"").trim().toUpperCase().replace(/\s+/g,""));
-  const buf=await crypto.subtle.digest("SHA-256",data);
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  const text=String(value||"").trim().toUpperCase().replace(/\s+/g,"");
+  if(globalThis.crypto?.subtle){
+    const buf=await globalThis.crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+  // Pure-JavaScript SHA-256 fallback for browsers/embedded contexts without Web Crypto.
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bytes=Array.from(new TextEncoder().encode(text)), bitLen=bytes.length*8; bytes.push(0x80); while(bytes.length%64!==56)bytes.push(0); const hi=Math.floor(bitLen/0x100000000),lo=bitLen>>>0; for(let i=3;i>=0;i--)bytes.push((hi>>>(i*8))&255);for(let i=3;i>=0;i--)bytes.push((lo>>>(i*8))&255);
+  const rotr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let off=0;off<bytes.length;off+=64){const w=new Array(64);for(let i=0;i<16;i++)w[i]=((bytes[off+i*4]<<24)|(bytes[off+i*4+1]<<16)|(bytes[off+i*4+2]<<8)|bytes[off+i*4+3])>>>0;for(let i=16;i<64;i++){const x=w[i-15],y=w[i-2],s0=rotr(x,7)^rotr(x,18)^(x>>>3),s1=rotr(y,17)^rotr(y,19)^(y>>>10);w[i]=(w[i-16]+s0+w[i-7]+s1)>>>0;}let [A,B,C,D,E,F,G,HH]=H;for(let i=0;i<64;i++){const S1=rotr(E,6)^rotr(E,11)^rotr(E,25),ch=(E&F)^(~E&G),t1=(HH+S1+ch+K[i]+w[i])>>>0,S0=rotr(A,2)^rotr(A,13)^rotr(A,22),maj=(A&B)^(A&C)^(B&C),t2=(S0+maj)>>>0;HH=G;G=F;F=E;E=(D+t1)>>>0;D=C;C=B;B=A;A=(t1+t2)>>>0;}H[0]=(H[0]+A)>>>0;H[1]=(H[1]+B)>>>0;H[2]=(H[2]+C)>>>0;H[3]=(H[3]+D)>>>0;H[4]=(H[4]+E)>>>0;H[5]=(H[5]+F)>>>0;H[6]=(H[6]+G)>>>0;H[7]=(H[7]+HH)>>>0;}
+  return H.map(x=>x.toString(16).padStart(8,"0")).join("");
 }
 window.openIdentityVerification=async()=>{
   const snap=await get(ref(db,"winningClaims")).catch(()=>null);
@@ -433,8 +444,21 @@ window.openIdentityVerification=async()=>{
       // Atomic package-code reservation: one normalized package can create only one claim.
       const packageHash=await sha256Hex(code);
       const packageLockRef=ref(db,"packageClaimLocks/"+packageHash);
+      // If Admin manually deleted the old claim, its lock may remain orphaned.
+      const priorLockSnap=await get(packageLockRef);
+      let orphanedLockId=null;
+      if(priorLockSnap.exists()){
+        const priorLock=priorLockSnap.val()||{};
+        if(priorLock.uid===me.uid && priorLock.claimId){
+          const priorClaimSnap=await get(ref(db,"winningClaims/"+priorLock.claimId)).catch(()=>null);
+          if(!priorClaimSnap?.exists() || String(priorClaimSnap.val()?.status||"").toLowerCase()==="rejected") orphanedLockId=priorLock.claimId;
+        }
+      }
       const lockTx=await runTransaction(packageLockRef,old=>{
-        if(old!==null)return;
+        if(old!==null){
+          if(orphanedLockId && old.uid===me.uid && old.claimId===orphanedLockId)return {packageCode:code,uid:me.uid,status:"reserved",reservedAt:Date.now()};
+          return;
+        }
         return {packageCode:code,uid:me.uid,status:"reserved",reservedAt:Date.now()};
       },{applyLocally:false});
       if(!lockTx.committed)return toast("❌ এই Package Code আগে জমা হয়েছে বা যাচাইয়ের অপেক্ষায় আছে। একই কোড দিয়ে দ্বিতীয়বার দাবি করা যাবে না।");
@@ -700,7 +724,7 @@ window.openReferral=()=>{
   $("modal").classList.remove("hidden");
 };
 window.closeModal=()=>$("modal").classList.add("hidden");
-function contactWhatsApp(){let n=String(settings.whatsapp||"").replace(/\D/g,"");if(!n)return toast("Admin এখনো WhatsApp নম্বর সেট করেননি");location.href="https://wa.me/"+n+"?text="+encodeURIComponent("GameNest BD Support - আমি সাহায্য চাই।")}window.contactWhatsApp=contactWhatsApp;
+function contactWhatsApp(){let n=String(settings.whatsapp||"").replace(/\D/g,"");if(!n)return toast("Admin-এর WhatsApp নম্বর লোড হচ্ছে বা সেট করা নেই। একটু পরে আবার চাপ দিন।");if(n.startsWith("0"))n="88"+n;else if(n.startsWith("1"))n="880"+n;location.href="https://wa.me/"+n+"?text="+encodeURIComponent("GameNest BD Support - আমি সাহায্য চাই।")}window.contactWhatsApp=contactWhatsApp;
 let noticeCache={};
 
 function maybePopupNotice(d){
@@ -728,7 +752,7 @@ window.openNotices=()=>{
   $("modal").classList.remove("hidden");
 };
 async function loadMoneyHistory(){try{if(!me?.uid)throw new Error("লগইন তথ্য পাওয়া যায়নি");const [d,w]=await Promise.all([get(query(ref(db,"depositRequests"),orderByChild("uid"),equalTo(me.uid))),get(query(ref(db,"withdrawRequests"),orderByChild("uid"),equalTo(me.uid)))]);let a=[...Object.entries(d.val()||{}).map(([id,x])=>({id,...x,_kind:"deposit"})),...Object.entries(w.val()||{}).map(([id,x])=>({id,...x,_kind:"withdraw"}))].sort((a,b)=>(Number(b.createdAt||0)-Number(a.createdAt||0)));const statusLabel={pending:"অপেক্ষমাণ",approved:"অনুমোদিত",completed:"সম্পন্ন",rejected:"বাতিল",processing:"প্রক্রিয়াধীন",paid:"পরিশোধিত",failed:"ব্যর্থ"};$("historyList").innerHTML=a.length?a.slice(0,10).map(x=>{const dep=x._kind==="deposit";const label=dep?"💰 ডিপোজিট":"💸 উইথড্র";const status=String(x.status||"pending").toLowerCase();return `<div class="row"><div class="left"><b>${label} • ${money(x.amount)}</b><small>মাধ্যম: ${esc(x.method||"—")} • ${new Date(Number(x.createdAt||0)).toLocaleString("bn-BD")}${x.transactionId||x.trxId?`<br>Transaction ID: ${esc(x.transactionId||x.trxId)}`:""}${!dep&&(x.receiveAmount!=null||x.netAmount!=null)?`<br>প্রাপ্য: ${money(x.receiveAmount??x.netAmount)}`:""}</small></div><span class="status ${esc(status)}">${esc(statusLabel[status]||x.status||"অপেক্ষমাণ")}</span></div>`}).join(""):'<div class="empty">এখনো কোনো ডিপোজিট বা উইথড্র রেকর্ড নেই।</div>';}catch(err){console.error("Transaction history read failed:",err);$("historyList").innerHTML='<div class="empty">লেনদেনের হিস্টোরি লোড হয়নি। Firebase Rules ও ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>';}}
-window.historyTab=async t=>{document.querySelectorAll("#history .tabs button").forEach((b,i)=>b.classList.toggle("active",t==="money"?i===0:i===1));if(t==="money")return loadMoneyHistory();try{if(!me?.uid)throw new Error("লগইন তথ্য পাওয়া যায়নি");let s=await get(ref(db,"gameHistory/"+me.uid)),a=Object.entries(s.val()||{}).map(([id,x])=>({id,...x})).sort((x,y)=>(Number(y.createdAt||0)-Number(x.createdAt||0)));const labels={pending:"অপেক্ষমাণ",approved:"অনুমোদিত",rejected:"বাতিল",active:"সক্রিয়",completed:"সম্পন্ন",processing:"প্রক্রিয়াধীন"};$("historyList").innerHTML=a.length?`<div class="muted" style="margin-bottom:8px">সর্বশেষ ১০টি গেম হিস্টোরি দেখানো হচ্ছে। পুরোনো রেকর্ড মুছে ফেলা হবে না।</div>`+a.slice(0,10).map(x=>{const dt=x.createdAt?new Date(Number(x.createdAt)).toLocaleString("bn-BD"):"সময় নেই";const status=String(x.status||"completed").toLowerCase();return `<div class="row"><div class="left"><b>🎮 ${esc(x.gameName||x.game||"Carrom Game")}</b><small>${x.recordType==="purchase"?`কেনার অনুরোধ • মূল্য: ${money(x.price||0)}`:`ফলাফল: ${esc(x.result||x.winnerName||"রেকর্ড করা হয়নি")}`} • ${dt}${x.matchCode||x.roomId?`<br>Match/Room: ${esc(x.matchCode||x.roomId)}`:""}${x.packageCode?`<br>Package Code: ${esc(x.packageCode)}`:""}${x.rejectNote?`<br>কারণ: ${esc(x.rejectNote)}`:""}${x.winningAmount!=null?`<br>পুরস্কার: ${money(x.winningAmount)}`:""}</small></div><span class="status ${esc(status)}">${esc(labels[status]||x.status||"সম্পন্ন")}</span></div>`}).join(""):'<div class="empty">এখনো কোনো গেম হিস্টরি নেই।</div>'}catch(err){console.error("Game history read failed:",err);$("historyList").innerHTML='<div class="empty">গেম হিস্টোরি লোড হয়নি। Firebase Rules ও ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>'}}
+window.historyTab=async t=>{document.querySelectorAll("#history .tabs button").forEach((b,i)=>b.classList.toggle("active",t==="money"?i===0:t==="game"?i===1:i===2));if(t==="money")return loadMoneyHistory();try{if(!me?.uid)throw new Error("লগইন তথ্য পাওয়া যায়নি");if(t==="winner"){const snap=await get(query(ref(db,"winningClaims"),orderByChild("uid"),equalTo(me.uid)));const claims=Object.entries(snap.val()||{}).map(([id,x])=>({id,...(x||{})})).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));const labels={pending:"⏳ অপেক্ষমাণ",processing:"🔄 যাচাই চলছে",approved:"✅ Success / অনুমোদিত",success:"✅ Success",rejected:"❌ Rejected / বাতিল"};const html=claims.slice(0,10).map(x=>{const status=String(x.status||"pending").toLowerCase();const dt=x.createdAt?new Date(Number(x.createdAt)).toLocaleString("bn-BD"):"সময় নেই";const reason=x.rejectReason||x.rejectNote||x.rejectionReason||x.reason||"";return `<div class="row" style="align-items:flex-start"><div class="left"><b>🏆 ${esc(x.gameName||"ম্যাচ উইনার রিকোয়েস্ট")}</b><small>জমার সময়: ${esc(dt)}${x.packageCode?`<br>Package Code: ${esc(x.packageCode)}`:""}${x.matchCode||x.matchId||x.roomId?`<br>Match/Room: ${esc(x.matchCode||x.matchId||x.roomId)}`:""}<br>পুরস্কার: ${money(x.winningAmount||0)}${status==="approved"||status==="success"?`<br>অনুমোদনের সময়: ${x.approvedAt?esc(new Date(Number(x.approvedAt)).toLocaleString("bn-BD")):"অনুমোদিত"}`:""}${status==="rejected"?`<br><b>বাতিলের কারণ:</b> ${esc(reason||"Admin কোনো কারণ উল্লেখ করেননি")}`:""}${status==="pending"||status==="processing"?"<br>Admin যাচাই সম্পন্ন করলে এখানে ফলাফল দেখাবে।":""}</small></div><span class="status ${status==="approved"||status==="success"?"approved":status==="rejected"?"rejected":"pending"}">${esc(labels[status]||status)}</span></div>`}).join("");$("historyList").innerHTML=`<div class="muted" style="margin-bottom:8px">সর্বশেষ ১০টি Winner History দেখানো হচ্ছে। পুরোনো রেকর্ড মুছে ফেলা হবে না।</div>`+(html||'<div class="empty">এখনো কোনো Winner Request নেই।</div>');return;}let s=await get(ref(db,"gameHistory/"+me.uid)),a=Object.entries(s.val()||{}).map(([id,x])=>({id,...x})).sort((x,y)=>(Number(y.createdAt||0)-Number(x.createdAt||0)));const labels={pending:"অপেক্ষমাণ",approved:"অনুমোদিত",rejected:"বাতিল",active:"সক্রিয়",completed:"সম্পন্ন",processing:"প্রক্রিয়াধীন"};$("historyList").innerHTML=a.length?`<div class="muted" style="margin-bottom:8px">সর্বশেষ ১০টি গেম হিস্টোরি দেখানো হচ্ছে। পুরোনো রেকর্ড মুছে ফেলা হবে না।</div>`+a.slice(0,10).map(x=>{const dt=x.createdAt?new Date(Number(x.createdAt)).toLocaleString("bn-BD"):"সময় নেই";const status=String(x.status||"completed").toLowerCase();return `<div class="row"><div class="left"><b>🎮 ${esc(x.gameName||x.game||"Carrom Game")}</b><small>${x.recordType==="purchase"?`কেনার অনুরোধ • মূল্য: ${money(x.price||0)}`:`ফলাফল: ${esc(x.result||x.winnerName||"রেকর্ড করা হয়নি")}`} • ${dt}${x.matchCode||x.roomId?`<br>Match/Room: ${esc(x.matchCode||x.roomId)}`:""}${x.packageCode?`<br>Package Code: ${esc(x.packageCode)}`:""}${x.rejectNote?`<br>কারণ: ${esc(x.rejectNote)}`:""}${x.winningAmount!=null?`<br>পুরস্কার: ${money(x.winningAmount)}`:""}</small></div><span class="status ${esc(status)}">${esc(labels[status]||x.status||"সম্পন্ন")}</span></div>`}).join(""):'<div class="empty">এখনো কোনো গেম হিস্টরি নেই।</div>'}catch(err){console.error("Game history read failed:",err);$("historyList").innerHTML='<div class="empty">গেম হিস্টোরি লোড হয়নি। Firebase Rules ও ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>'}}
 function renderProfile(){$("profileData").innerHTML=`<div class="row"><div class="left"><b>নাম</b></div><span>${esc(meData.name||"")}</span></div><div class="row"><div class="left"><b>মোবাইল</b></div><span>${esc(meData.mobile||"")}</span></div><div class="row"><div class="left"><b>ব্যালেন্স</b></div><span>${money(meData.balance)}</span></div>`}
 window.logout=()=>signOut(auth);
 </script>
