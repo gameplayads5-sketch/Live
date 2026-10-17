@@ -101,7 +101,7 @@ button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.hidden
       <div class="card"><h3>🎮 Games List</h3><div id="gameList" class="list"></div></div>
     </section>
 
-    <section id="users" class="tabsec hidden"><div class="card"><h3>👥 Users</h3><div id="userList" class="list"></div></div></section>
+    <section id="users" class="tabsec hidden"><div class="card"><h3>👥 Users</h3><div class="field" style="margin:10px 0 12px"><label>🔎 User Search (নাম / মোবাইল / UID)</label><input id="userSearch" type="search" placeholder="নাম, মোবাইল নম্বর অথবা UID লিখুন" oninput="renderUsers()" autocomplete="off"></div><div id="userSearchCount" class="muted" style="margin-bottom:8px"></div><div id="userList" class="list"></div></div></section>
     <section id="identity" class="tabsec hidden"><div class="card"><h3>🪪 Identity Verification</h3><div class="notice">একটি ID Hash একবার ব্যবহার হলে দ্বিতীয় User একই ID ব্যবহার করতে পারবে না। Duplicate হলে Verification Block করুন।</div><div id="identityList" class="list"></div></div></section>
 
     <section id="notices" class="tabsec hidden">
@@ -129,7 +129,7 @@ button,input,select,textarea{font:inherit}button{border:0;cursor:pointer}.hidden
         </form>
       </div>
       <div class="card">
-        <h3>🤖 Telegram Notification</h3>
+        <h3>🤖 GameNest BD Telegram Notification</h3>
         <div class="notice">Bot Token এবং Chat ID এখানে রাখুন। এগুলো User App-এর settings/public-এ যাবে না।</div>
         <form id="telegramForm" class="form">
           <div class="field"><label>Telegram Bot Token</label><input id="tgToken" type="password" autocomplete="off"></div>
@@ -231,7 +231,7 @@ auth.onAuthStateChanged(async u=>{
 });
 
 const telegramSeen={deposit:false,withdraw:false,claim:false};
-const telegramKnown={deposit:new Set(),withdraw:new Set(),claim:new Set()};
+const telegramKnown={deposit:new Set(),withdraw:new Set(),purchase:new Set(),claim:new Set()};
 function tgDate(v){
   const n=Number(v||Date.now());
   try{return new Date(n).toLocaleString("bn-BD",{dateStyle:"medium",timeStyle:"short"});}catch(e){return new Date(n).toLocaleString();}
@@ -253,7 +253,7 @@ function requestNotice(kind,id,x){
   const isDeposit=kind==="deposit";
   const title=isDeposit?"💳 নতুন ডিপোজিট রিকোয়েস্ট":"💸 নতুন উইথড্র রিকোয়েস্ট";
   const lines=[
-    "🎮 ক্রয়-বিক্রয় | Admin Notice",
+    "🎮 GameNest BD | Admin Notice",
     title,
     "👤 নাম: "+tgText(x.userName||x.name),
     "📱 মোবাইল: "+tgText(x.mobile||x.phone),
@@ -292,7 +292,7 @@ function purchaseNotice(id,x){
 }
 function claimNotice(id,x){
   const lines=[
-    "🎮 ক্রয়-বিক্রয় | গেম জয়ের নোটিশ",
+    "🎮 GameNest BD | Winner Notice",
     "🏆 নতুন Winning Claim",
     "🎲 গেম: "+tgText(x.gameName||"Game"),
     "👤 বিজয়ী: "+tgText(x.userName||x.name),
@@ -312,17 +312,30 @@ function claimNotice(id,x){
 let telegramWatchStarted=false;
 function watchTelegramRequests(kind,path,notifyFn){
  const node=db.ref(path);
- // Existing requests are remembered first, so opening/reloading Admin Panel does not spam old notices.
+ // Attach the listener before loading the baseline, so a request created during startup is not missed.
+ // Existing requests are suppressed; only newly created pending requests are sent to Telegram.
+ let baselineReady=false;
+ const queued=[];
+ node.on("child_added", child=>{
+   const item={id:child.key,x:child.val()||{}};
+   if(!baselineReady){queued.push(item);return;}
+   processTelegramRequest(kind,item,notifyFn,path);
+ }, err=>console.error("Telegram request listener failed for "+path,err));
  node.once("value").then(snapshot=>{
    snapshot.forEach(child=>telegramKnown[kind].add(child.key));
-   node.on("child_added", child=>{
-     const id=child.key, x=child.val()||{};
-     if(telegramKnown[kind].has(id))return;
-     telegramKnown[kind].add(id);
-     if(String(x.status||"pending").toLowerCase()!=="pending")return;
-     Promise.resolve(notifyFn(id,x)).catch(e=>console.error("Telegram notification failed:",e));
-   }, err=>console.error("Telegram request listener failed for "+path,err));
+   baselineReady=true;
+   queued.forEach(item=>{
+     if(!telegramKnown[kind].has(item.id)) processTelegramRequest(kind,item,notifyFn,path);
+   });
+   queued.length=0;
  }).catch(err=>console.error("Could not initialize Telegram listener for "+path,err));
+}
+function processTelegramRequest(kind,item,notifyFn,path){
+ const id=item.id, x=item.x||{};
+ if(telegramKnown[kind].has(id))return;
+ telegramKnown[kind].add(id);
+ if(String(x.status||"pending").toLowerCase()!=="pending")return;
+ Promise.resolve(notifyFn(id,x)).catch(e=>console.error("Telegram notification failed for "+path+" / "+id,e));
 }
 function startTelegramRequestWatchers(){
  if(telegramWatchStarted)return;
@@ -346,12 +359,11 @@ function bind(){
     if(list)list.innerHTML='<div class="notice" style="border-color:#ff647c">❌ Purchase Request পড়া যাচ্ছে না। Firebase Rules-এ Admin UID/Read permission পরীক্ষা করুন। বিস্তারিত Console-এ দেখুন।</div>';
   });
  db.ref("winningClaims").on("value", s=>{winningClaims=s.val()||{};renderAll()});
- startTelegramRequestWatchers();
  db.ref("games").on("value", s=>{games=s.val()||{};renderAll()});
  db.ref("rooms").on("value", s=>{rooms=s.val()||{};renderAll()});
  db.ref("notices").on("value", s=>{notices=s.val()||{};renderAll()});
  db.ref("settings/public").on("value", s=>{publicSettings=s.val()||{};fillSettings()}, err=>{console.error("Public settings read failed:",err);toast("❌ Public Settings লোড হয়নি: "+(err.message||err))});
- db.ref("settings/private").on("value", s=>{privateSettings=s.val()||{};$("tgToken").value=privateSettings.telegramBotToken||"";$("tgChat").value=privateSettings.telegramChatId||""}, err=>{console.error("Private settings read failed:",err);toast("❌ Telegram Settings লোড হয়নি: "+(err.message||err))});
+ db.ref("settings/private").on("value", s=>{privateSettings=s.val()||{};$("tgToken").value=privateSettings.telegramBotToken||"";$("tgChat").value=privateSettings.telegramChatId||"";startTelegramRequestWatchers()}, err=>{console.error("Private settings read failed:",err);toast("❌ Telegram Settings লোড হয়নি: "+(err.message||err))});
 }
 function renderAll(){
  let ua=Object.values(users),da=Object.values(deposits).filter(x=>x.status==="pending"),wa=Object.values(withdraws).filter(x=>x.status==="pending");
@@ -509,8 +521,19 @@ function renderGames(){
  $("gameList").innerHTML=a.length?a.map(x=>`<div class="row"><div class="rowhead"><div><b>🎮 ${esc(x.name)}</b><div class="muted">Game ID: <b>${esc(x.id)}</b> • Package ${money(x.price)} • Bet ${money(x.betAmount)} • ${x.active===false?"Inactive":"Active"}</div></div></div><div class="actions"><button onclick="editGame('${esc(x.id)}')">✏️ Edit</button><button class="danger" onclick="deleteGame('${esc(x.id)}')">🗑️ Delete</button></div></div>`).join(""):'<div class="notice">কোনো Game নেই।</div>';
 }
 function renderUsers(){
- let a=Object.values(users).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
- $("userList").innerHTML=a.length?a.map(x=>`<div class="row"><div class="rowhead"><div><b>${esc(x.name||"User")}</b><div class="muted">${esc(x.mobile||"")} • UID: ${esc(x.uid||"")}</div></div><b>${money(x.balance)}</b></div><div class="actions"><button onclick="editBalance('${esc(x.uid)}')">💰 Balance</button></div></div>`).join(""):'<div class="notice">কোনো User নেই।</div>';
+ // Search supports both the saved user fields and the Firebase users/{uid} key.
+ const rawQ=String($("userSearch")?.value||"").trim().toLowerCase();
+ const bnDigits="০১২৩৪৫৬৭৮৯", enDigits="0123456789";
+ const normalize=v=>String(v??"").toLowerCase().replace(/[০-৯]/g,d=>enDigits[bnDigits.indexOf(d)]).replace(/[\s()+.-]/g,"");
+ const q=normalize(rawQ);
+ let a=Object.entries(users||{}).map(([key,value])=>({...((value&&typeof value==="object")?value:{}),uid:(value&&value.uid)||key,_dbKey:key}));
+ a.sort((x,y)=>(Number(y.createdAt)||0)-(Number(x.createdAt)||0));
+ if(q)a=a.filter(x=>[
+   x.name,x.displayName,x.username,x.fullName,x.mobile,x.phone,x.phoneNumber,
+   x.uid,x.userId,x.email,x.balance
+ ].some(v=>normalize(v).includes(q)));
+ const count=$("userSearchCount");if(count)count.textContent=`মোট ${Object.keys(users||{}).length} জন • খুঁজে পাওয়া গেছে ${a.length} জন`;
+ $("userList").innerHTML=a.length?a.map(x=>`<div class="row"><div class="rowhead"><div><b>${esc(x.name||x.displayName||x.username||x.fullName||"User")}</b><div class="muted">${esc(x.mobile||x.phone||x.phoneNumber||"")} • UID: ${esc(x.uid||"")}</div></div><b>${money(x.balance)}</b></div><div class="actions"><button onclick="editBalance('${esc(x.uid)}')">💰 Balance</button></div></div>`).join(""):(q?'<div class="notice">এই নাম, মোবাইল নম্বর, ইমেইল বা UID দিয়ে কোনো User পাওয়া যায়নি।</div>':'<div class="notice">কোনো User নেই।</div>');
 }
 function renderIdentity(){
  const a=Object.values(identityVerifications||{}).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));
@@ -696,6 +719,8 @@ window.confirmReject=async(path,id)=>{
     updates[path+"/"+id+"/status"]="rejected";
     // শুধু Deposit Reject হলে Deposit lock খুলবে।
     if(path==="depositRequests" && x.uid) updates["users/"+x.uid+"/pendingDeposit"]=null;
+    // Release the withdrawal lock only after Admin has rejected this request.
+    if(path==="withdrawRequests" && x.uid) updates["users/"+x.uid+"/pendingWithdraw/status"]="rejected";
     updates[path+"/"+id+"/rejectNote"]=note;
     updates[path+"/"+id+"/rejectedAt"]=Date.now();
     updates[path+"/"+id+"/rejectedBy"]=auth.currentUser?.uid||"admin";
@@ -940,7 +965,7 @@ window.testTelegram=async()=>{
  try{
    const r=await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`,{
      method:"POST",headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({chat_id:chat,text:["🎮 GameNest BD Admin Test","✅ Telegram notification is working."].join("\\n"),disable_web_page_preview:true})
+     body:JSON.stringify({chat_id:chat,text:["🎮 GameNest BD Admin Test","✅ Telegram notification is working."].join("\n"),disable_web_page_preview:true})
    });
    const j=await r.json();
    toast(r.ok&&j.ok?"✅ Telegram Test সফল":"❌ Telegram Test ব্যর্থ: "+(j.description||"Unknown error"));

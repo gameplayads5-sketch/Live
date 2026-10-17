@@ -663,15 +663,21 @@ window.openMoney=async type=>{
         আপনার হাতে পাবেন: <b>${money(r)}</b>`;
     };
 
+    let withdrawSubmitting=false;
     $("moneyForm").onsubmit=async e=>{
       e.preventDefault();
+      if(withdrawSubmitting)return;
+      withdrawSubmitting=true;
+      const submitBtn=e.currentTarget.querySelector("button[type=submit],button:not([type])");
+      if(submitBtn){submitBtn.disabled=true;submitBtn.textContent="পাঠানো হচ্ছে...";}
       let a=Number($("amount").value||0), f=a*fee/100, r=a-f;
-      if(a<100)return toast("সর্বনিম্ন উত্তোলন ৳১০০");
-      if(a>Number(meData.balance||0))return toast("আপনার ব্যালেন্স যথেষ্ট নয়");
+      if(a<100){withdrawSubmitting=false;if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="উত্তোলনের অনুরোধ পাঠান";}return toast("সর্বনিম্ন উত্তোলন ৳১০০");}
+      if(a>Number(meData.balance||0)){withdrawSubmitting=false;if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="উত্তোলনের অনুরোধ পাঠান";}return toast("আপনার ব্যালেন্স যথেষ্ট নয়");}
 
       // Re-check pending status immediately before creating a request.
       let fresh=await get(ref(db,"users/"+me.uid+"/pendingWithdraw"));
       if(fresh.exists() && fresh.val() && fresh.val().status==="pending"){
+        withdrawSubmitting=false;if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="উত্তোলনের অনুরোধ পাঠান";}
         closeModal(); return toast("আপনার একটি উত্তোলন রিকোয়েস্ট Pending আছে");
       }
 
@@ -695,7 +701,9 @@ window.openMoney=async type=>{
         });
       }catch(err){
         console.error("Withdraw request failed",err);
-        return toast("উত্তোলনের রিকোয়েস্ট পাঠানো যায়নি: "+friendly(err));
+        toast("উত্তোলনের রিকোয়েস্ট পাঠানো যায়নি: "+friendly(err));
+        withdrawSubmitting=false;if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="উত্তোলনের অনুরোধ পাঠান";}
+        return;
       }
 
       closeModal();
@@ -709,6 +717,7 @@ window.openMoney=async type=>{
         </div>
         <button class="primary" onclick="closeModal()">ঠিক আছে</button>`;
       $("modal").classList.remove("hidden");
+      withdrawSubmitting=false;if(submitBtn){submitBtn.disabled=false;submitBtn.textContent="উত্তোলনের অনুরোধ পাঠান";}
     };
   }
 };
