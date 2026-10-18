@@ -1,5 +1,5 @@
 <!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>GameNest BD — Live 3 Guti</title><style>
-*{box-sizing:border-box}body{margin:0;background:#081321;color:#f7fbff;font-family:system-ui,"Noto Sans Bengali",sans-serif}main{max-width:620px;margin:auto;padding:14px}.title{text-align:center;font-size:24px;font-weight:800;margin:8px}.muted{color:#b8c8dc;text-align:center;line-height:1.6;font-size:14px}.card{background:#13243a;border:1px solid #2b405b;padding:13px;border-radius:15px;margin:12px 0}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}input,button{font:inherit;border-radius:11px;padding:12px;border:1px solid #415673}input{width:100%;background:#081321;color:#fff}button{font-weight:800;background:#10c991;color:#062117;border:0}button.secondary{background:#253952;color:white;border:1px solid #415673}button:disabled{opacity:.45}.turn{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800}.dot{display:inline-block;width:18px;height:18px;border-radius:50%;border:2px solid #ffffff77;vertical-align:middle}.yellow{background:#ffb51b}.green{background:#22c55e}.boardbox{background:#13243a;border:1px solid #2b405b;border-radius:18px;padding:7px}.board{display:block;width:100%;touch-action:manipulation;user-select:none}.frame{fill:#ffd0d6;stroke:#4caf50;stroke-width:7}.line{stroke:#7742ba;stroke-width:7;stroke-linecap:round}.pt{fill:#ffffff12;stroke:#ffffff66;stroke-width:1.5;pointer-events:none}.piece{stroke:#ffffffb0;stroke-width:2.5;pointer-events:all;cursor:pointer}.empty{cursor:pointer}.piece.sel{stroke:#38bdf8;stroke-width:5;filter:drop-shadow(0 0 5px #38bdf8)}.empty{pointer-events:all}.hint{text-align:center;color:#c7d5e6;font-size:13px;line-height:1.65;margin:10px 4px}.hide{display:none}#status{text-align:center;color:#d7e8fb;min-height:24px;font-size:14px}
+*{box-sizing:border-box}body{margin:0;background:#081321;color:#f7fbff;font-family:system-ui,"Noto Sans Bengali",sans-serif}main{max-width:620px;margin:auto;padding:14px}.title{text-align:center;font-size:24px;font-weight:800;margin:8px}.muted{color:#b8c8dc;text-align:center;line-height:1.6;font-size:14px}.card{background:#13243a;border:1px solid #2b405b;padding:13px;border-radius:15px;margin:12px 0}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}input,button{font:inherit;border-radius:11px;padding:12px;border:1px solid #415673}input{width:100%;background:#081321;color:#fff}button{font-weight:800;background:#10c991;color:#062117;border:0}button.secondary{background:#253952;color:white;border:1px solid #415673}button:disabled{opacity:.45}.turn{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800}.dot{display:inline-block;width:18px;height:18px;border-radius:50%;border:2px solid #ffffff77;vertical-align:middle}.yellow{background:#ffb51b}.green{background:#22c55e}.boardbox{background:#13243a;border:1px solid #2b405b;border-radius:18px;padding:7px}.board{display:block;width:100%;touch-action:manipulation;user-select:none}.frame{fill:#ffd0d6;stroke:#4caf50;stroke-width:7}.line{stroke:#7742ba;stroke-width:7;stroke-linecap:round}.pt{fill:#ffffff12;stroke:#ffffff66;stroke-width:1.5;pointer-events:none}.piece{stroke:#ffffffb0;stroke-width:2.5;pointer-events:all}.piece.sel{stroke:#38bdf8;stroke-width:5;filter:drop-shadow(0 0 5px #38bdf8)}.empty{pointer-events:all}.hint{text-align:center;color:#c7d5e6;font-size:13px;line-height:1.65;margin:10px 4px}.hide{display:none}#status{text-align:center;color:#d7e8fb;min-height:24px;font-size:14px}
 #timerBar{height:8px;background:#263b54;border-radius:99px;overflow:hidden;margin-top:8px}#timerFill{height:100%;width:100%;background:#10c991;transition:width .2s linear}#timerText{font-size:20px;font-weight:900;color:#fff}#chatLog{height:130px;overflow-y:auto;background:#081321;border-radius:10px;padding:8px;font-size:13px;line-height:1.5}#chatLog .msg{margin:4px 0;overflow-wrap:anywhere}.winnerOverlay{position:fixed;inset:0;background:#020817dd;z-index:99;display:flex;align-items:center;justify-content:center;padding:18px}.winnerBox{width:min(100%,420px);background:linear-gradient(145deg,#173b51,#172344);border:1px solid #facc15;border-radius:22px;padding:24px;text-align:center;box-shadow:0 0 40px #facc1533}.winnerBox h2{font-size:28px;color:#fde047;margin:4px}.winnerBox p{line-height:1.7}.hide{display:none!important}</style></head><body><main><div class="title">🎮 GameNest BD · লাইভ ৩ গুটি</div><div class="muted">Admin-approved একই Room Code দিয়ে অনলাইনে খেলুন</div>
 <div id="joinCard" class="card"><label>Room Code</label><div class="row" style="margin-top:8px"><input id="roomInput" placeholder="রুম কোড লিখুন" autocomplete="off"><button id="joinBtn">রুমে যোগ দিন</button></div><div id="loginMsg" class="muted" style="margin-top:8px">GameNest BD User App-এ লগইন থাকা দরকার।</div></div>
 <div id="gameArea" class="hide"><div class="card"><div class="turn"><span><span id="turnDot" class="dot yellow"></span> <span id="turnText">সংযোগ হচ্ছে…</span></span><span id="playerCount">0/2</span></div><div id="status" style="margin-top:8px"></div><div class="row" style="margin-top:8px"><span>⏱️ বাকি সময়</span><span id="timerText" style="text-align:right">১৫ সেকেন্ড</span></div><div id="timerBar"><div id="timerFill"></div></div><div class="muted">Room: <b id="roomLabel">—</b></div></div>
@@ -69,21 +69,12 @@ async function join(){
   if(tx.snapshot.val()?.winnerUid||tx.snapshot.val()?.status==="finished")throw new Error("এই Room Code-এ ইতিমধ্যে জয় হয়েছে। নতুন ম্যাচের জন্য নতুন Room Code লাগবে।");
   if(tx.snapshot.val()?.status==="draw")throw new Error("এই ম্যাচ ড্র হয়েছে। রিফ্রেশ করে আবার খেলুন।");
   $("joinCard").classList.add("hide");$("gameArea").classList.remove("hide");$("roomLabel").textContent=id;
-  if(unsub)unsub();unsub=onValue(sr,s=>{
-    const next=s.val();
-    if(!next){say("গেমের বোর্ড লোড হয়নি। আবার রুমে যোগ দিন।");return}
-    // Keep the selected piece through harmless Firebase refreshes.
-    if(state && (state.turnUid!==next.turnUid || JSON.stringify(state.board)!==JSON.stringify(next.board) || state.status!==next.status)) selected=null;
-    state=next;render()
-  },e=>say(errorText(e)));
+  if(unsub)unsub();unsub=onValue(sr,s=>{state=s.val();selected=null;render()},e=>say(errorText(e)));
   setupChat();
  }catch(e){$("loginMsg").textContent=errorText(e)}finally{joining=false;$("joinBtn").disabled=false}
 }
 async function choose(i){
- if(!state)return;
-  if(!canMove(state)){say(state.turnUid===user?.uid?"চাল দেওয়া যাচ্ছে না—বোর্ডের অবস্থা আপডেট করুন।":"এখন প্রতিপক্ষের চাল।");return}
-  const c=myColor(state);
-  if(!c){say("আপনার গুটির রং শনাক্ত হয়নি। রুম থেকে বের হয়ে আবার যোগ দিন।");return}
+ if(!state||!canMove(state))return;const c=myColor(state);
  if(selected===null){if(state.board[i]===c){selected=i;render()}else say("আগে নিজের রঙের গুটি নির্বাচন করুন");return}
  if(i===selected){selected=null;render();return}
  if(state.board[i]){if(state.board[i]===c){selected=i;render()}else say("ঘরটি দখল করা আছে");return}
@@ -105,20 +96,173 @@ function setupChat(){
  },e=>{$("chatLog").textContent=errorText(e)});
 }
 async function sendChat(){const text=String($("chatInput").value||"").trim();if(!text||!user||!roomId)return;try{const r=ref(db,"carromRooms/"+roomId+"/chat/messages");const {push}=await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js");await set(push(r),{from:user.uid,text:text.slice(0,300),time:Date.now()});$("chatInput").value="";sound("chat")}catch(e){$("chatLog").textContent=errorText(e)}}
-// Use a single tap handler. Registering both pointerup and click can process
-// the same mobile tap twice, deselecting a piece immediately after selection.
-board.addEventListener("click",e=>{
-  const t=e.target.closest?.("[data-i]");
-  if(!t)return;
+/* ৩ গুটি বোর্ডে ট্যাপ করে চাল দেওয়া */
+let boardTapLocked = false;
+
+board.addEventListener("pointerup", async (e) => {
+  const target = e.target.closest("[data-i]");
+  if (!target) return;
+
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+
   e.preventDefault();
-  choose(Number(t.dataset.i));
+
+  if (boardTapLocked) return;
+
+  const index = Number(target.getAttribute("data-i"));
+
+  if (!Number.isInteger(index) || index < 0 || index > 8) return;
+
+  boardTapLocked = true;
+
+  try {
+    await choose(index);
+  } catch (err) {
+    console.error("3 Guti move error:", err);
+    say("চাল দেওয়া যায়নি। আবার চেষ্টা করুন।");
+  } finally {
+    boardTapLocked = false;
+  }
 });
-$("joinBtn").addEventListener("click",join);$("roomInput").value=new URLSearchParams(location.search).get("roomId")||"";
-$("drawBtn").addEventListener("click",async()=>{if(!state||state.status!=="playing")return;if(!confirm("ম্যাচটি ড্র ঘোষণা করবেন? এতে দুজনের জন্যই এই ম্যাচ ড্র হবে।"))return;try{const tx=await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{if(!s||s.status!=="playing"||!s.players?.includes(user.uid)||s.winnerUid)return;s.status="draw";s.turnUid=null;s.drawAt=Date.now();s.updatedAt=Date.now();return s});if(tx.committed)sound("draw");else say("ড্র ঘোষণা করা যায়নি।")}catch(e){say(errorText(e))}});
-$("refreshBtn").addEventListener("click",async()=>{if(state?.status!=="draw"||!state.players?.includes(user?.uid))return;try{const tx=await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{if(!s||s.status!=="draw"||s.players?.length!==2)return;const first=s.players.find(uid=>uid!==s.firstUid)||s.firstUid;return {...s,board:["Y","Y","Y",null,null,null,"G","G","G"],firstUid:first,turnUid:first,winnerUid:null,status:"playing",moves:0,startedAt:Date.now(),turnStartedAt:Date.now(),turnNo:0,drawAt:null,updatedAt:Date.now()}});if(!tx.committed)say("আবার ম্যাচ শুরু করা যায়নি। বোর্ড আপডেট করে আবার চেষ্টা করুন।");else {selected=null;sound("shot");say("নতুন রাউন্ড শুরু হয়েছে—আপনার চাল দিন।")}}catch(e){say(errorText(e))}});
-$("chatSend").addEventListener("click",sendChat);$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
-$("winnerClose").addEventListener("click",()=>$("winnerOverlay").classList.add("hide"));
-$("backBtn").addEventListener("click",()=>location.href="index.html?roomId="+encodeURIComponent(roomId));
-setInterval(updateTimer,200);
-onAuthStateChanged(auth,async u=>{user=u;if(u){try{const p=await get(ref(db,"users/"+u.uid));profile=p.exists()?p.val()||{}:{}}catch(_){profile={}}$("loginMsg").textContent="লগইন আছে। Admin-approved Room Code দিয়ে যোগ দিন।"}else $("loginMsg").textContent="GameNest BD User App-এ লগইন করুন; একই HTTPS ডোমেইনে থাকা দরকার।"});
-</script></body></html>
+
+/* রুমে যোগ দিন */
+$("joinBtn").addEventListener("click", join);
+
+$("roomInput").value =
+  new URLSearchParams(location.search).get("roomId") || "";
+
+/* ম্যাচ ড্র */
+$("drawBtn").addEventListener("click", async () => {
+  if (!state || state.status !== "playing") return;
+  if (!user || !state.players?.includes(user.uid)) return;
+
+  if (!confirm("ম্যাচটি ড্র ঘোষণা করবেন?")) return;
+
+  try {
+    const tx = await runTransaction(
+      ref(db, "carromRooms/" + roomId + "/threeGutiState"),
+      (s) => {
+        if (
+          !s ||
+          s.status !== "playing" ||
+          !s.players?.includes(user.uid) ||
+          s.winnerUid
+        ) return;
+
+        s.status = "draw";
+        s.turnUid = null;
+        s.drawAt = Date.now();
+        s.updatedAt = Date.now();
+
+        return s;
+      }
+    );
+
+    if (tx.committed) {
+      selected = null;
+      sound("draw");
+      say("ম্যাচ ড্র হয়েছে।");
+    } else {
+      say("ড্র ঘোষণা করা যায়নি। আবার চেষ্টা করুন।");
+    }
+  } catch (e) {
+    say(errorText(e));
+  }
+});
+
+/* ড্র হলে নতুন রাউন্ড */
+$("refreshBtn").addEventListener("click", async () => {
+  if (!user || state?.status !== "draw") return;
+  if (!state.players?.includes(user.uid)) return;
+
+  try {
+    const tx = await runTransaction(
+      ref(db, "carromRooms/" + roomId + "/threeGutiState"),
+      (s) => {
+        if (
+          !s ||
+          s.status !== "draw" ||
+          s.players?.length !== 2 ||
+          s.winnerUid
+        ) return;
+
+        const nextFirst =
+          s.players.find((uid) => uid !== s.firstUid) || s.firstUid;
+
+        return {
+          ...s,
+          board: ["Y", "Y", "Y", null, null, null, "G", "G", "G"],
+          firstUid: nextFirst,
+          turnUid: nextFirst,
+          winnerUid: null,
+          status: "playing",
+          moves: 0,
+          startedAt: Date.now(),
+          turnStartedAt: Date.now(),
+          turnNo: 0,
+          drawAt: null,
+          updatedAt: Date.now()
+        };
+      }
+    );
+
+    if (tx.committed) {
+      selected = null;
+      sound("shot");
+      say("নতুন রাউন্ড শুরু হয়েছে।");
+    } else {
+      say("নতুন রাউন্ড শুরু করা যায়নি। আবার চেষ্টা করুন।");
+    }
+  } catch (e) {
+    say(errorText(e));
+  }
+});
+
+/* চ্যাট */
+$("chatSend").addEventListener("click", sendChat);
+
+$("chatInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendChat();
+  }
+});
+
+/* বিজয়ী পপআপ বন্ধ */
+$("winnerClose").addEventListener("click", () => {
+  $("winnerOverlay").classList.add("hide");
+});
+
+/* ফিরে যাওয়া */
+$("backBtn").addEventListener("click", () => {
+  location.href = "index.html?roomId=" + encodeURIComponent(roomId);
+});
+
+/* টাইমার */
+setInterval(updateTimer, 200);
+
+/* Firebase লগইন ও প্রোফাইল */
+onAuthStateChanged(auth, async (u) => {
+  user = u;
+
+  if (u) {
+    try {
+      const p = await get(ref(db, "users/" + u.uid));
+      profile = p.exists() ? p.val() || {} : {};
+    } catch (e) {
+      console.error("Profile load error:", e);
+      profile = {};
+    }
+
+    $("loginMsg").textContent =
+      "লগইন আছে। Admin-approved Room Code দিয়ে যোগ দিন।";
+  } else {
+    profile = {};
+
+    $("loginMsg").textContent =
+      "GameNest BD User App-এ লগইন করুন।";
+  }
+});
+</script>
+</body>
+</html>
