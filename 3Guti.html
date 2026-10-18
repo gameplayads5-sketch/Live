@@ -105,21 +105,13 @@ function setupChat(){
  },e=>{$("chatLog").textContent=errorText(e)});
 }
 async function sendChat(){const text=String($("chatInput").value||"").trim();if(!text||!user||!roomId)return;try{const r=ref(db,"carromRooms/"+roomId+"/chat/messages");const {push}=await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js");await set(push(r),{from:user.uid,text:text.slice(0,300),time:Date.now()});$("chatInput").value="";sound("chat")}catch(e){$("chatLog").textContent=errorText(e)}}
-let lastBoardTap=0;
-function handleBoardTap(e){
+// Use a single tap handler. Registering both pointerup and click can process
+// the same mobile tap twice, deselecting a piece immediately after selection.
+board.addEventListener("click",e=>{
   const t=e.target.closest?.("[data-i]");
   if(!t)return;
   e.preventDefault();
   choose(Number(t.dataset.i));
-}
-board.addEventListener("click",handleBoardTap);
-board.addEventListener("pointerup",e=>{
-  // Some mobile browsers fail to dispatch SVG click consistently.
-  const now=Date.now();
-  if(now-lastBoardTap<350)return;
-  lastBoardTap=now;
-  const t=e.target.closest?.("[data-i]");
-  if(t && e.pointerType!=="mouse"){e.preventDefault();choose(Number(t.dataset.i))}
 });
 $("joinBtn").addEventListener("click",join);$("roomInput").value=new URLSearchParams(location.search).get("roomId")||"";
 $("drawBtn").addEventListener("click",async()=>{if(!state||state.status!=="playing")return;if(!confirm("ম্যাচটি ড্র ঘোষণা করবেন? এতে দুজনের জন্যই এই ম্যাচ ড্র হবে।"))return;try{const tx=await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{if(!s||s.status!=="playing"||!s.players?.includes(user.uid)||s.winnerUid)return;s.status="draw";s.turnUid=null;s.drawAt=Date.now();s.updatedAt=Date.now();return s});if(tx.committed)sound("draw");else say("ড্র ঘোষণা করা যায়নি।")}catch(e){say(errorText(e))}});
