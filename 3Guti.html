@@ -1,0 +1,108 @@
+<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>GameNest BD — Live 3 Guti</title><style>
+*{box-sizing:border-box}body{margin:0;background:#081321;color:#f7fbff;font-family:system-ui,"Noto Sans Bengali",sans-serif}main{max-width:620px;margin:auto;padding:14px}.title{text-align:center;font-size:24px;font-weight:800;margin:8px}.muted{color:#b8c8dc;text-align:center;line-height:1.6;font-size:14px}.card{background:#13243a;border:1px solid #2b405b;padding:13px;border-radius:15px;margin:12px 0}.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}input,button{font:inherit;border-radius:11px;padding:12px;border:1px solid #415673}input{width:100%;background:#081321;color:#fff}button{font-weight:800;background:#10c991;color:#062117;border:0}button.secondary{background:#253952;color:white;border:1px solid #415673}button:disabled{opacity:.45}.turn{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800}.dot{display:inline-block;width:18px;height:18px;border-radius:50%;border:2px solid #ffffff77;vertical-align:middle}.yellow{background:#ffb51b}.green{background:#22c55e}.boardbox{background:#13243a;border:1px solid #2b405b;border-radius:18px;padding:7px}.board{display:block;width:100%;touch-action:manipulation;user-select:none}.frame{fill:#ffd0d6;stroke:#4caf50;stroke-width:7}.line{stroke:#7742ba;stroke-width:7;stroke-linecap:round}.pt{fill:#ffffff12;stroke:#ffffff66;stroke-width:1.5;pointer-events:none}.piece{stroke:#ffffffb0;stroke-width:2.5;pointer-events:all}.piece.sel{stroke:#38bdf8;stroke-width:5;filter:drop-shadow(0 0 5px #38bdf8)}.empty{pointer-events:all}.hint{text-align:center;color:#c7d5e6;font-size:13px;line-height:1.65;margin:10px 4px}.hide{display:none}#status{text-align:center;color:#d7e8fb;min-height:24px;font-size:14px}
+#timerBar{height:8px;background:#263b54;border-radius:99px;overflow:hidden;margin-top:8px}#timerFill{height:100%;width:100%;background:#10c991;transition:width .2s linear}#timerText{font-size:20px;font-weight:900;color:#fff}#chatLog{height:130px;overflow-y:auto;background:#081321;border-radius:10px;padding:8px;font-size:13px;line-height:1.5}#chatLog .msg{margin:4px 0;overflow-wrap:anywhere}.winnerOverlay{position:fixed;inset:0;background:#020817dd;z-index:99;display:flex;align-items:center;justify-content:center;padding:18px}.winnerBox{width:min(100%,420px);background:linear-gradient(145deg,#173b51,#172344);border:1px solid #facc15;border-radius:22px;padding:24px;text-align:center;box-shadow:0 0 40px #facc1533}.winnerBox h2{font-size:28px;color:#fde047;margin:4px}.winnerBox p{line-height:1.7}.hide{display:none!important}</style></head><body><main><div class="title">🎮 GameNest BD · লাইভ ৩ গুটি</div><div class="muted">Admin-approved একই Room Code দিয়ে অনলাইনে খেলুন</div>
+<div id="joinCard" class="card"><label>Room Code</label><div class="row" style="margin-top:8px"><input id="roomInput" placeholder="রুম কোড লিখুন" autocomplete="off"><button id="joinBtn">রুমে যোগ দিন</button></div><div id="loginMsg" class="muted" style="margin-top:8px">GameNest BD User App-এ লগইন থাকা দরকার।</div></div>
+<div id="gameArea" class="hide"><div class="card"><div class="turn"><span><span id="turnDot" class="dot yellow"></span> <span id="turnText">সংযোগ হচ্ছে…</span></span><span id="playerCount">0/2</span></div><div id="status" style="margin-top:8px"></div><div class="row" style="margin-top:8px"><span>⏱️ বাকি সময়</span><span id="timerText" style="text-align:right">১০ সেকেন্ড</span></div><div id="timerBar"><div id="timerFill"></div></div><div class="muted">Room: <b id="roomLabel">—</b></div></div>
+<div class="boardbox"><svg id="board" class="board" viewBox="0 0 400 400"><rect class="frame" x="25" y="25" width="350" height="350"/><g class="line" fill="none"><path d="M25 25 L200 200 L375 375 M375 25 L200 200 L25 375 M200 25 V375 M25 200 H375"/></g><g id="points"></g><g id="pieces"></g></svg></div>
+<div class="hint">🟡 প্রথম যোগদানকারী হলুদ, 🟢 দ্বিতীয় যোগদানকারী সবুজ। নিজের গুটিতে চাপ দিন, তারপর 🧿 নীলচে দেখানো সংযুক্ত খালি ঘরে চাপ দিন। এক ধাপে পাশের ঘরে চলা যাবে; দূরের ঘরে লাফানো বা অন্য গুটির ঘরে যাওয়া যাবে না। নির্ধারিত ৪টি লাইনের একটিতে ৩টি গুটি মিললে জয়।</div><div class="row"><button id="drawBtn" class="secondary">ড্র ঘোষণা</button><button id="refreshBtn" class="secondary" disabled>রিফ্রেশ করে আবার খেলুন</button></div><div class="row" style="margin-top:8px"><button id="backBtn" class="secondary">গেম নির্বাচন</button></div><div class="card"><div style="font-weight:800;margin-bottom:8px">💬 খেলোয়াড়দের চ্যাট</div><div id="chatLog" aria-live="polite">চ্যাট লোড হচ্ছে…</div><div class="row" style="margin-top:8px"><input id="chatInput" maxlength="300" placeholder="মেসেজ লিখুন…"><button id="chatSend">পাঠান</button></div></div></div><div id="winnerOverlay" class="winnerOverlay hide"><div class="winnerBox"><h2>🏆 WOW! অসাধারণ জয়! 🎉</h2><div id="winnerDetails"></div><p>আপনার জয় যাচাই করার জন্য <b>GameNest BD User App</b>-এ গেমের <b>স্ক্রিনশট</b> এবং আপনার <b>প্যাকেজ কোড</b> জমা দিন।</p><p>রুম আইডি জয়ের পর বন্ধ থাকবে; একই রুমে নতুন ম্যাচ শুরু করা যাবে না।</p><button id="winnerClose">ঠিক আছে</button></div></div></main>
+<script type="module">
+import {initializeApp,getApps} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";import {getDatabase,ref,get,set,onValue,runTransaction} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+const cfg={apiKey:"AIzaSyD2DBF_GTIkQfa6G_3gZLfZ5n0MaUEBQ48",authDomain:"gamenest-bd.firebaseapp.com",databaseURL:"https://gamenest-bd-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"gamenest-bd",storageBucket:"gamenest-bd.firebasestorage.app",messagingSenderId:"1020093526765",appId:"1:1020093526765:web:525b5f303e0f08d7b692e4",measurementId:"G-Z66KWE43M6"};const app=getApps().length?getApps()[0]:initializeApp(cfg),auth=getAuth(app),db=getDatabase(app),$=id=>document.getElementById(id),NS="http://www.w3.org/2000/svg";
+const coords=[[25,25],[200,25],[375,25],[25,200],[200,200],[375,200],[25,375],[200,375],[375,375]],wins=[[0,4,8],[2,4,6],[3,4,5],[1,4,7]],adj={0:[1,3,4],1:[0,2,4],2:[1,5,4],3:[0,4,6],4:[0,1,2,3,5,6,7,8],5:[2,4,8],6:[3,4,7],7:[4,6,8],8:[4,5,7]};let user=null,profile={},roomId="",room=null,state=null,selected=null,unsub=null,chatUnsub=null,joining=false,timerHandle=null,lastTick=0,seenWinner="";
+const board=$("board"),points=$("points"),pieces=$("pieces");
+function el(t,a){const n=document.createElementNS(NS,t);Object.entries(a||{}).forEach(([k,v])=>n.setAttribute(k,v));return n}
+coords.forEach(([x,y])=>points.appendChild(el("circle",{cx:x,cy:y,r:19,class:"pt"})));
+function say(t){$("status").textContent=t}
+function errorText(e){console.error(e);return /PERMISSION_DENIED|permission/i.test((e?.code||"")+" "+(e?.message||""))?"Firebase Rules অনুমতি দেয়নি। Rules-এ threeGutiState এবং chat অনুমতি যাচাই করুন।":(e?.message||"সংযোগ সমস্যা হয়েছে।")}
+function initState(uid){return {gameId:"threeguti",gameName:"3 Guti",players:[],profiles:{},board:["Y","Y","Y",null,null,null,"G","G","G"],turnUid:uid,firstUid:uid,winnerUid:null,status:"waiting",moves:0,updatedAt:Date.now(),turnStartedAt:Date.now(),turnNo:0}}
+function won(b,p){return wins.some(line=>line.every(i=>b[i]===p))}
+function myColor(s){return s?.players?.[0]===user?.uid?"Y":s?.players?.[1]===user?.uid?"G":null}
+function canMove(s){return !!(user&&s&&s.status==="playing"&&s.players?.length===2&&s.turnUid===user.uid&&!s.winnerUid)}
+function sound(kind){
+ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=new C();const now=ctx.currentTime;
+ const tones=kind==="winner"?[523,659,784,1047,1318]:kind==="tick"?[900]:kind==="draw"?[440,330]:kind==="chat"?[660]:[330,440];
+ tones.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==="winner"?"sine":"triangle";o.frequency.value=f;o.connect(g);g.connect(ctx.destination);const t=now+i*(kind==="winner"?.13:.045);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(kind==="winner"?.18:.08,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+(kind==="winner"?.18:.09));o.start(t);o.stop(t+(kind==="winner"?.2:.11))});setTimeout(()=>ctx.close(),1200)
+ }catch(e){console.debug("Audio unavailable",e)}
+}
+function render(){
+ pieces.replaceChildren();if(!state)return;const c=myColor(state);
+ (state.board||[]).forEach((p,i)=>{const [x,y]=coords[i];if(p)pieces.appendChild(el("circle",{cx:x,cy:y,r:15,fill:p==="Y"?"#ffb51b":"#22c55e",class:"piece"+(selected===i?" sel":""),"data-i":i}));else{const ok=selected!==null&&adj[selected].includes(i)&&canMove(state);pieces.appendChild(el("circle",{cx:x,cy:y,r:ok?17:9,fill:ok?"#38bdf866":"#ffffff12",stroke:ok?"#38bdf8":"#ffffff44","stroke-width":ok?3:1.5,class:"empty","data-i":i}))}});
+ const waiting=(state.players||[]).length<2,win=!!state.winnerUid,draw=state.status==="draw";
+ $("playerCount").textContent=(state.players||[]).length+"/2";$("turnDot").className="dot "+(state.turnUid===state.players?.[0]?"yellow":"green");
+ $("turnText").textContent=win?(state.winnerUid===user.uid?"🏆 আপনি জয়ী!":"🏁 প্রতিপক্ষ জয়ী!"):draw?"🤝 ম্যাচ ড্র":waiting?"দ্বিতীয় খেলোয়াড়ের অপেক্ষা":state.turnUid===user.uid?"আপনার চাল":"প্রতিপক্ষের চাল";
+ if(waiting)say("দ্বিতীয় খেলোয়াড় একই কোড দিয়ে যোগ দিন।");else if(win)say("🎉 গেম শেষ — বিজয়ী নির্ধারিত। এই রুমে আর নতুন ম্যাচ হবে না।");else if(draw)say("🤝 ম্যাচ ড্র হয়েছে। একই Room Code দিয়ে রিফ্রেশ করে আবার খেলতে পারবেন।");else say(state.turnUid===user.uid?(selected!==null?"নীলচে খালি ঘরে চাপ দিন":"আপনার গুটি নির্বাচন করুন"):"প্রতিপক্ষের চালের অপেক্ষা করুন");
+ $("refreshBtn").disabled=!draw||!state.players?.includes(user?.uid);$("drawBtn").disabled=!state||state.status!=="playing"||!state.players?.includes(user?.uid);
+ if(win&&state.winnerUid!==seenWinner){seenWinner=state.winnerUid;const prof=state.profiles?.[state.winnerUid]||{};const nm=prof.name||"Player";$("winnerDetails").innerHTML="";const h=document.createElement("p");h.textContent="বিজয়ী: "+nm;const id=document.createElement("p");id.textContent="ইউজার UID: "+state.winnerUid;$("winnerDetails").append(h,id);$("winnerOverlay").classList.remove("hide");sound("winner")}
+ if(!win)$("winnerOverlay").classList.add("hide");
+ updateTimer();
+}
+function updateTimer(){
+ if(!state||state.status!=="playing"||!state.turnUid){$("timerText").textContent=state?.status==="draw"?"ড্র":state?.winnerUid?"শেষ":"১০ সেকেন্ড";$("timerFill").style.width="0%";return}
+ const left=Math.max(0,10-Math.floor((Date.now()-(state.turnStartedAt||state.updatedAt||Date.now()))/1000));
+ $("timerText").textContent=left+" সেকেন্ড";$("timerFill").style.width=(left*10)+"%";$("timerFill").style.background=left<=3?"#ef4444":"#10c991";
+ if(left<=3&&left>0&&lastTick!==left){lastTick=left;sound("tick")}
+ if(left===0&&state.turnUid===user?.uid)passTurn();
+}
+let passing=false;async function passTurn(){if(passing||!state||state.status!=="playing")return;passing=true;try{await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{if(!s||s.status!=="playing"||s.turnUid!==user?.uid||Date.now()-(s.turnStartedAt||s.updatedAt||Date.now())<10000)return;s.turnUid=s.players.find(uid=>uid!==user.uid);s.turnStartedAt=Date.now();s.turnNo=(s.turnNo||0)+1;s.updatedAt=Date.now();return s})}catch(e){say(errorText(e))}finally{passing=false}}
+async function join(){
+ if(joining)return;joining=true;$("joinBtn").disabled=true;
+ try{
+  if(!user)throw new Error("GameNest BD User App-এ আগে লগইন করুন।");
+  const id=String($("roomInput").value||"").trim().replace(/\s+/g,"").toUpperCase();if(!id)throw new Error("Room Code লিখুন।");
+  const base="carromRooms/"+id;const [st,pc,ba,ap]=await Promise.all([get(ref(db,base+"/status")),get(ref(db,base+"/packageCode")),get(ref(db,base+"/betAmount")),get(ref(db,base+"/allowedPlayers"))]);
+  if(!st.exists()&&!pc.exists()&&!ba.exists()&&!ap.exists())throw new Error("এই Room Code পাওয়া যায়নি। Admin Panel থেকে Room তৈরি/Approve করুন।");
+  room={status:st.val()||"",packageCode:pc.val()||"ADMIN",betAmount:Number(ba.val()||0),allowedPlayers:ap.val()};
+  if(!["ready","active","approved"].includes(String(room.status||"")))throw new Error("Admin অনুমোদন না করা পর্যন্ত এই Room ব্যবহার করা যাবে না।");
+  if(Array.isArray(room.allowedPlayers)&&room.allowedPlayers.length&&!room.allowedPlayers.includes(user.uid))throw new Error("এই রুমে Admin অন্য খেলোয়াড় নির্ধারণ করেছেন।");
+  roomId=id;await set(ref(db,base+"/members/"+user.uid),{uid:user.uid,gameId:"threeguti",packageCode:room.packageCode||"ADMIN",betAmount:Number(room.betAmount||0),joinedAt:Date.now(),name:profile.name||user.displayName||"Player"});
+  const sr=ref(db,base+"/threeGutiState");const tx=await runTransaction(sr,cur=>{
+   let s=cur&&typeof cur==="object"?cur:initState(user.uid);s.players=Array.isArray(s.players)?s.players.filter(Boolean):[];s.profiles=s.profiles||{};
+   if(s.winnerUid||s.status==="finished")return s;
+   if(s.status==="draw")return s;
+   if(s.players.includes(user.uid)){s.profiles[user.uid]={...(s.profiles[user.uid]||{}),name:profile.name||user.displayName||"Player"};return s}
+   if(s.players.length>=2)return;
+   if(!s.players.length){s.players.push(user.uid);s.firstUid=user.uid;s.turnUid=null;s.status="waiting"}
+   else{s.players.push(user.uid);s.turnUid=s.firstUid;s.status="playing";s.startedAt=Date.now();s.turnStartedAt=Date.now();s.turnNo=0}
+   s.profiles[user.uid]={name:profile.name||user.displayName||"Player",uid:user.uid};s.updatedAt=Date.now();return s
+  });
+  if(!tx.committed)throw new Error("এই ৩ গুটি রুমে দুইজন পূর্ণ অথবা ম্যাচ শেষ।");
+  if(tx.snapshot.val()?.winnerUid||tx.snapshot.val()?.status==="finished")throw new Error("এই Room Code-এ ইতিমধ্যে জয় হয়েছে। নতুন ম্যাচের জন্য নতুন Room Code লাগবে।");
+  if(tx.snapshot.val()?.status==="draw")throw new Error("এই ম্যাচ ড্র হয়েছে। রিফ্রেশ করে আবার খেলুন।");
+  $("joinCard").classList.add("hide");$("gameArea").classList.remove("hide");$("roomLabel").textContent=id;
+  if(unsub)unsub();unsub=onValue(sr,s=>{state=s.val();selected=null;render()},e=>say(errorText(e)));
+  setupChat();
+ }catch(e){$("loginMsg").textContent=errorText(e)}finally{joining=false;$("joinBtn").disabled=false}
+}
+async function choose(i){
+ if(!state||!canMove(state))return;const c=myColor(state);
+ if(selected===null){if(state.board[i]===c){selected=i;render()}else say("আগে নিজের রঙের গুটি নির্বাচন করুন");return}
+ if(i===selected){selected=null;render();return}
+ if(state.board[i]){if(state.board[i]===c){selected=i;render()}else say("ঘরটি দখল করা আছে");return}
+ if(!adj[selected].includes(i)){say("শুধু সংযুক্ত পাশের ঘরে এক ধাপ চাল দিন");return}
+ const from=selected,to=i;selected=null;
+ try{const tx=await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{
+  if(!s||s.status!=="playing"||s.turnUid!==user.uid||s.winnerUid||Date.now()-(s.turnStartedAt||s.updatedAt||Date.now())>=10000)return;
+  const p=s.players?.[0]===user.uid?"Y":s.players?.[1]===user.uid?"G":null;if(!p||s.board?.[from]!==p||s.board[to]!==null||!adj[from].includes(to))return;
+  s.board[from]=null;s.board[to]=p;s.moves=(s.moves||0)+1;s.updatedAt=Date.now();
+  if(won(s.board,p)){s.winnerUid=user.uid;s.status="finished";s.turnUid=null;s.winnerAt=Date.now()}else{s.turnUid=s.players.find(uid=>uid!==user.uid);s.turnStartedAt=Date.now();s.turnNo=(s.turnNo||0)+1}
+  return s
+ });if(tx.committed)sound("shot");else say("চালটি গ্রহণ হয়নি; সময় শেষ বা বোর্ডের অবস্থা বদলেছে।")}catch(e){say(errorText(e))}
+}
+function setupChat(){
+ if(chatUnsub)chatUnsub();const cr=ref(db,"carromRooms/"+roomId+"/chat/messages");
+ chatUnsub=onValue(cr,snap=>{const log=$("chatLog");log.replaceChildren();const entries=Object.entries(snap.val()||{}).sort((a,b)=>(a[1].time||0)-(b[1].time||0)).slice(-40);
+  if(!entries.length){log.textContent="এখনও কোনো মেসেজ নেই।";return}
+  entries.forEach(([k,m])=>{const div=document.createElement("div");div.className="msg";const who=m.from===user?.uid?"আপনি":(state?.profiles?.[m.from]?.name||"প্রতিপক্ষ");const b=document.createElement("b");b.textContent=who+": ";div.append(b,document.createTextNode(String(m.text||"")));log.append(div)});log.scrollTop=log.scrollHeight;
+ },e=>{$("chatLog").textContent=errorText(e)});
+}
+async function sendChat(){const text=String($("chatInput").value||"").trim();if(!text||!user||!roomId)return;try{const r=ref(db,"carromRooms/"+roomId+"/chat/messages");const {push}=await import("https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js");await set(push(r),{from:user.uid,text:text.slice(0,300),time:Date.now()});$("chatInput").value="";sound("chat")}catch(e){$("chatLog").textContent=errorText(e)}}
+board.addEventListener("click",e=>{const t=e.target.closest("[data-i]");if(t)choose(Number(t.dataset.i))});
+$("joinBtn").addEventListener("click",join);$("roomInput").value=new URLSearchParams(location.search).get("roomId")||"";
+$("drawBtn").addEventListener("click",async()=>{if(!state||state.status!=="playing")return;if(!confirm("ম্যাচটি ড্র ঘোষণা করবেন? এতে দুজনের জন্যই এই ম্যাচ ড্র হবে।"))return;try{const tx=await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{if(!s||s.status!=="playing"||!s.players?.includes(user.uid)||s.winnerUid)return;s.status="draw";s.turnUid=null;s.drawAt=Date.now();s.updatedAt=Date.now();return s});if(tx.committed)sound("draw");else say("ড্র ঘোষণা করা যায়নি।")}catch(e){say(errorText(e))}});
+$("refreshBtn").addEventListener("click",async()=>{if(state?.status!=="draw"||!state.players?.includes(user?.uid))return;try{const tx=await runTransaction(ref(db,"carromRooms/"+roomId+"/threeGutiState"),s=>{if(!s||s.status!=="draw"||s.players?.length!==2)return;const first=s.players.find(uid=>uid!==s.firstUid)||s.firstUid;return {...s,board:["Y","Y","Y",null,null,null,"G","G","G"],firstUid:first,turnUid:first,winnerUid:null,status:"playing",moves:0,startedAt:Date.now(),turnStartedAt:Date.now(),turnNo:0,drawAt:null,updatedAt:Date.now()}});if(!tx.committed)say("ড্র রিফ্রেশ করা যায়নি।")}catch(e){say(errorText(e))}});
+$("chatSend").addEventListener("click",sendChat);$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+$("winnerClose").addEventListener("click",()=>$("winnerOverlay").classList.add("hide"));
+$("backBtn").addEventListener("click",()=>location.href="index.html?roomId="+encodeURIComponent(roomId));
+setInterval(updateTimer,200);
+onAuthStateChanged(auth,async u=>{user=u;if(u){try{const p=await get(ref(db,"users/"+u.uid));profile=p.exists()?p.val()||{}:{}}catch(_){profile={}}$("loginMsg").textContent="লগইন আছে। Admin-approved Room Code দিয়ে যোগ দিন।"}else $("loginMsg").textContent="GameNest BD User App-এ লগইন করুন; একই HTTPS ডোমেইনে থাকা দরকার।"});
+</script></body></html>
