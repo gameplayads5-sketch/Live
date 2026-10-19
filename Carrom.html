@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>GameNest BD • Carrom Online</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#120b07;--panel:#20140d;--blue:#c99a42;--purple:#7b552b;--muted:#ead8b8;--green:#38e879}
+html,body{margin:0;background:radial-gradient(circle at 50% 0,#4b2b17 0,#1d120b 48%,#090604 100%);color:#fff;font-family:Arial,sans-serif}
+body{min-height:100vh}
+#app{width:min(100%,760px);margin:auto;padding:10px 10px 24px}
+.card{background:linear-gradient(135deg,#302015,#1b110b);border:1px solid #8b6536;border-radius:20px;padding:12px;margin-bottom:10px;box-shadow:0 8px 24px #0007}
+.top{display:flex;justify-content:space-between;align-items:center;gap:7px;background:linear-gradient(135deg,#50321b,#24160d);border:1px solid #c99a42;border-radius:18px;padding:8px 10px;box-shadow:0 8px 25px #0008}
+.topTitle{font-size:19px;font-weight:800;line-height:1.1}.topSub{color:#9ec8ff;font-size:10px;margin-top:3px}
+.roomBox{min-width:128px;text-align:center;background:#061a3a;border:1px solid #258fff;border-radius:15px;padding:5px 7px}.roomLabel{font-size:10px;color:#9ec8ff}.roomCode{font-size:18px;font-weight:900;letter-spacing:1px}.count{font-size:11px;color:#69f39c;margin-top:2px}
+.playerCard{display:grid;grid-template-columns:62px minmax(0,1fr);gap:9px;align-items:center;padding:6px 8px;border-radius:16px;margin:5px 0;background:linear-gradient(135deg,#3b2818,#21150d);border:1px solid #8c673b;box-shadow:0 7px 20px #0007}
+.playerCard.p2{background:linear-gradient(135deg,#3b2818,#21150d);border-color:#8c673b}
+.avatarBig{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;background:#6c432e;border:3px solid #22a0ff;overflow:hidden}.p2 .avatarBig{border-color:#c084ff}
+.avatarBig img{width:100%;height:100%;object-fit:cover}.pInfo{min-width:0}.pTop{display:flex;justify-content:space-between;gap:6px;align-items:center}.pName{font-size:17px;font-weight:900}.online{font-size:11px;color:#6aff9a}.pId{font-size:11px;color:#c8dcf7;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px}.detail{background:#061735aa;border:1px solid #2875bd;border-radius:11px;padding:7px 8px;min-width:0}.detailLabel{font-size:10px;color:#a9c6e8}.detailValue{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.joined{color:#65f59a}.colorDot{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:-2px;border:1px solid #999;margin-right:4px}.blackDot{background:#111}.whiteDot{background:#fff}
+.vs{height:18px;display:flex;align-items:center;justify-content:center;margin:2px auto;color:#fff;font-size:17px;font-weight:900}.vs span{background:linear-gradient(135deg,#123c78,#2d116d);border:2px solid #47aaff;border-radius:9px;padding:2px 10px;box-shadow:0 0 14px #168cff66}
+.boardTitle{text-align:center;color:#cfe7ff;font-weight:800;font-size:12px;margin:2px auto 2px;letter-spacing:.4px}.boardWrap{position:relative;width:min(94vw,500px);margin:6px auto 8px;padding:5px;border-radius:22px;background:linear-gradient(135deg,#0b6bcf,#5a21c8,#0b6bcf);box-shadow:0 12px 30px #0009}.boardInner{background:#241108;border-radius:18px;padding:4px}.boardInner canvas{width:100%;height:auto;display:block;border-radius:14px;touch-action:none}
+#game{display:block}#msg{min-height:20px;color:#e9c9a7;font-size:13px;margin-top:6px}
+input{width:100%;background:#120d0a;color:#fff;border:1px solid #6b4734;border-radius:10px;padding:12px;margin:5px 0}button{background:#c97932;color:#fff;border:0;border-radius:10px;padding:11px 14px;font-weight:700;margin:4px;cursor:pointer}.small{font-size:11px;color:#bfaea1}.muted{color:#b9cbe3;font-size:12px;line-height:1.5}
+.claimbox{background:#10243a;border:1px solid #2a8cff;border-radius:14px;padding:12px;margin-top:10px}.claimbox input[type=file]{background:#091625;border:1px solid #2a4968;border-radius:10px;padding:8px;width:100%;color:#fff}.claimbox button{width:100%;margin:6px 0 0}
+.matchJoin{padding:9px}.joinTitle{font-size:15px;font-weight:900;margin-bottom:4px}.joinBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}.joinBtns button{margin:0;font-size:12px;padding:9px 8px}.matchJoin input{font-size:16px;text-transform:uppercase}.matchJoin input:focus{outline:2px solid #42a5ff;border-color:#42a5ff}.matchInfo{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.matchInfo .badge{background:#061735;border:1px solid #2869aa;border-radius:12px;padding:9px;color:#dceeff;font-size:12px}.matchInfo b{font-size:14px}
+@media(max-width:420px){#app{padding:3px 5px 12px}.top{padding:7px 8px;border-radius:16px}.topTitle{font-size:16px}.topSub{font-size:9px}.roomBox{min-width:108px;padding:4px 6px}.roomLabel{font-size:9px}.roomCode{font-size:15px}.count{font-size:10px}.playerCard{grid-template-columns:43px minmax(0,1fr);padding:5px 6px;margin:4px 0;border-radius:15px}.avatarBig{width:40px;height:40px;font-size:18px}.pName{font-size:14px}.pId{font-size:9px}.details{gap:3px;margin-top:4px}.detail{padding:4px 5px;border-radius:8px}.detailLabel{font-size:8px}.detailValue{font-size:10px}.vs{height:16px;margin:0 auto}.vs span{padding:1px 8px;font-size:14px;border-width:1px}.boardWrap{width:min(94vw,390px);margin:4px auto 6px;padding:3px;border-radius:18px}.boardInner{padding:2px;border-radius:13px}}
+
+/* Compact mobile play layout: keep both players and board visible with minimal scrolling */
+html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#app{height:auto;min-height:100dvh;overflow:visible;display:flex;flex-direction:column;padding:2px 5px calc(22px + env(safe-area-inset-bottom));gap:2px}
+#game{min-height:0;height:auto;display:flex;flex-direction:column;gap:3px;overflow:visible}
+.top{flex:0 0 auto;padding:3px 5px;border-radius:10px;min-height:0;gap:4px}
+.topTitle{font-size:11px;line-height:1.05}.topSub{display:none}
+.roomBox{min-width:72px;padding:1px 3px;border-radius:9px}.roomLabel{font-size:6px}.roomCode{font-size:10px;line-height:1.05}.count{font-size:7px;margin-top:1px}
+.card.matchJoin{flex:0 0 auto;margin:0;padding:4px 6px;border-radius:10px}
+.matchJoin .joinTitle{font-size:10px;line-height:1.15;margin:0 0 2px}
+.matchJoin .muted,.matchJoin .small{display:none}
+ .matchJoin .notice,.matchJoin .warning,.matchJoin .loginNotice{padding:4px 6px!important;margin:2px 0!important;font-size:9px!important;line-height:1.15!important}
+.matchJoin input{width:100%;padding:3px 6px;margin:1px 0;font-size:11px;border-radius:6px}
+.joinBtns{display:flex;gap:3px}.joinBtns button{flex:1;min-width:0;font-size:9px;line-height:1.05;padding:4px 3px;margin:1px 0;border-radius:6px}
+.playerCard{flex:0 0 auto;grid-template-columns:28px minmax(0,1fr);gap:4px;padding:3px 5px;margin:0;border-radius:9px;box-shadow:none}
+.avatarBig{width:25px;height:25px;font-size:13px;border-width:2px}
+.pTop{gap:4px}.pName{font-size:11px;line-height:1.1}.online{font-size:8px}
+.pId{font-size:8px;margin-top:1px}
+.details{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;margin-top:2px}
+.detail{padding:1px 2px;border-radius:4px}.detailLabel{font-size:6px;white-space:nowrap}.detailValue{font-size:8px;white-space:nowrap}
+.vs{flex:0 0 9px;height:9px;margin:0;font-size:0}.vs span{display:none}
+.boardTitle{display:none}
+.matchStatus{margin-top:3px!important;padding:4px 6px!important;border-radius:7px;background:#102746;border:1px solid #2d5685;color:#e6f2ff;font-size:10px!important;line-height:1.15!important;font-weight:600;min-height:0!important}
+.matchStatus[data-state="success"]{border-color:#238b61;background:#0d302b;color:#b9ffe0}
+.matchStatus[data-state="error"]{border-color:#a84c55;background:#351a25;color:#ffd0d5}
+.matchStatus[data-state="searching"]{border-color:#c58a32;background:#352915;color:#ffe2a3}
+.winnerArea:empty{display:none}.winnerArea:not(:empty){position:fixed!important;inset:0!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:center!important;max-height:none!important;overflow:auto!important;padding:14px!important;background:rgba(0,0,0,.82)!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.winnerArea .claimbox{width:min(100%,480px);max-height:86dvh;overflow:auto;margin:0;background:linear-gradient(135deg,#123b2f,#10243a);border:2px solid #43e6a0;box-shadow:0 0 18px #19c98555}.winnerArea .claimbox h3{margin:0 0 6px;font-size:16px;color:#9dffd5}.winnerArea .claimbox .winnerFacts{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:7px 0}.winnerArea .claimbox .winnerFact{background:#061b2a;border:1px solid #2e7c68;border-radius:8px;padding:6px;font-size:10px;overflow-wrap:anywhere}.winnerArea .claimbox .winnerFact b{display:block;color:#8ddfc3;font-size:9px;margin-bottom:2px}.winnerArea .claimbox label{display:block;font-size:11px;margin-top:6px}.winnerArea .claimbox input[type=file]{margin:4px 0;padding:6px}.winnerArea .claimbox button{padding:8px;margin-top:4px}
+.boardWrap{flex:0 0 auto;min-height:0;width:min(94vw,560px);max-height:none;aspect-ratio:1/1;margin:2px auto 5px;padding:3px;border-radius:13px;display:flex;align-items:stretch}
+.boardInner{padding:2px;border-radius:10px;width:100%;height:100%}
+.boardInner canvas{width:100%;height:100%;object-fit:contain}
+.strikerControl{width:min(84vw,420px);margin:0 auto 3px;padding:4px 8px 5px;border-radius:14px;background:linear-gradient(180deg,#382014,#170d09);border:2px solid #8b5c32;box-shadow:0 5px 12px #0008;flex:0 0 auto}.strikerControl .controlLabel{font-size:9px;color:#f5d7a7;text-align:center;margin-bottom:3px;font-weight:700}.controlRail{height:23px;border-radius:20px;background:linear-gradient(180deg,#f2d19a,#a66a35);border:4px solid #38251a;box-shadow:inset 0 2px 5px #5a351e;position:relative;touch-action:none;user-select:none}.controlThumb{position:absolute;left:50%;top:50%;width:24px;height:24px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#f4d9a5 45%,#b87835 80%);border:3px solid #fff0c4;box-shadow:0 2px 7px #000a;pointer-events:none}.strikerControl .controlHint{font-size:8px;color:#d4b18b;text-align:center;margin-top:5px}
+.matchHeader{display:none}
+#game>.card:not(.matchJoin){display:none}
+@media(max-height:800px){.boardWrap{width:min(94vw,560px)}.strikerControl{width:min(88vw,420px);padding:3px 7px}.controlRail{height:20px}.controlThumb{width:22px;height:22px}.detail{padding:2px 3px}.pName{font-size:11px}}
+@media(min-width:600px){.boardWrap{width:min(78vw,500px)}}
+.playerCard{background:linear-gradient(135deg,#342318,#1d120b);border-color:#8b6536}.playerCard.p2{background:linear-gradient(135deg,#342318,#1d120b);border-color:#8b6536}
+.strikerControl{border-color:#9b713d;background:linear-gradient(180deg,#3a2718,#1c110a)}.controlRail{background:linear-gradient(180deg,#e4c17d,#98632e);border-color:#3c2818}
+#turnTimer{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid #b78a3e;border-radius:99px;color:#ffe2a0;background:#26180d;font-weight:800;font-size:12px}
+#scoreSummary{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;color:#f5dfb8;font-size:11px;font-weight:700}
+#queenPopup{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%) scale(.95);z-index:99;background:linear-gradient(135deg,#4a1715,#1b0d0a);border:2px solid #f2bd54;border-radius:16px;padding:14px 18px;box-shadow:0 12px 40px #000b;color:#fff0c2;text-align:center;font-weight:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:85vw}#queenPopup.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+
+/* Mobile fit: keep the board large while compacting the UI above and below it */
+@media(max-width:600px){
+ #app{padding-left:4px;padding-right:4px;padding-bottom:calc(26px + env(safe-area-inset-bottom));gap:2px}
+ .top{padding:2px 5px;min-height:29px}
+ .topTitle{font-size:11px;line-height:1}
+ .roomBox{min-width:68px;padding:1px 3px}
+ .roomLabel{font-size:6px}.roomCode{font-size:10px}.count{font-size:7px}
+ #turnTimer{font-size:9px;padding:1px 5px}
+ .matchJoin .muted,.matchJoin .small{display:none}
+ .matchJoin .notice,.matchJoin .warning,.matchJoin .loginNotice{padding:4px 6px!important;margin:2px 0!important;font-size:9px!important;line-height:1.15!important}
+ .matchJoin .joinTitle{font-size:9px;line-height:1.05}
+ .playerCard{padding:2px 3px;gap:3px}
+ .pName{font-size:9px;line-height:1.05}.pId{font-size:6px;line-height:1}
+ .strikerControl{width:min(86vw,440px);padding:2px 5px 3px;margin:0 auto 1px;border-width:1px;border-radius:9px}
+ .strikerControl .controlLabel{font-size:7px;margin-bottom:1px}
+ .controlRail{height:17px;border-width:3px}.controlThumb{width:19px;height:19px}
+ .strikerControl .controlHint{font-size:6px;margin-top:1px}
+ .boardWrap{width:min(94vw,560px);margin:2px auto 4px}
+ #scoreSummary{font-size:9px;gap:5px;line-height:1.05}
+}
+
+@media(max-width:600px){
+ .card.matchJoin{padding:3px 4px!important;margin:0!important}
+ .playerCard .details{gap:2px!important;margin-top:1px!important}
+ .playerCard .avatarBig{width:22px;height:22px;font-size:11px}
+ .boardWrap{width:min(94vw,560px)!important}
+}
+
+
+/* Final phone layout: compact the header/join/status panels, never shrink the board */
+@media(max-width:600px){
+  #app{padding:2px 4px calc(18px + env(safe-area-inset-bottom));gap:2px}
+  .top{padding:2px 4px!important;min-height:0!important;border-radius:9px!important}
+  .topTitle{font-size:10px!important;line-height:1.05!important}
+  .roomBox{min-width:66px!important;padding:1px 3px!important}
+  .roomLabel{font-size:6px!important}.roomCode{font-size:10px!important}.count{font-size:7px!important}
+  .matchJoin{padding:3px 4px!important}
+  .matchJoin .joinTitle{font-size:9px!important;line-height:1.05!important;margin-bottom:2px!important}
+  .matchJoin input{padding:3px 5px!important;margin:1px 0!important;font-size:10px!important}
+  .joinBtns{gap:3px!important}
+  .joinBtns button{font-size:8px!important;padding:4px 2px!important;line-height:1.05!important}
+  .matchStatus{padding:4px 5px!important;margin-top:2px!important;font-size:9px!important;line-height:1.15!important}
+  .playerCard{padding:2px 3px!important;margin:0!important}
+  .pName{font-size:9px!important}.pId{font-size:6px!important}
+  .detail{padding:1px 2px!important}.detailLabel{font-size:6px!important}.detailValue{font-size:8px!important}
+  .strikerControl{width:min(86vw,440px)!important;padding:2px 5px 3px!important}
+  .strikerControl .controlLabel{font-size:7px!important}
+  .controlRail{height:17px!important}.controlThumb{width:19px!important;height:19px!important}
+  .strikerControl .controlHint{font-size:6px!important;line-height:1.1!important}
+  .boardWrap{width:min(94vw,560px)!important;margin:2px auto 4px!important}
+}
+
+/* Final header-only refinement: shorten top banner without changing board/game logic */
+@media(max-width:600px){
+  .top{min-height:0!important;height:auto!important;padding:1px 4px!important;margin:0!important;gap:2px!important;border-radius:8px!important}
+  .topTitle{font-size:9px!important;line-height:1!important;margin:0!important;padding:0!important}
+  .topSub{display:none!important}
+  .roomBox{min-width:60px!important;padding:0 2px!important;margin:0!important;border-radius:7px!important}
+  .roomLabel{font-size:5px!important;line-height:1!important}
+  .roomCode{font-size:9px!important;line-height:1!important;margin:0!important}
+  .count{font-size:6px!important;line-height:1!important;margin:0!important}
+  .top .badge,.top .status{margin:0!important;padding:0!important}
+}
+
+/* Requested title-card adjustment: shorter card, larger game title */
+@media(max-width:600px){
+  .top{padding:1px 4px!important;min-height:0!important;height:auto!important;gap:2px!important}
+  .topTitle{font-size:12px!important;line-height:1.1!important;font-weight:700!important}
+  .roomBox{min-width:60px!important;padding:0 2px!important}
+}
+
+/* Small responsive board scale: retain play area and allow upward aiming gesture */
+@media(max-width:600px){
+  .boardWrap{
+    width:min(90vw,500px)!important;
+    margin:3px auto 5px!important;
+    flex:0 0 auto!important;
+  }
+  .boardInner{width:100%!important;height:100%!important}
+  .boardInner canvas{width:100%!important;height:100%!important;touch-action:none}
+  .strikerControl{touch-action:pan-y}
+}
+@media(max-height:780px) and (max-width:600px){
+  .boardWrap{width:min(86vw,460px)!important}
+}
+
+/* Winner popup floats near the TOP of the screen so it is not hidden below the board */
+.winnerArea:empty{display:none}
+.winnerArea:not(:empty){position:fixed!important;inset:0!important;z-index:2147483000!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;max-height:100dvh!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding:calc(8px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom))!important;background:rgba(0,0,0,.78)!important;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.winnerArea .claimbox{position:relative!important;width:min(100%,480px)!important;max-height:calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow-y:auto!important;margin:0 auto!important;flex:0 0 auto!important;border:2px solid #43e6a0!important;box-shadow:0 8px 30px #000c,0 0 18px #19c98555!important}
+
+/* User-to-user chat: compact floating launcher and five-line scrollable conversation */
+#chatLauncher{position:fixed;right:10px;bottom:22px;z-index:2147482000;padding:8px 12px;margin:0;border-radius:22px;background:#1479d4;border:1px solid #8ecbff;box-shadow:0 3px 14px #0009;font-size:12px}
+#chatPanel{position:fixed;right:8px;bottom:66px;width:min(340px,calc(100vw - 16px));z-index:2147482001;display:none;background:#171b25;border:1px solid #3388d9;border-radius:14px;box-shadow:0 10px 35px #000b;overflow:hidden;color:#fff}
+#chatPanel.open{display:block}
+#chatHead{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;background:#0d3155;font-weight:800;font-size:13px}
+#chatClose{margin:0;padding:3px 8px;background:#45546b}
+#chatSetup{padding:8px;display:flex;gap:5px}
+.chatRoomNotice{padding:8px;font-size:11px;line-height:1.4;color:#d4e8ff}
+#chatStatus{padding:0 9px 6px;font-size:10px;color:#b9cbe3}
+#chatMessages{height:118px;max-height:118px;overflow-y:auto;overscroll-behavior:contain;padding:7px;background:#0c111a;display:flex;flex-direction:column;gap:6px}
+.chatBubble{max-width:88%;padding:6px 8px;border-radius:10px;background:#30394a;font-size:12px;line-height:1.35;overflow-wrap:anywhere;align-self:flex-start;white-space:pre-wrap}
+.chatBubble.mine{align-self:flex-end;background:#145b91}
+.chatMeta{font-size:9px;opacity:.7;margin-top:3px}
+#chatComposer{display:flex;gap:5px;padding:7px}
+#chatText{min-width:0;flex:1;margin:0;padding:8px;font-size:12px}
+#chatSend{margin:0;padding:7px 10px;font-size:11px}
+@media(max-width:600px){#chatLauncher{right:8px;bottom:18px}#chatPanel{bottom:60px}}
+
+
+/* Compact three-dot menu for optional music tools */
+.extrasMenu{position:relative;z-index:30;margin:7px 0 0;display:flex;justify-content:flex-end}.roomMusicMenu{width:100%;justify-content:flex-end}.roomMusicMenu #musicBox{width:min(78vw,320px)!important;max-width:320px;max-height:55vh;overflow:auto}.roomMusicMenu[open]{display:block}.roomMusicMenu[open]>summary{margin-left:auto;width:max-content}
+.extrasMenu>summary{list-style:none;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1px solid #8b6536;border-radius:10px;background:#21170f;color:#ffe7bf;font-size:21px;font-weight:900;line-height:1.1;box-shadow:0 2px 8px #0005}
+.extrasMenu>summary::-webkit-details-marker{display:none}
+.extrasMenu>summary span{font-size:11px;font-weight:700}
+.extrasMenu[open]{display:block}
+.extrasMenu[open]>summary{margin-left:auto;width:max-content}
+.extrasMenu #musicBox{box-shadow:0 8px 24px #0009}
+.menuMatchInfo{display:grid;grid-template-columns:1fr;gap:5px;margin:0 0 8px;padding:8px;background:#101a2b;border:1px solid #395d88;border-radius:10px}.menuMatchInfo .menuRow{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#dcecff}.menuMatchInfo b{color:#fff;font-size:13px}.backBtn{display:block;width:100%;margin:0 0 8px;background:#34465c;border:1px solid #7088a7;padding:8px;font-size:12px}.playerCard .details .detail:nth-child(-n+3){display:none}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="queenPopup" role="status" aria-live="polite">👑 Queen পকেটে পড়েছে! পরবর্তী শটে নিজের গুটি দিয়ে Cover করুন</div>
+  <div id="game">
+    <div class="top">
+      <div><div class="topTitle">👑 GameNest BD • Carrom</div><div class="topSub">Online Match • Room ID দিয়ে Join করুন</div></div>
+      <div class="roomBox"><div class="roomLabel">Match / Room Code</div><div class="roomCode" id="roomCodeText">—</div><div class="count">🟢 <span id="playerCount">0/2</span> Players</div><div id="turnTimer" aria-live="polite">⏱ ২০s</div>
+      <details id="extrasMenu" class="extrasMenu roomMusicMenu"><summary aria-label="গান ও আরও অপশন">⋮ <span>গান / আরও</span></summary>
+      <section id="musicBox" class="card" aria-label="MP3 music player" style="margin:5px auto;padding:8px;width:min(94%,560px);background:#21170f;border:1px solid #8b6536;border-radius:12px;color:#ffe7bf;text-align:left">
+      <button id="backButton" type="button" class="backBtn">⬅️ Back / ফিরে যান</button>
+      <div class="menuMatchInfo" aria-label="ম্যাচের তথ্য">
+        <div class="menuRow">🎮 মোড <b id="menuMode">FREE PLAY</b></div>
+        <div class="menuRow">🆔 ম্যাচ <b id="menuMatch">—</b></div>
+        <div class="menuRow">💰 Entry <b id="menuEntry">৳0</b></div>
+      </div>
+      <div style="font-weight:800;font-size:12px;margin-bottom:5px">🎵 নিজের MP3 গান চালান</div>
+      <input id="mp3Picker" type="file" accept="audio/mpeg,audio/mp3,audio/*" style="width:100%;font-size:11px;margin:2px 0 6px;color:#ffe7bf">
+      
+      <audio id="mp3Player" controls preload="none" style="display:none;width:100%;height:36px"></audio>
+      <div id="mp3Status" style="font-size:10px;color:#d8c2a2;line-height:1.4">মোবাইল থেকে ডাউনলোড করা MP3/অডিও ফাইল বেছে নিন। গানটি শুধু আপনার ডিভাইসে চলবে; অন্য খেলোয়াড়ের কাছে যাবে না।</div></section></details>
+      </div>
+    </div>
+
+    <div class="card matchJoin">
+      <div class="joinTitle">🎮 Admin-এর দেওয়া Room ID দিয়ে খেলুন</div>
+      <div class="muted">Admin যে Room ID দিয়েছেন সেটি লিখে Join করুন। একই Room ID-তে সর্বোচ্চ ২ জন খেলোয়াড় খেলতে পারবেন। Entry ও পুরস্কারের পরিমাণ Admin Panel-এ সেট করা থাকলে সেই তথ্য অনুযায়ী দেখানো হবে।</div>
+      <input id="packageCodeInput" type="text" inputmode="text" autocomplete="off" placeholder="Admin-এর দেওয়া Room ID" aria-label="Room ID">
+      <div class="joinBtns"><button id="findMatchBtn" type="button">🔗 Room ID দিয়ে Join করুন</button><button id="cancelMatchBtn" type="button" style="background:#45546b" disabled>✖ সংযোগ বাতিল</button></div>
+      <div id="matchStatus" class="matchStatus" role="status" aria-live="polite">Admin-এর দেওয়া Room ID লিখে Join করুন।</div>
+      <div class="small">Room ID Admin Panel-এর Room Manager থেকে তৈরি করা থাকতে হবে।</div>
+    </div>
+
+    <div id="player2Card" class="playerCard p2">
+      <div class="avatarBig">⚪</div><div class="pInfo"><div class="pTop"><div class="pName">উপরের খেলোয়াড় • সাদা সাইড</div><div class="online">● অপেক্ষা</div></div><div class="pId">User ID: —</div><div class="details"><div class="detail"><div class="detailLabel">🎮 মোড</div><div class="detailValue" data-package>FREE PLAY</div></div><div class="detail"><div class="detailLabel">🆔 ম্যাচ</div><div class="detailValue" data-room>—</div></div><div class="detail"><div class="detailLabel">💰 Entry</div><div class="detailValue" data-bet>৳0</div></div><div class="detail"><div class="detailLabel">🎨 রঙ</div><div class="detailValue" data-color><span class="colorDot whiteDot"></span>সাদা</div></div></div></div>
+    </div>
+
+    <div class="strikerControl playerControlTop" id="strikerControlTop">
+      <div class="controlLabel">↔️ উপরের খেলোয়াড়ের স্ট্রাইকার</div>
+      <div class="controlRail" id="controlRailTop" role="slider" aria-label="উপরের খেলোয়াড়ের স্ট্রাইকার ডান-বাম নিয়ন্ত্রণ" aria-valuemin="145" aria-valuemax="655" aria-valuenow="400" tabindex="0"><div class="controlThumb" id="controlThumbTop"></div></div>
+    </div>
+    <div class="vs"><span>VS</span></div>
+
+    <div id="scoreSummary"><span id="scoreP1">কালো: ০ পয়েন্ট · ০ গুটি</span><span id="scoreP2">সাদা: ০ পয়েন্ট · ০ গুটি</span></div><div class="boardTitle">🎯 Carrom</div><div class="boardWrap"><div class="boardInner"><canvas id="board" tabindex="-1" width="800" height="800"></canvas></div></div>
+
+    <div class="strikerControl" id="strikerControl">
+      <div class="controlLabel">↔️ নিচের খেলোয়াড়ের স্ট্রাইকার ডান-বাম নিয়ন্ত্রণ</div>
+      <div class="controlRail" id="controlRail" role="slider" aria-label="স্ট্রাইকার ডান-বাম নিয়ন্ত্রণ" aria-valuemin="145" aria-valuemax="655" aria-valuenow="400" tabindex="0"><div class="controlThumb" id="controlThumb"></div></div>
+      <div class="controlHint">নিজের টার্নে নিচের গোল চিহ্নটি ডান-বামে টানুন। শট দিতে বোর্ডে স্ট্রাইকার টেনে ছাড়ুন।</div>
+    </div>
+
+    <div id="player1Card" class="playerCard">
+      <div class="avatarBig">⚫</div><div class="pInfo"><div class="pTop"><div class="pName">নিচের খেলোয়াড় • কালো সাইড</div><div class="online">● অপেক্ষা</div></div><div class="pId">User ID: —</div><div class="details"><div class="detail"><div class="detailLabel">🎮 মোড</div><div class="detailValue" data-package>FREE PLAY</div></div><div class="detail"><div class="detailLabel">🆔 ম্যাচ</div><div class="detailValue" data-room>—</div></div><div class="detail"><div class="detailLabel">💰 Entry</div><div class="detailValue" data-bet>৳0</div></div><div class="detail"><div class="detailLabel">🎨 রঙ</div><div class="detailValue" data-color><span class="colorDot blackDot"></span>কালো</div></div></div></div>
+    </div>
+
+    <div id="claimArea" class="winnerArea" aria-live="polite"></div>
+
+  <button id="chatLauncher" type="button" aria-expanded="false">💬 চ্যাট</button>
+  <section id="chatPanel" aria-label="ইউজার চ্যাট">
+    <div id="chatHead"><span>💬 ইউজার-টু-ইউজার চ্যাট</span><button id="chatClose" type="button">✕</button></div>
+    <div id="chatSetup" class="chatRoomNotice">একই Room-এ যুক্ত দুই খেলোয়াড় এখানে স্বয়ংক্রিয়ভাবে চ্যাট করতে পারবেন।</div>
+    <div id="chatStatus" role="status">গেমের Room-এ যোগ দিন, তারপর চ্যাট করুন।</div>
+    <div id="chatMessages" aria-live="polite"><div class="small">এখানে মেসেজ দেখা যাবে।</div></div>
+    <div id="chatComposer"><input id="chatText" type="text" maxlength="1000" placeholder="মেসেজ লিখুন..." autocomplete="off"><button id="chatSend" type="button">পাঠান</button></div>
+  </section>
+
+
+    <div class="card matchHeader">
+      <div class="matchInfo"><div class="badge">🎟️ আপনার Package: <b id="packageCodeText">—</b></div><div class="badge">🆔 Match: <b id="roomCodeText2">—</b></div></div>
+      <div class="matchInfo"><div class="badge">💰 Entry: <b id="betText">৳0</b></div><div class="badge">🏆 Winner: <b id="prizeText">৳0</b></div></div>
+      <div id="roomText" class="muted">Package যাচাই হচ্ছে...</div>
+      <div id="gameMsg" class="muted">Package Code থেকেই Entry Amount নির্ধারিত। কোনো Amount Input নেই।</div>
+    </div>
+
+    <div class="card">
+      <b>Game Rules</b>
+      <div class="muted">
+        ২ জন খেলোয়াড়ের Room। নিজের turn-এ striker টেনে ছেড়ে shot দিন।
+        এই সংস্করণে game state Firebase-এ sync হয়। লগইন/সাইনআপ এই গেমে প্রয়োজন নেই; এগুলো আলাদা অ্যাপে থাকবে।
+      </div>
+      <div class="small">🔒 Match শুরু হলে Board Reset বন্ধ থাকে। Match ফলাফল Firebase-এ সংরক্ষিত হবে।</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {getDatabase,ref,set,get,update,remove,onValue,runTransaction,push} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyD2DBF_GTIkQfa6G_3gZLfZ5n0MaUEBQ48",
+ authDomain:"gamenest-bd.firebaseapp.com",
+ databaseURL:"https://gamenest-bd-default-rtdb.asia-southeast1.firebasedatabase.app",
+ projectId:"gamenest-bd",
+ storageBucket:"gamenest-bd.firebasestorage.app",
+ messagingSenderId:"1020093526765",
+ appId:"1:1020093526765:web:525b5f303e0f08d7b692e4",
+ measurementId:"G-Z66KWE43M6"
+};
+
+
+// Authentication, purchases, package tokens and user profiles belong to gamenest-bd.
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+// Spark-safe architecture: game board data uses a dedicated /carromRooms
+// path in the same project, so auth.uid is consistent with gameTokens/users.
+const carromDb=db;
+let matchmakingActive=false,matchmakingTimer=null;
+
+const $=id=>document.getElementById(id);
+const gameBox=$("game");
+let currentUser=null,currentProfile=null,roomId=null,roomUnsub=null,purchaseId=null,packageCode="",accessPackage=null;
+const board=$("board"),ctx=board.getContext("2d");
+const R=22,SR=28;
+const qs=new URLSearchParams(location.search);
+const initialGameId=qs.get("gameId")||"";
+purchaseId=qs.get("purchaseId")||""; packageCode=qs.get("packageCode")||"";
+const pockets=[{x:38,y:38},{x:762,y:38},{x:38,y:762},{x:762,y:762}];
+let state=null,drag=false,dragMode="shot",ax=400,ay=690,dragStartX=400,dragStartY=690,rawAimX=400,rawAimY=690;
+
+/* প্রতিটি player-এর নিজের baseline */
+function strikerBaseY(uid, st=state){
+  const players=st?.players||[];
+  return players.indexOf(uid)===1 ? 110 : 690;
+}
+
+function resetStrikerForTurn(st=state){
+  if(!st||!st.turn)return;
+  st.striker=st.striker||{x:400,y:690,vx:0,vy:0};
+  // খেলোয়াড় slider-এ যে X অবস্থান বেছে নিয়েছেন সেটি অক্ষত রাখুন।
+  // শুধু বর্তমান turn-এর baseline ও velocity ঠিক করা হবে।
+  st.striker.x=Math.max(145,Math.min(655,Number(st.striker.x)||400));
+  st.striker.y=strikerBaseY(st.turn,st);
+  st.striker.vx=0;
+  st.striker.vy=0;
+  st.shotActive=false;
+  for(const c of (st.coins||[])){if(c.vx===undefined)c.vx=0;if(c.vy===undefined)c.vy=0;}
+}
+
+function cleanMobile(v){
+ return String(v||"").replace(/\D/g,"");
+}
+function emailForMobile(m){
+ return cleanMobile(m)+"@gamenestbd.app";
+}
+function setMsg(t){msg.textContent=t}
+function gameMsg(t){
+  const status=$("matchStatus");
+  const hidden=$("gameMsg");
+  if(hidden) hidden.textContent=t;
+  if(status){
+    status.textContent=String(t||"");
+    const v=String(t||"").toLowerCase();
+    status.dataset.state=(v.includes("সমস্যা")||v.includes("ভুল")||v.includes("পাওয়া যায়নি")||v.includes("বাতিল"))?"error":((v.includes("খোঁজা হচ্ছে")||v.includes("waiting")||v.includes("অপেক্ষা"))?"searching":((v.includes("পাওয়া গেছে")||v.includes("সফল")||v.includes("যুক্ত")||v.includes("বিজয়ী"))?"success":"info"));
+  }
+}
+
+// Improved game audio: bell countdown, realistic wooden striker/coin clack, and optional MP3 player.
+let __audioCtx=null; const __soundSeen={}; let __lastTickKey=""; let __lastImpactAt=0;
+function playGameSound(kind){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  __audioCtx=__audioCtx||new AC();if(__audioCtx.state==='suspended')__audioCtx.resume();
+  const now=__audioCtx.currentTime;
+  const tone=(freq,at,dur,vol,wave='sine',endFreq=null)=>{const o=__audioCtx.createOscillator(),g=__audioCtx.createGain();o.type=wave;o.frequency.setValueAtTime(freq,at);if(endFreq)o.frequency.exponentialRampToValueAtTime(endFreq,at+dur);g.gain.setValueAtTime(0.0001,at);g.gain.exponentialRampToValueAtTime(Math.max(.001,vol),at+.006);g.gain.exponentialRampToValueAtTime(.0001,at+dur);o.connect(g);g.connect(__audioCtx.destination);o.start(at);o.stop(at+dur+.025);};
+  if(kind==='tick'||kind==='alarm'||kind==='bell'){
+    // Bell-like double chime with metallic overtones, not a clock tick.
+    tone(1046,now,.42,.28,'sine');tone(1568,now+.005,.34,.18,'sine');tone(2093,now+.012,.25,.09,'sine');
+    tone(784,now+.16,.35,.16,'sine');tone(1175,now+.165,.30,.10,'sine');return;
+  }
+  if(kind==='impact'){
+    // Short broadband wooden knock + resonant clack, like a striker hitting a carrom coin.
+    const length=Math.floor(__audioCtx.sampleRate*.095),buffer=__audioCtx.createBuffer(1,length,__audioCtx.sampleRate),data=buffer.getChannelData(0);
+    for(let i=0;i<length;i++){const t=i/length;data[i]=(Math.random()*2-1)*Math.pow(1-t,4);}
+    const src=__audioCtx.createBufferSource(),filter=__audioCtx.createBiquadFilter(),gain=__audioCtx.createGain();src.buffer=buffer;filter.type='bandpass';filter.frequency.value=1250;filter.Q.value=.8;gain.gain.setValueAtTime(.42,now);gain.gain.exponentialRampToValueAtTime(.0001,now+.095);src.connect(filter);filter.connect(gain);gain.connect(__audioCtx.destination);src.start(now);
+    tone(245,now,.085,.42,'triangle',95);tone(1150,now+.004,.045,.23,'square',520);tone(620,now+.012,.075,.14,'triangle',260);return;
+  }
+  if(kind==='winner'){[[523,0],[659,.13],[784,.26],[1047,.40],[1318,.58],[1568,.76]].forEach(([f,t],i)=>tone(f,now+t,.30,i>3?.42:.34,'triangle'));tone(880,now+.4,.65,.2,'sine',1760);return;}
+  const notes=kind==='shot'?[240,360]:kind==='queen'?[660,880,1100]:kind==='foul'?[180,130]:[740,980];
+  notes.forEach((hz,i)=>tone(hz,now+i*.10,.16,.32,kind==='shot'?'triangle':'sine'));
+ }catch(e){console.debug('Sound unavailable',e)}
+}
+// Play a locally selected MP3 without uploading it anywhere. Search and URL options removed for simplicity.
+(function setupMp3Player(){
+ const picker=document.getElementById('mp3Picker'),player=document.getElementById('mp3Player'),status=document.getElementById('mp3Status');
+ if(!picker||!player)return; let currentUrl=null;
+ const say=t=>{if(status)status.textContent=t;};
+ picker.addEventListener('change',()=>{const file=picker.files&&picker.files[0];if(!file)return;if(!file.type.startsWith('audio/')&&!/\.(mp3|wav|ogg|m4a|aac|opus)$/i.test(file.name)){alert('দয়া করে MP3 বা অডিও ফাইল নির্বাচন করুন।');picker.value='';return;}
+   if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(file);player.style.display='block';player.pause();player.src=currentUrl;player.load();
+   player.play().then(()=>say('🎵 গান চলছে। Player-এর control থেকে Pause/Play ও Volume বদলাতে পারবেন।')).catch(()=>say('গানটি বেছে নেওয়া হয়েছে। চালাতে Player-এর Play চাপুন।'));
+ });
+ window.addEventListener('beforeunload',()=>{if(currentUrl)URL.revokeObjectURL(currentUrl);});
+})();
+function enableGameAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){__audioCtx=__audioCtx||new AC();if(__audioCtx.state==='suspended')__audioCtx.resume();}}catch(_){}}
+document.addEventListener('pointerdown',enableGameAudio,{once:true});document.addEventListener('keydown',enableGameAudio,{once:true});
+function initialState(p1){
+ const coins=[{id:"q",x:400,y:400,c:"red",in:false}];
+ let n=0;
+ for(const ring of [{r:52,n:6},{r:102,n:12}]){
+   for(let i=0;i<ring.n;i++){
+     const a=2*Math.PI*i/ring.n+(ring.r>60?Math.PI/ring.n:0);
+     coins.push({id:"c"+(++n),x:400+Math.cos(a)*ring.r,y:400+Math.sin(a)*ring.r,c:n%2?"white":"black",in:false});
+   }
+ }
+ return {
+   players:[p1],
+   playerMap:{[p1]:true},
+   turn:p1,
+   striker:{x:400,y:690,vx:0,vy:0},
+   coins,
+   playerColors:{[p1]:"black"},
+   playerProfiles:{[p1]:{name:"Player 1",photo:""}},
+   playerPackages:{[p1]:{packageCode:"",purchaseId:"",betAmount:0}},
+   queenPending:false,
+   queenOwner:null,
+   queenCovered:false,
+   queenShotCount:null,
+   turnOwnCoinPocketed:false,
+   shotCount:0,
+   shotOwner:null,
+   version:Date.now(),
+   winner:null,
+   betAmount:0,
+   winningAmount:0
+ };
+}
+
+function ensureGameMeta(st){
+  if(!st)return;
+  st.players=st.players||[];
+  st.playerMap=st.playerMap||{};
+  for(const uid of st.players){ if(uid) st.playerMap[uid]=true; }
+  st.playerColors=st.playerColors||{};
+  st.playerProfiles=st.playerProfiles||{};
+  st.playerPackages=st.playerPackages||{};
+  st.pocketCounts=st.pocketCounts||{};
+  st.scores=st.scores||{};
+  for(const uid of st.players){if(uid && st.pocketCounts[uid]===undefined)st.pocketCounts[uid]=0; if(uid && st.scores[uid]===undefined)st.scores[uid]=0;}
+  if(st.players[0]&&!st.playerColors[st.players[0]])st.playerColors[st.players[0]]="black";
+  if(st.players[1]&&!st.playerColors[st.players[1]])st.playerColors[st.players[1]]="white";
+  if(st.queenPending===undefined)st.queenPending=false;
+  if(st.queenOwner===undefined)st.queenOwner=null;
+  if(st.queenCovered===undefined)st.queenCovered=false;
+  if(st.queenShotCount===undefined)st.queenShotCount=null;
+  if(st.turnOwnCoinPocketed===undefined)st.turnOwnCoinPocketed=false;
+  if(st.shotOwner===undefined)st.shotOwner=null;
+  if(st.shotActive===undefined)st.shotActive=false;
+   if(st.contactMade===undefined)st.contactMade=false;
+
+  // পুরোনো Room-এর গুটিগুলোতে velocity না থাকলে যোগ করি।
+  for(const c of (st.coins||[])){
+    if(c.vx===undefined)c.vx=0;
+    if(c.vy===undefined)c.vy=0;
+  }
+}
+
+function playerColor(uid,st=state){
+  ensureGameMeta(st);
+  return st?.playerColors?.[uid]||"black";
+}
+
+function returnQueenToCenter(st){
+  ensureGameMeta(st);
+  const q=(st.coins||[]).find(c=>c.id==="q");
+  if(q){
+    q.in=false;
+    q.x=400;
+    q.y=400;
+  }
+  st.queenPending=false;
+  st.queenOwner=null;
+  st.queenCovered=false;
+  st.queenShotCount=null;
+}
+
+function renderScoreSummary(){
+ const ps=state?.players||[];
+ const render=(uid,label,id)=>{const el=$(id);if(!el)return;el.textContent=label+": "+Number(state?.scores?.[uid]||0)+" পয়েন্ট · "+Number(state?.pocketCounts?.[uid]||0)+" গুটি";};
+ render(ps[0],"কালো","scoreP1");render(ps[1],"সাদা","scoreP2");
+}
+function showQueenPopup(){const el=$("queenPopup");if(!el)return;el.classList.add("show");clearTimeout(window.__queenPopupTimer);window.__queenPopupTimer=setTimeout(()=>el.classList.remove("show"),2200);}
+function renderPlayers(){
+  const ps=state?.players||[];
+  const renderCard=(id,index)=>{
+    const el=$(id); if(!el)return;
+    const uid=ps[index];
+    const prof=state?.playerProfiles?.[uid]||{};
+    const pkg=state?.playerPackages?.[uid]||{};
+    const bet=Number(pkg.betAmount||state?.betAmount||accessPackage?.betAmount||0);
+    const color=playerColor(uid,state)==="white"?"white":"black";
+    const name=prof.name||`Player ${index+1}`;
+    const online=uid?"● Joined":"● অপেক্ষা";
+    const photo=prof.photo;
+    const av=el.querySelector('.avatarBig');
+    if(av) av.innerHTML=photo?`<img src="${String(photo).replace(/"/g,'&quot;')}" alt="">`:`${index+1}`;
+    const nameEl=el.querySelector('.pName'); if(nameEl)nameEl.textContent=name;
+    const onlineEl=el.querySelector('.online'); if(onlineEl){onlineEl.textContent=online;onlineEl.className='online'+(uid?' joined':'');}
+    const idEl=el.querySelector('.pId'); if(idEl)idEl.textContent='User ID: '+(uid||'—');
+    const packageEl=el.querySelector('[data-package]'); if(packageEl)packageEl.textContent=pkg.packageCode||'—';
+    const roomEl=el.querySelector('[data-room]'); if(roomEl)roomEl.textContent=roomId||'—';
+    const betEl=el.querySelector('[data-bet]'); if(betEl)betEl.textContent='৳'+bet.toFixed(2);
+    const colorEl=el.querySelector('[data-color]'); if(colorEl)colorEl.innerHTML=color==='white'?'<span class="colorDot whiteDot"></span>সাদা':'<span class="colorDot blackDot"></span>কালো';
+    if(index===0){
+      const mm=$('menuMode'), mr=$('menuMatch'), me=$('menuEntry');
+      if(mm)mm.textContent=pkg.packageCode||'FREE PLAY';
+      if(mr)mr.textContent=roomId||'—';
+      if(me)me.textContent='৳'+bet.toFixed(2).replace(/\.00$/,'');
+    }
+    let tally=el.querySelector("[data-pocket-count]");
+    if(!tally){tally=document.createElement("div");tally.className="detail";tally.innerHTML='<div class="detailLabel">🎯 নিজের গুটি</div><div class="detailValue" data-pocket-count>0 টি</div>';el.querySelector(".details")?.appendChild(tally);tally=tally.querySelector("[data-pocket-count]");}
+    if(tally)tally.textContent=String(Number(state?.pocketCounts?.[uid]||0))+" টি";
+    el.style.opacity=uid?'1':'0.72';
+  };
+  renderCard('player2Card',1);
+  renderCard('player1Card',0);
+  renderScoreSummary();
+}
+
+function draw(){
+ ctx.clearRect(0,0,800,800);
+ // Warm wooden board with gold rails, matching the supplied reference image.
+ const wood=ctx.createLinearGradient(0,0,800,800);
+ wood.addColorStop(0,"#9b572d");wood.addColorStop(.22,"#f0c98a");wood.addColorStop(.52,"#dba466");wood.addColorStop(.78,"#f3d19a");wood.addColorStop(1,"#8c4725");
+ ctx.fillStyle="#4b2114";ctx.fillRect(0,0,800,800);
+ ctx.fillStyle="#e6a900";ctx.fillRect(10,10,780,780);
+ ctx.fillStyle=wood;ctx.fillRect(20,20,760,760);
+ ctx.strokeStyle="#70401f";ctx.lineWidth=9;ctx.strokeRect(48,48,704,704);
+ ctx.strokeStyle="#f6d77d";ctx.lineWidth=4;ctx.strokeRect(58,58,684,684);
+ ctx.strokeStyle="#89572f";ctx.lineWidth=5;ctx.strokeRect(130,130,540,540);
+ // Baselines and end circles
+ ctx.lineWidth=5;ctx.strokeStyle="#95613b";
+ for(const y of [110,690]){ctx.beginPath();ctx.moveTo(160,y);ctx.lineTo(640,y);ctx.stroke();for(const x of [160,640]){ctx.beginPath();ctx.arc(x,y,24,0,Math.PI*2);ctx.stroke()}}
+ for(const x of [110,690]){ctx.beginPath();ctx.moveTo(x,160);ctx.lineTo(x,640);ctx.stroke();for(const y of [160,640]){ctx.beginPath();ctx.arc(x,y,24,0,Math.PI*2);ctx.stroke()}}
+ pockets.forEach(p=>{ctx.beginPath();ctx.fillStyle="#170d09";ctx.shadowColor="#0009";ctx.shadowBlur=8;ctx.arc(p.x,p.y,34,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle="#3c2517";ctx.lineWidth=5;ctx.stroke()});
+ ctx.beginPath();ctx.strokeStyle="#a87343";ctx.lineWidth=7;ctx.arc(400,400,125,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.strokeStyle="#b98750";ctx.lineWidth=4;ctx.arc(400,400,70,0,Math.PI*2);ctx.stroke();
+ // Center decorative rosette
+ for(let i=0;i<12;i++){const a=i*Math.PI/6;ctx.save();ctx.translate(400,400);ctx.rotate(a);ctx.fillStyle="#bd8a51";ctx.globalAlpha=.38;ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(52,-42);ctx.lineTo(39,-7);ctx.lineTo(0,8);ctx.closePath();ctx.fill();ctx.restore()}ctx.globalAlpha=1;
+ (state?.coins||[]).filter(c=>!c.in).forEach(c=>{
+   ctx.beginPath();ctx.shadowColor="#0008";ctx.shadowBlur=7;
+   const g=ctx.createRadialGradient(c.x-7,c.y-8,2,c.x,c.y,R+3);
+   if(c.c==="red"){g.addColorStop(0,"#ff8c78");g.addColorStop(.45,"#e52d25");g.addColorStop(1,"#76110e")}
+   else if(c.c==="black"){g.addColorStop(0,"#666");g.addColorStop(.35,"#242424");g.addColorStop(1,"#050505")}
+   else{g.addColorStop(0,"#fff");g.addColorStop(.55,"#f4eee1");g.addColorStop(1,"#b7a58b")}
+   ctx.fillStyle=g;ctx.arc(c.x,c.y,R,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle="#785435";ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.strokeStyle="#ffffff88";ctx.lineWidth=2;ctx.arc(c.x,c.y,R-5,0,Math.PI*2);ctx.stroke();
+ });
+ if(state){
+   const s=state.striker;
+   ctx.beginPath();ctx.shadowColor=(currentUser&&state.turn===currentUser.uid)?"#39ff83":"#0009";ctx.shadowBlur=(currentUser&&state.turn===currentUser.uid)?18:9;ctx.fillStyle=(currentUser&&state.turn===currentUser.uid)?"#39e879":"#b7a16b";ctx.arc(s.x,s.y,SR+4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+   const sg=ctx.createRadialGradient(s.x-8,s.y-8,2,s.x,s.y,SR+1);sg.addColorStop(0,"#fff");sg.addColorStop(.5,"#fff4d6");sg.addColorStop(1,"#bb8b4b");ctx.fillStyle=sg;ctx.beginPath();ctx.arc(s.x,s.y,SR,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#9a6c38";ctx.lineWidth=3;ctx.stroke();
+   if(drag&&dragMode==="shot"){
+     // Pull-back indicator: arrow points in the launch direction, opposite to the drag.
+     const dx=s.x-ax,dy=s.y-ay,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
+     // তীরটি বোর্ডে যতদূর ফাঁকা আছে ততদূর যাবে; সামনে গুটি থাকলে সেখানে থামবে।
+     let rayMax=1000; const edge=30;
+     if(Math.abs(ux)>1e-6)rayMax=Math.min(rayMax,ux>0?(770-s.x)/ux:(edge-s.x)/ux);
+     if(Math.abs(uy)>1e-6)rayMax=Math.min(rayMax,uy>0?(770-s.y)/uy:(edge-s.y)/uy);
+     for(const c of (state.coins||[])){if(c.in)continue;const vx=c.x-s.x,vy=c.y-s.y,t=vx*ux+vy*uy;if(t>SR+R&&t<rayMax&&Math.abs(vx*uy-vy*ux)<SR+R)rayMax=Math.max(24,t-SR-R);}
+     const power=Math.max(24,rayMax);const ex=s.x+ux*power,ey=s.y+uy*power;
+     ctx.save();ctx.strokeStyle="#e64a26";ctx.fillStyle="#e64a26";ctx.lineWidth=5;ctx.setLineDash([10,7]);ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);
+     const head=18,ang=Math.atan2(ey-s.y,ex-s.x);ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-head*Math.cos(ang-.55),ey-head*Math.sin(ang-.55));ctx.lineTo(ex-head*Math.cos(ang+.55),ey-head*Math.sin(ang+.55));ctx.closePath();ctx.fill();
+     // Bow-like pull line behind striker
+     ctx.strokeStyle="#8a3e19";ctx.lineWidth=4;ctx.beginPath();ctx.arc(s.x-ux*18,s.y-uy*18,Math.min(55,len*.35+12),ang-1.0,ang+1.0);ctx.stroke();ctx.restore();
+   }
+ }
+}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function insidePocket(p){return pockets.some(q=>dist(p,q)<44)}
+function pos(e){
+ const r=board.getBoundingClientRect();
+ return {x:(e.clientX-r.left)*800/r.width,y:(e.clientY-r.top)*800/r.height}
+}
+
+// Striker-এর একটু সামনে থেকে টান শুরু করা যাবে, যাতে কম জায়গায়ও শক্ত shot দেওয়া যায়।
+function strikerDragAnchor(st=state){
+  if(!st||!st.striker)return {x:400,y:690};
+  const front = st.turn===st.players?.[1] ? 45 : -45;
+  return {x:st.striker.x,y:st.striker.y+front};
+}
+
+// দুই খেলোয়াড়ের জন্য আলাদা control bar; বর্তমান টার্নের খেলোয়াড়ের bar-ই সক্রিয়।
+const controlRails=[
+ {rail:document.getElementById("controlRailTop"),thumb:document.getElementById("controlThumbTop"),side:1},
+ {rail:document.getElementById("controlRail"),thumb:document.getElementById("controlThumb"),side:0}
+];
+let controlDragging=null;
+function updateControlThumb(){
+ if(!state?.striker)return;
+ const x=Math.max(145,Math.min(655,Number(state.striker.x)||400));
+ const pct=((x-145)/(655-145))*100;
+ for(const c of controlRails){
+  if(!c.rail||!c.thumb)continue;
+  c.thumb.style.left=pct+"%";
+  c.rail.setAttribute("aria-valuenow",String(Math.round(x)));
+  const active=!!(currentUser&&state.turn===currentUser.uid&&!state.winner&&state.players?.includes(currentUser.uid)&&!state.shotActive&&!anyPieceMoving());
+  c.rail.style.opacity=active?"1":".48";
+ }
+}
+function canMoveStriker(){
+ return !!(state&&roomId&&currentUser&&!state.winner&&Array.isArray(state.players)&&state.players.length>=2&&state.players.includes(currentUser.uid)&&state.turn===currentUser.uid&&!state.shotActive&&!anyPieceMoving());
+}
+function setStrikerFromRail(e,rail){
+ const rect=rail.getBoundingClientRect();
+ const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+ state.striker.x=145+pct*(655-145);
+ state.striker.y=strikerBaseY(currentUser.uid,state);
+ state.striker.vx=0;state.striker.vy=0;
+ updateControlThumb();draw();
+}
+for(const c of controlRails){
+ const rail=c.rail;if(!rail)continue;
+ rail.addEventListener("pointerdown",e=>{
+  if(!state||!currentUser)return;
+  if(!canMoveStriker()){gameMsg(state.turn!==currentUser.uid?"এখন আপনার টার্ন নয়।":"এখন স্ট্রাইকার সরানো যাবে না।");return;}
+  controlDragging=c;try{rail.setPointerCapture(e.pointerId)}catch(_){}
+  setStrikerFromRail(e,rail);e.preventDefault();
+ });
+ rail.addEventListener("pointermove",e=>{if(controlDragging!==c||!state||!currentUser)return;setStrikerFromRail(e,rail);e.preventDefault()});
+ rail.addEventListener("pointerup",async e=>{
+  if(controlDragging!==c)return;controlDragging=null;try{rail.releasePointerCapture(e.pointerId)}catch(_){}
+  if(state&&currentUser&&roomId){state.striker.y=strikerBaseY(currentUser.uid,state);await saveRoomState().catch(err=>gameMsg(dbError(err)));updateControlThumb();draw();}
+ });
+ rail.addEventListener("pointercancel",()=>{if(controlDragging===c)controlDragging=null;updateControlThumb();draw()});
+ rail.addEventListener("keydown",e=>{
+  if(!canMoveStriker())return;
+  let step=e.shiftKey?25:10;if(e.key==="ArrowLeft")state.striker.x=Math.max(145,state.striker.x-step);else if(e.key==="ArrowRight")state.striker.x=Math.min(655,state.striker.x+step);else return;
+  state.striker.y=strikerBaseY(currentUser.uid,state);updateControlThumb();draw();saveRoomState().catch(err=>gameMsg(dbError(err)));e.preventDefault();
+ });
+}
+
+board.addEventListener("pointerdown",e=>{
+ if(!state||!roomId||state.winner||!currentUser)return;
+ if(!Array.isArray(state.players)||state.players.length<2){gameMsg("⏳ প্রতিপক্ষ যুক্ত হওয়ার অপেক্ষায় আছেন।");return;}
+ if(!state.players.includes(currentUser.uid)){gameMsg("এই Room-এ আপনার Player হিসেবে যোগদান সম্পন্ন হয়নি।");return;}
+ if(state.turn!==currentUser.uid){gameMsg("এখন আপনার টার্ন নয় — অন্য প্লেয়ারের টার্ন।");return;}
+ if(state.shotActive||anyPieceMoving())return;
+ const p=pos(e),s=state.striker,baseY=strikerBaseY(currentUser.uid,state);
+ // প্রথমে striker-এর ওপর touch পরীক্ষা: baseline-এর touch logic যেন shot-কে move হিসেবে না ধরে।
+ if(dist(p,s)<Math.max(72,SR+42)){
+   drag=true;dragMode="shot";dragStartX=s.x;dragStartY=s.y;ax=p.x;ay=p.y;
+   try{board.setPointerCapture(e.pointerId)}catch(_){};draw();return;
+ }
+ // স্ট্রাইকার নির্দিষ্ট shooting point-এ থাকবে; baseline-এ touch করে সরানো বন্ধ।
+});
+board.addEventListener("pointermove",e=>{
+ if(!drag||!state||!currentUser)return;
+ const p=pos(e),s=state.striker;
+ if(dragMode==="move"){
+   s.x=Math.max(145,Math.min(655,p.x));s.y=strikerBaseY(currentUser.uid,state);draw();return;
+ }
+ ax=p.x;ay=p.y;draw();
+});
+board.addEventListener("pointerup",e=>{
+ if(!drag)return;drag=false;try{board.releasePointerCapture(e.pointerId)}catch(_){}
+ if(!state||!roomId||!currentUser||state.winner){draw();return;}
+ if(dragMode==="move"){
+   state.striker.x=Math.max(145,Math.min(655,state.striker.x));state.striker.y=strikerBaseY(currentUser.uid,state);state.striker.vx=0;state.striker.vy=0;saveRoomState().catch(err=>gameMsg(dbError(err)));draw();return;
+ }
+ if(!Array.isArray(state.players)||state.players.length<2||!state.players.includes(currentUser.uid)||state.turn!==currentUser.uid){draw();return;}
+ const s=state.striker,dx=dragStartX-ax,dy=dragStartY-ay,len=Math.hypot(dx,dy);
+ if(len<8){draw();return;}
+ const power=Math.min(34,Math.max(5,len/5));
+ state.turnOwnCoinPocketed=false;state.contactMade=false;state.shotOwner=currentUser.uid;s.vx=dx/len*power;s.vy=dy/len*power;state.shotActive=true;
+state.foulPenaltyApplied=false;
+playGameSound("shot");
+ draw();saveRoomState().catch(err=>gameMsg(dbError(err)));
+});
+board.addEventListener("pointercancel",()=>{drag=false;draw()});
+
+let lastPhysicsSave=0;
+
+function keepInsideBoard(o,r){
+  // Let pieces enter the pocket mouths instead of bouncing off the inner boundary.
+  const nearPocket=pockets.some(q=>dist(o,q)<92);
+  if(o.x-r<28 && !nearPocket){o.x=28+r;o.vx=Math.abs(o.vx)*0.82}
+  if(o.x+r>772 && !nearPocket){o.x=772-r;o.vx=-Math.abs(o.vx)*0.82}
+  if(o.y-r<28 && !nearPocket){o.y=28+r;o.vy=Math.abs(o.vy)*0.82}
+  if(o.y+r>772 && !nearPocket){o.y=772-r;o.vy=-Math.abs(o.vy)*0.82}
+}
+
+function resolveElastic(a,b,ra,rb){
+  let dx=b.x-a.x,dy=b.y-a.y;
+  let d=Math.hypot(dx,dy);
+  const minD=ra+rb;
+  if(!d||d>=minD)return false;
+  const nx=dx/d,ny=dy/d;
+  const overlap=minD-d;
+  a.x-=nx*overlap/2; a.y-=ny*overlap/2;
+  b.x+=nx*overlap/2; b.y+=ny*overlap/2;
+
+  const rvx=b.vx-a.vx,rvy=b.vy-a.vy;
+  const rel=rvx*nx+rvy*ny;
+  if(rel>=0)return true;
+
+  // সমান mass-এর প্রায় elastic collision।
+  const impulse=-rel*0.92;
+  a.vx-=impulse*nx; a.vy-=impulse*ny;
+  b.vx+=impulse*nx; b.vy+=impulse*ny;
+  return true;
+}
+
+
+function escapeHtmlClaim(v){return String(v||"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function getWinningAmount(){
+  const configured=Number(state?.winningAmount||0);
+  if(Number.isFinite(configured)&&configured>0)return Math.round(configured*100)/100;
+  const bet=Number(state?.betAmount||0);
+  return Number.isFinite(bet)&&bet>0 ? Math.round(bet*2*100)/100 : 0;
+}
+function renderClaimArea(){
+ const el=$("claimArea");
+ if(!el)return;
+ if(!state?.winner){el.innerHTML="";return;}
+ const won=String(state.winner)===String(currentUser?.uid);
+ const players=Array.isArray(state.players)?state.players.filter(Boolean):[];
+ const winnerUid=String(state.winner||"");
+ const winnerProfile=state.playerProfiles?.[winnerUid]||{};
+ const winnerName=winnerProfile.name||((won&&(currentUser?.displayName))||"Player");
+ const winnerMobile=winnerProfile.mobile||winnerProfile.phone||((won&&currentUser?.phoneNumber)||"");
+ const amount=getWinningAmount();
+ if(!won){
+   const shownWinnerName=winnerProfile.name||"প্রতিপক্ষ";
+   el.innerHTML=`<div class="claimbox"><h3>🏁 ম্যাচ শেষ</h3><div class="small">এই ম্যাচে আপনি বিজয়ী নন।</div><button type="button" onclick="document.getElementById('claimArea').innerHTML=''" style="background:#34465c">বন্ধ করুন</button><div class="winnerFacts"><div class="winnerFact"><b>বিজয়ীর নাম</b>${escapeHtmlClaim(shownWinnerName)}</div><div class="winnerFact"><b>বিজয়ী User ID</b>${escapeHtmlClaim(winnerUid)}</div><div class="winnerFact"><b>Room ID</b>${escapeHtmlClaim(roomId||"")}</div><div class="winnerFact"><b>পুরস্কার</b>৳${amount.toFixed(2)}</div></div></div>`;
+   return;
+ }
+ const prizeInstructions=amount>0?`<div class="small" style="margin-top:14px;padding:12px;border:1px solid #36cfa0;border-radius:12px;background:rgba(20,184,140,.09)"><strong>📱 পুরস্কার Claim করতে User App ব্যবহার করুন</strong><br>আপনার Package Code এবং এই ম্যাচের Screenshot User App থেকে জমা দিন। Admin যাচাই করে Claim Approve করলে পুরস্কার যোগ হবে।</div>`:
+   `<div class="small">এই Room-এ নগদ পুরস্কার নির্ধারিত নেই। বিস্তারিত জানতে Admin-এর সঙ্গে যোগাযোগ করুন।</div>`;
+ el.innerHTML=`<div class="claimbox" role="status">
+   <h3>🎉 অভিনন্দন ${escapeHtmlClaim(winnerName)}! আপনি Carrom ম্যাচ জিতেছেন!</h3>
+   <div class="small">আপনার জয়ের তথ্য নিচে পরিষ্কারভাবে দেখানো হয়েছে। Admin যাচাই করে Claim Approve করলে পুরস্কার যোগ হবে।</div><button type="button" onclick="document.getElementById('claimArea').innerHTML=''" style="background:#34465c">পরে Claim করব / বন্ধ করুন</button>
+   <div class="winnerFacts">
+     <div class="winnerFact"><b>বিজয়ীর নাম</b>${escapeHtmlClaim(winnerName)}</div>
+     <div class="winnerFact"><b>বিজয়ী User ID</b>${escapeHtmlClaim(winnerUid)}</div>
+     <div class="winnerFact"><b>ফোন / মোবাইল</b>${escapeHtmlClaim(winnerMobile||"প্রোফাইলে নেই")}</div>
+     <div class="winnerFact"><b>Room ID / Match Code</b>${escapeHtmlClaim(roomId||"")}</div>
+     <div class="winnerFact"><b>পুরস্কারের পরিমাণ</b><strong>৳${amount.toFixed(2)}</strong></div>
+     <div class="winnerFact"><b>ম্যাচের খেলোয়াড়</b>${players.length}/2</div>
+   </div>
+   ${prizeInstructions}
+ </div>`;
+}
+
+
+function checkWinner(uid){
+ const color=playerColor(uid,state);
+ const remaining=(state.coins||[]).filter(c=>!c.in && c.id!=="q" && c.c===color).length;
+ const ownQueenNeedsCover=state.queenPending && state.queenOwner===uid && !state.queenCovered;
+ if(remaining===0 && !ownQueenNeedsCover){
+   state.winner=uid;
+   playGameSound("winner");
+   state.winningAmount=getWinningAmount();
+   state.endedAt=Date.now();
+   return true;
+ }
+ return false;
+}
+
+function pocketCoin(c){
+  if(c.in)return;
+  c.in=true;c.vx=0;c.vy=0;
+  if(c.id==="q")playGameSound("queen");
+  const shooter=state.shotOwner||currentUser?.uid;
+  if(!shooter)return;
+  if(c.id==="q"){
+    // কুইন নেওয়ার একই শটে অন্য গুটি পড়লেও সেটি কভার নয়। পরবর্তী শটেই কভার হবে।
+    showQueenPopup();
+    state.queenPending=true;
+    state.queenOwner=shooter;
+    state.queenCovered=false;
+    state.queenShotCount=Number(state.shotCount||0)+1;
+  }else if(c.c===playerColor(shooter,state)){
+    state.pocketCounts=state.pocketCounts||{};
+    state.pocketCounts[shooter]=Number(state.pocketCounts[shooter]||0)+1;
+    state.scores=state.scores||{};
+    state.scores[shooter]=Number(state.scores[shooter]||0)+5;
+    state.turnOwnCoinPocketed=true;
+    // কেবল কুইন নেওয়ার পরের শটে নিজের রঙের গুটি পড়লেই কভার হবে।
+    const currentShotNumber=Number(state.shotCount||0)+1;
+    if(state.queenPending && state.queenOwner===shooter &&
+       Number(state.queenShotCount||0)>0 && currentShotNumber>Number(state.queenShotCount)){
+      state.queenCovered=true;
+      state.queenPending=false;
+      state.queenOwner=null;
+      state.queenShotCount=null;
+      playGameSound("queen");
+      state.scores[shooter]=Number(state.scores[shooter]||0)+15;
+    }
+  }
+}
+function anyPieceMoving(){
+  if(Math.abs(state.striker.vx)>0.08||Math.abs(state.striker.vy)>0.08)return true;
+  return (state.coins||[]).some(c=>!c.in && (Math.abs(c.vx)>0.05||Math.abs(c.vy)>0.05));
+}
+
+function physics(){
+ if(state){
+   ensureGameMeta(state);
+   const isShotOwner=currentUser && state.shotOwner===currentUser.uid;
+   const s=state.striker;
+
+   if(isShotOwner && state.shotActive){
+     // Striker + coins সবাই নিজেদের velocity দিয়ে চলবে।
+     s.x+=s.vx;s.y+=s.vy;
+     s.vx*=0.985;s.vy*=0.985;
+     for(const c of (state.coins||[])){
+       if(c.in)continue;
+       c.x+=c.vx;c.y+=c.vy;
+       c.vx*=0.982;c.vy*=0.982;
+       if(insidePocket(c)){pocketCoin(c);continue;}
+       keepInsideBoard(c,R);
+     }
+     if(insidePocket(s)){
+       const foulOwner=state.shotOwner||currentUser.uid;
+       s.x=400;s.y=strikerBaseY(currentUser.uid,state);s.vx=0;s.vy=0;
+       if(foulOwner && !state.foulPenaltyApplied){
+         state.foulPenaltyApplied=true;
+         const color=playerColor(foulOwner,state);
+         const penalty={id:"penalty_"+Date.now(),x:400,y:400,c:color,in:false,vx:0,vy:0,penaltyFor:foulOwner};
+         state.coins=state.coins||[];state.coins.push(penalty);
+         state.pocketCounts=state.pocketCounts||{};state.pocketCounts[foulOwner]=Number(state.pocketCounts[foulOwner]||0)+1;
+         playGameSound("foul");
+       }
+     }else keepInsideBoard(s,SR);
+
+     // Striker ↔ coin collision
+     for(const c of (state.coins||[])){
+       if(c.in)continue;
+       if(resolveElastic(s,c,SR,R)){
+         const sp=Math.hypot(s.vx,s.vy);
+         if(sp>0.35 && Date.now()-__lastImpactAt>75){__lastImpactAt=Date.now();playGameSound("impact");}
+         if(sp<0.15){s.vx*=0.2;s.vy*=0.2}
+       }
+     }
+
+     // Coin ↔ coin collision
+     const coins=state.coins||[];
+     for(let i=0;i<coins.length;i++){
+       const a=coins[i]; if(a.in)continue;
+       for(let j=i+1;j<coins.length;j++){
+         const b=coins[j]; if(b.in)continue;
+         resolveElastic(a,b,R,R);
+       }
+     }
+
+     // Recheck pockets after collisions, so a collision can also send a coin in.
+     for(const c of (state.coins||[])){if(!c.in && insidePocket(c))pocketCoin(c);}
+
+     // Striker pocket = foul; striker ফিরে যাবে।
+     if(insidePocket(s)){
+       s.x=400;s.y=strikerBaseY(currentUser.uid,state);
+       s.vx=0;s.vy=0;
+     }
+
+     // সব piece থামলে shot শেষ।
+     if(!anyPieceMoving()){
+       s.vx=0;s.vy=0;
+       for(const c of (state.coins||[])){if(!c.in){c.vx=0;c.vy=0}}
+       state.shotActive=false;
+       finishTurn();
+     }else if(Date.now()-lastPhysicsSave>80){
+       lastPhysicsSave=Date.now();
+       saveRoomState().catch(console.error);
+     }
+   }
+ }
+ draw();requestAnimationFrame(physics);
+}
+requestAnimationFrame(physics);
+
+let finishing=false;
+async function finishTurn(){
+ if(finishing||!state||!roomId)return;
+ finishing=true;
+
+ ensureGameMeta(state);
+ const active=(state.players||[]).filter(Boolean);
+ const oldPlayer=currentUser?.uid;
+ if(!oldPlayer || !active.includes(oldPlayer)){
+   finishing=false;
+   return;
+ }
+
+ // এই শটটি সম্পূর্ণ হলো। Queen যে শটে নেওয়া হয়েছিল তার নম্বর দিয়ে পরবর্তী শট আলাদা করা হয়।
+ state.shotCount=Number(state.shotCount||0)+1;
+ const queenNeedsNextShot=!!(state.queenPending && state.queenOwner===oldPlayer &&
+   !state.queenCovered && Number(state.queenShotCount||0)===Number(state.shotCount));
+
+ // কুইন নেওয়ার শট শেষ হলে একই খেলোয়াড়কে পরবর্তী শটের সুযোগ দিন।
+ // পরবর্তী শটেও কভার না হলে কুইন মাঝখানে ফিরবে।
+ if(state.queenPending && state.queenOwner===oldPlayer && !state.queenCovered && !queenNeedsNextShot){
+   returnQueenToCenter(state);
+ }else if(state.queenCovered){
+   state.queenPending=false;
+   state.queenOwner=null;
+   state.queenCovered=false;
+   state.queenShotCount=null;
+ }
+
+ // কভার সফল হলে, অথবা ব্যর্থতার পর কুইন মাঝখানে ফিরলে, বিজয় যাচাই করুন।
+ if(checkWinner(oldPlayer)){
+   resetStrikerForTurn(state);
+   state.shotActive=false;
+   state.shotOwner=null;
+   await saveRoomState();
+   renderClaimArea();
+   gameMsg("🏆 আপনি বিজয়ী! Screenshot দিয়ে Winning Claim করুন।");
+   finishing=false;
+   return;
+ }
+
+ // ১২০টি সম্পূর্ণ শটেও কেউ না জিতলে ম্যাচ ড্র হবে।
+ if(state.shotCount>=120){
+   state.winner="draw";state.draw=true;state.endedAt=Date.now();state.winningAmount=0;
+   state.shotActive=false;state.shotOwner=null;await saveRoomState();renderClaimArea();
+   gameMsg("⏱️ ১২০টি চাল শেষ—ম্যাচ ড্র হয়েছে, পুরস্কার দাবি করা যাবে না।");finishing=false;return;
+ }
+
+ // নিরাপত্তা: দুইজন যুক্ত না থাকলে ম্যাচের turn পাল্টানো/খেলা চালু হবে না।
+ if(active.length<2){
+   state.turn=oldPlayer;
+   state.shotActive=false;
+   state.shotOwner=null;
+   state.turnOwnCoinPocketed=false;
+   resetStrikerForTurn(state);
+   await saveRoomState();
+   gameMsg("⏳ প্রতিপক্ষ যুক্ত হওয়ার অপেক্ষায় আছেন।");
+   finishing=false;
+   return;
+ }
+
+ // নিজের গুটি পকেটে পড়লে অতিরিক্ত শট; কুইন এই শটে নেওয়া হলে কভার করার জন্যও পরবর্তী শট থাকবে।
+ if(state.turnOwnCoinPocketed || queenNeedsNextShot){
+   state.turn=oldPlayer;
+ } else {
+   const i=active.indexOf(oldPlayer);
+   state.turn=active[(i+1)%active.length];
+ }
+ resetStrikerForTurn(state);
+ state.turnStartedAt=Date.now();
+ state.shotActive=false;
+ state.shotOwner=null;
+ state.turnOwnCoinPocketed=false;
+
+ await saveRoomState();
+ finishing=false;
+}
+async function saveRoomState(){
+ if(!roomId||!currentUser)return;
+ state.version=Date.now();
+ const payload={...state};
+ delete payload.roomSyncVersion;
+ state.roomSyncVersion=state.version;
+ await set(ref(carromDb,"carromRooms/"+roomId+"/state"),payload);
+}
+
+function dbError(e){
+  const c=e?.code||"";
+  const m=e?.message||"";
+  if(c.includes("PERMISSION_DENIED") || m.includes("PERMISSION_DENIED"))
+    return "Firebase অনুমতি নেই। Realtime Database Rules চেক করুন।";
+  if(m.toLowerCase().includes("permission_denied") || m.toLowerCase().includes("permission denied"))
+    return "Firebase অনুমতি নেই: Rules-এ carromRooms-এর members ও state-এ অনুমতি দিন; Admin-কে Room তৈরি করতে হবে।";
+  if(m.toLowerCase().includes("network") || m.toLowerCase().includes("offline"))
+    return "ইন্টারনেট/Firebase সংযোগ সমস্যা হয়েছে।";
+  return "Firebase সমস্যা: "+m;
+}
+
+async function validatePackageAccess(){
+  if(!currentUser)return gameMsg("GameNest User App-এ আগে Login করুন।");
+  packageCode="FREE";
+  accessPackage={gameId:initialGameId||"carrom",betAmount:0,packageCode:"FREE"};
+  if($("packageCodeText"))$("packageCodeText").textContent="FREE PLAY";
+  if($("betText"))$("betText").textContent="৳0";
+  if($("prizeText"))$("prizeText").textContent="নগদ পুরস্কার নেই";
+  return true;
+}
+
+function randomMatchCode(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out="GN";
+  for(let i=0;i<6;i++)out+=chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+
+async function findMatch(){
+  if(!currentUser)return gameMsg("GameNest User App-এ আগে Login করুন।");
+  const id=String($("packageCodeInput")?.value||"").trim().replace(/\s+/g,"").toUpperCase();
+  if(!id)return gameMsg("Admin-এর দেওয়া Room ID লিখুন।");
+  $("matchCodeInput") && ($("matchCodeInput").value=id);
+  await joinRoom();
+}
+async function cancelMatchSearch(){
+  if(roomUnsub){roomUnsub();roomUnsub=null;}
+  gameMsg("Room সংযোগ বন্ধ করা হয়েছে। আবার Join করতে Room ID লিখুন।");
+}
+
+// Atomic 20-second turn timeout: both phones may detect expiry, but only one
+// Firebase transaction can advance the still-expired turn.
+let timeoutCheckBusy=false;
+async function expireTurnIfNeeded(){
+  if(timeoutCheckBusy||!roomId||!currentUser||!state||state.winner||!state.turn||!state.turnStartedAt)return;
+  if(state.shotActive)return; // let an already-fired shot finish normally
+  if(Date.now()-Number(state.turnStartedAt)<20000)return;
+  timeoutCheckBusy=true;
+  try{
+    const stateRef=ref(carromDb,"carromRooms/"+roomId+"/state");
+    const tx=await runTransaction(stateRef,current=>{
+      if(!current||current.winner||!current.turn||current.shotActive)return;
+      const started=Number(current.turnStartedAt||0);
+      if(!started||Date.now()-started<20000)return;
+      const players=Array.isArray(current.players)?current.players.filter(Boolean):[];
+      if(players.length<2)return; // do not consume a turn while waiting for opponent
+      const idx=players.indexOf(current.turn);
+      if(idx<0)return;
+      const oldTurn=current.turn;
+      const next=players[(idx+1)%players.length];
+      // An uncovered Queen returns to centre when its owner's turn expires.
+      if(current.queenPending&&current.queenOwner===oldTurn&&!current.queenCovered){
+        const coins=Array.isArray(current.coins)?current.coins:[];
+        const queen=coins.find(c=>c&&c.id==="q");
+        if(queen){queen.in=false;queen.x=400;queen.y=400;queen.vx=0;queen.vy=0;}
+        current.queenPending=false;current.queenOwner=null;current.queenCovered=false;current.queenShotCount=null;
+      }
+      current.turn=next;
+      current.turnStartedAt=Date.now();
+      current.turnOwnCoinPocketed=false;
+      current.shotActive=false;current.shotOwner=null;
+      current.striker=current.striker||{x:400,y:690,vx:0,vy:0};
+      current.striker.x=Math.max(145,Math.min(655,Number(current.striker.x)||400));
+      current.striker.y=players.indexOf(next)===1?110:690;
+      current.striker.vx=0;current.striker.vy=0;
+      current.version=Date.now();
+      return current;
+    });
+    if(tx.committed){
+      state=tx.snapshot.val();
+      if(state?.version)state.roomSyncVersion=state.version;
+      ensureGameMeta(state);updateControlThumb();renderPlayers();draw();
+      if(state.turn===currentUser.uid)gameMsg("⏰ প্রতিপক্ষের ২০ সেকেন্ড শেষ—এখন আপনার চাল।");
+      else gameMsg("⏰ আপনার ২০ সেকেন্ড শেষ—প্রতিপক্ষের চাল।");
+    }
+  }catch(e){console.error("Turn timeout failed",e);}
+  finally{timeoutCheckBusy=false;}
+}
+async function updateTurnTimer(){
+  const el=$("turnTimer");if(!el)return;
+  if(!state||state.winner||!state.turn){el.textContent="⏱ ২০s";return;}
+  if(state.shotActive){
+    el.textContent=state.contactMade?"🔊 গুটিতে লেগেছে":"🎯 শট চলছে";
+    __lastTickKey="";
+    return;
+  }
+  if(!state.turnStartedAt){el.textContent="⏱ চাল শুরু";return;}
+  const left=Math.max(0,20-Math.floor((Date.now()-Number(state.turnStartedAt))/1000));
+  el.textContent="⏱ "+left+"s";
+  const alarmKey=String(state.turn)+":"+String(state.turnStartedAt);
+  if(left<=5 && left>0){
+    const tickKey=alarmKey+":"+left;
+    if(__lastTickKey!==tickKey){__lastTickKey=tickKey;playGameSound("bell");}
+  } else {__lastTickKey="";}
+  if(left===0)await expireTurnIfNeeded();
+}
+setInterval(()=>{updateTurnTimer().catch(console.error);},250);
+function watchRoom(id){
+  if(roomUnsub)roomUnsub();
+  roomId=id;
+  gameMsg("🔗 ম্যাচে সংযোগ করা হচ্ছে…");
+  roomUnsub=onValue(
+    ref(carromDb,"carromRooms/"+id),
+    snap=>{
+      const v=snap.val();
+      if(!v){
+        $("roomText").textContent="Room ID: "+id;
+        gameMsg("⚠️ ম্যাচের রুম পাওয়া যায়নি। আবার প্রতিপক্ষ খুঁজুন।");
+        return;
+      }
+      const incoming=v.state||null;
+      if(state && state.roomSyncVersion && incoming?.version && incoming.version < state.roomSyncVersion){
+        return;
+      }
+      state=incoming;
+      if(state?.version)state.roomSyncVersion=state.version;
+      ensureGameMeta(state);
+      updateControlThumb();
+
+      // পুরোনো Room-এ striker ভুল পাশে থাকলে, বর্তমান turn-এর
+      // player-এর সঠিক baseline-এ একবার ঠিক করে দেওয়া হবে।
+      if(state?.turn===currentUser.uid && !state?.shotActive){
+        const expectedY=strikerBaseY(currentUser.uid,state);
+
+        // Firebase-এ পুরোনো shot-এর striker position এলে সেটি গ্রহণ করা হবে না।
+        // বর্তমান turn-এর player-এর fixed shooting position-এ ফেরত যাবে।
+        if(!state.striker ||
+           Math.abs((state.striker.y??expectedY)-expectedY)>2 ||
+           Math.abs(state.striker.vx||0)>0.001 ||
+           Math.abs(state.striker.vy||0)>0.001){
+          resetStrikerForTurn(state);
+          saveRoomState().catch(console.error);
+        }
+      }
+
+      $("roomText").textContent="Match Code: "+id+" • Free Play • Players: "+(state?.players?.length||0)+"/2";
+      $("roomCodeText").textContent=id;
+      $("roomCodeText2").textContent=id;
+      $("playerCount").textContent=(state?.players?.length||0)+"/2";
+      $("betText").textContent="৳"+Number(state?.betAmount||0).toFixed(2);
+      $("prizeText").textContent="৳"+Number(state?.winningAmount||0).toFixed(2);
+      renderPlayers();
+      updateTurnTimer();
+      renderClaimArea();
+      if(state?.winner)gameMsg(state.winner===currentUser.uid?"🏆 অভিনন্দন! আপনি এই Carrom ম্যাচ জিতেছেন।":"🏁 ম্যাচ শেষ — প্রতিপক্ষ বিজয়ী হয়েছেন।");
+      else if(state?.queenPending && state?.queenOwner===currentUser.uid)
+        gameMsg("👑 Queen নিয়েছেন — পরবর্তী শটে নিজের "+playerColor(currentUser.uid,state)+" গুটি পকেটে ফেলে Cover করুন");
+      else if(state?.queenPending)
+        gameMsg("👑 Queen Cover বাকি — মালিকের পরবর্তী শটে Cover না হলে Queen মাঝখানে ফিরবে");
+      else if(state?.shotActive && state?.turn===currentUser.uid)gameMsg("🎯 Shot চলছে...");
+      else if(state?.turn===currentUser.uid)gameMsg(state?.turnOwnCoinPocketed?"আপনি গুটি নিয়েছেন — আবার স্টিক মারুন":"আপনার টার্ন — সবুজ striker টেনে ছেড়ে দিন");
+      else gameMsg("অন্য প্লেয়ারের টার্ন");
+      draw();
+    },
+    err=>gameMsg(dbError(err))
+  );
+}
+
+async function joinRoom(){
+  if(!currentUser)return gameMsg("GameNest User App-এ আগে Login করুন।");
+  let memberRef=null;
+  try{
+    const id=String($("matchCodeInput")?.value||$("packageCodeInput")?.value||"").trim().replace(/\s+/g,"").toUpperCase();
+    if(!id)return gameMsg("Join করার জন্য Room ID লিখুন।");
+    const roomRef=ref(carromDb,"carromRooms/"+id);
+    const snap=await get(roomRef);
+    const room=snap.exists()?(snap.val()||{}):null;
+    if(!room)return gameMsg("এই Carrom Room ID পাওয়া যায়নি। Admin Panel থেকে আগে Room তৈরি/Approve করুন।");
+    if(room.status!=="ready" && room.status!=="active" && room.status!=="approved")
+      return gameMsg("এই Match এখনো Admin Approve করেননি। Approve হওয়ার পর Code ব্যবহার করুন।");
+
+    if(!accessPackage)accessPackage={gameId:initialGameId||"carrom",betAmount:0,packageCode:packageCode||"FREE"};
+    const roomName=String(room.gameName||room.name||"").toLowerCase();
+    const roomUrl=String(room.gameUrl||"").toLowerCase();
+    const isCarrom=/carrom|corrm|carom/.test(roomName+" "+roomUrl) || String(room.gameId||"").toLowerCase()==="carrom";
+    if(!isCarrom)return gameMsg("এই Room Carrom গেমের নয়। Admin Panel-এ Game হিসেবে Carrom নির্বাচন করুন।");
+
+    const uid=currentUser.uid;
+    const roomBet=Number(room.betAmount||0);
+    if(Array.isArray(room.allowedPlayers)&&room.allowedPlayers.length&&!room.allowedPlayers.includes(uid))
+      return gameMsg("এই Match-এ Admin অন্য User নির্বাচন করেছেন।");
+    const existingState=room.state&&typeof room.state==="object"?room.state:null;
+    const existingPlayers=Array.isArray(existingState?.players)?existingState.players.filter(Boolean):[];
+    if(existingState?.winner)return gameMsg("এই Match ইতোমধ্যে শেষ হয়েছে।");
+    if(existingPlayers.includes(uid)){
+      $("matchCodeInput") && ($("matchCodeInput").value=id);
+      return watchRoom(id);
+    }
+    if(existingPlayers.length>=2)return gameMsg("এই Match 2/2 পূর্ণ। অন্য Room ID ব্যবহার করুন।");
+
+    // সদস্যের রেকর্ড আগে লিখি; Rules-এ state লেখার অনুমতি এই সদস্য রেকর্ডের ওপর নির্ভরশীল।
+    memberRef=ref(carromDb,"carromRooms/"+id+"/members/"+uid);
+    await set(memberRef,{uid,gameId:"carrom",packageCode:room.packageCode||"ADMIN",betAmount:roomBet,joinedAt:Date.now(),name:currentProfile?.name||currentUser.displayName||"Player"});
+
+    // Transaction prevents two users joining at the same time from overwriting each other's player list.
+    const stateRef=ref(carromDb,"carromRooms/"+id+"/state");
+    const tx=await runTransaction(stateRef,current=>{
+      let st;
+      let players;
+      if(!current || typeof current!=="object"){
+        st=initialState(uid);
+        players=[]; // initialState contains a placeholder player; build the real join list atomically below
+      }else{
+        st=current;
+        players=Array.isArray(st.players)?st.players.filter(Boolean):[];
+      }
+      if(!Array.isArray(players))players=[];
+      if(st.winner)return;
+      if(players.includes(uid))return st;
+      if(players.length>=2)return;
+      const wasEmpty=players.length===0;
+      players=[...players,uid];
+      st.players=players;
+      st.playerMap=st.playerMap||{};
+      st.playerMap[uid]=true;
+      st.playerProfiles=st.playerProfiles||{};
+      st.playerProfiles[uid]={name:currentProfile?.name||currentUser.displayName||"Player",photo:currentProfile?.photo||currentProfile?.photoURL||"",mobile:currentProfile?.mobile||currentProfile?.phone||currentUser.phoneNumber||""};
+      st.playerPackages=st.playerPackages||{};
+      st.playerPackages[uid]={packageCode:room.packageCode||"ADMIN",purchaseId:room.purchaseId||"",betAmount:roomBet};
+      st.playerColors=st.playerColors||{};
+      for(let i=0;i<players.length;i++){
+        if(!st.playerColors[players[i]])st.playerColors[players[i]]=i===0?"black":"white";
+      }
+      st.playerColors[uid]=players.length===1?"black":"white";
+      st.gameId="carrom";st.gameName="Carrom";st.betAmount=roomBet;
+      st.winningAmount=Number(room.winningAmount||room.prizeAmount||roomBet*2);
+      st.packageCode=room.packageCode||"ADMIN";st.purchaseId=room.purchaseId||"";
+      if(wasEmpty){
+        // প্রথম জন কালো পাশে থাকবে; দ্বিতীয় জন যুক্ত হলে সাদা প্রথমে shot পাবে।
+        st.turn=uid; st.turnStartedAt=Date.now();
+        st.striker={x:400,y:690,vx:0,vy:0};
+      }else if(players.length===2){
+        st.turn=uid; st.turnStartedAt=Date.now(); // second player is white, and white plays first
+        st.striker={x:400,y:110,vx:0,vy:0};
+        st.shotActive=false;st.shotOwner=null;st.turnOwnCoinPocketed=false;
+      }
+      st.version=Date.now();
+      return st;
+    });
+    if(!tx.committed){
+      try{await remove(memberRef)}catch(_){ }
+      const finalState=tx.snapshot?.val()||{};
+      if(finalState.winner)return gameMsg("এই Match ইতোমধ্যে শেষ হয়েছে।");
+      return gameMsg("এই Match 2/2 পূর্ণ। অন্য Room ID ব্যবহার করুন।");
+    }
+    $("matchCodeInput") && ($("matchCodeInput").value=id);
+    await watchRoom(id);
+    const joinedState=tx.snapshot?.val()||{};
+    gameMsg((joinedState.players||[]).length>=2?"✅ দুই Player যুক্ত হয়েছেন। সাদা গুটি দিয়ে প্রথম চাল শুরু হবে।":"✅ Room-এ যুক্ত হয়েছেন। দ্বিতীয় Player-এর অপেক্ষা করুন।");
+  }catch(e){
+    console.error(e);
+    gameMsg(dbError(e));
+  }
+}
+$("findMatchBtn").addEventListener("click",findMatch);
+$("cancelMatchBtn").addEventListener("click",cancelMatchSearch);
+$("packageCodeInput").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase();packageCode=e.target.value.trim();});
+
+
+
+
+// Room-scoped chat: the two players in the current Carrom room are paired automatically.
+const chatLauncher=$("chatLauncher"),chatPanel=$("chatPanel"),chatClose=$("chatClose");
+const chatStatus=$("chatStatus"),chatMessages=$("chatMessages"),chatText=$("chatText"),chatSend=$("chatSend");
+let chatMessagesUnsub=null,chatSending=false,chatListeningRoom="";
+function chatSetStatus(t){if(chatStatus)chatStatus.textContent=t;}
+function chatScrollBottom(){if(chatMessages)chatMessages.scrollTop=chatMessages.scrollHeight;}
+function chatRenderMessages(items){
+  chatMessages.replaceChildren();
+  if(!items.length){const empty=document.createElement("div");empty.className="small";empty.textContent="এখনো কোনো মেসেজ নেই।";chatMessages.appendChild(empty);return;}
+  for(const m of items){
+    const bubble=document.createElement("div");bubble.className="chatBubble"+(m.from===currentUser?.uid?" mine":"");
+    const body=document.createElement("div");body.textContent=String(m.text||"");bubble.appendChild(body);
+    const meta=document.createElement("div");meta.className="chatMeta";
+    meta.textContent=(m.from===currentUser?.uid?"আপনি":"প্রতিপক্ষ")+" · "+(m.time?new Date(m.time).toLocaleTimeString("bn-BD",{hour:"2-digit",minute:"2-digit"}):"");
+    bubble.appendChild(meta);chatMessages.appendChild(bubble);
+  }
+  chatScrollBottom();
+}
+function chatOpen(){chatPanel.classList.add("open");chatLauncher.setAttribute("aria-expanded","true");if(roomId)chatStartRoomListener();else chatSetStatus("আগে Room ID দিয়ে ম্যাচে যোগ দিন।");}
+function chatStopListening(){if(chatMessagesUnsub){chatMessagesUnsub();chatMessagesUnsub=null;}chatListeningRoom="";}
+function chatStartRoomListener(){
+  if(!currentUser){chatSetStatus("চ্যাট করতে আগে GameNest BD User App-এ Login করুন।");return;}
+  if(!roomId||!state||!(state.players||[]).includes(currentUser.uid)){chatStopListening();chatSetStatus("আপনি Room-এ যুক্ত হলে চ্যাট স্বয়ংক্রিয়ভাবে চালু হবে।");return;}
+  if(chatListeningRoom===roomId&&chatMessagesUnsub)return;
+  chatStopListening();chatListeningRoom=roomId;chatMessages.replaceChildren();chatSetStatus("Room "+roomId+"-এর চ্যাট সংযোগ হচ্ছে…");
+  const path="carromRooms/"+roomId+"/chat/messages";
+  chatMessagesUnsub=onValue(ref(carromDb,path),snap=>{
+    const val=snap.val()||{};
+    const items=Object.entries(val).map(([id,m])=>({...m,id})).sort((a,b)=>(a.time||0)-(b.time||0)).slice(-200);
+    chatRenderMessages(items);chatSetStatus("Room "+roomId+" · দুই খেলোয়াড়ের চ্যাট");
+  },err=>{chatSetStatus("চ্যাট সংযোগ ব্যর্থ। Firebase Rules-এ carromRooms/$roomId/chat/messages-এর read/write অনুমতি দিন এবং একই Room-এ দুই UID member আছে কি না দেখুন।");console.error(err);});
+}
+async function chatSendMessage(){
+  const text=chatText.value.trim();
+  if(!currentUser){chatSetStatus("আগে Login করুন।");return;}
+  if(!roomId||!state||!(state.players||[]).includes(currentUser.uid)){chatSetStatus("চ্যাট করতে আগে একই Room-এ যুক্ত হন।");return;}
+  if(!text||chatSending)return;
+  chatSending=true;chatSend.disabled=true;
+  try{
+    const path="carromRooms/"+roomId+"/chat/messages";
+    const messageRef=push(ref(carromDb,path));
+    await set(messageRef,{from:currentUser.uid,text:text.slice(0,1000),time:Date.now()});
+    chatText.value="";chatText.focus();
+  }catch(e){chatSetStatus("মেসেজ পাঠানো যায়নি। Rules-এ এই Room-এর chat/messages-এ authenticated member-এর write অনুমতি প্রয়োজন।");console.error(e);}
+  finally{chatSending=false;chatSend.disabled=false;}
+}
+const backButton=$('backButton');
+if(backButton)backButton.addEventListener('click',()=>{
+  // Back inside the three-dot menu should close the menu and return to the game,
+  // not navigate to the User App login or reload the page. Keep the MP3 player alive.
+  const menu=$('extrasMenu');
+  if(menu) menu.open=false;
+  const board=$('board');
+  if(board) board.focus({preventScroll:true});
+});
+chatLauncher.addEventListener("click",chatOpen);
+chatClose.addEventListener("click",()=>{chatPanel.classList.remove("open");chatLauncher.setAttribute("aria-expanded","false");});
+chatSend.addEventListener("click",chatSendMessage);
+chatText.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();chatSendMessage();}});
+
+
+onAuthStateChanged(auth,async user=>{
+ currentUser=user;
+ if(!user){
+   gameBox.style.display="block";
+   gameMsg("⚠️ GameNest BD User App-এ আগে Login করুন, তারপর Carrom খুলুন।");
+   return;
+ }
+ gameBox.style.display="block";
+ try{
+   const ps=await get(ref(db,"users/"+user.uid));
+   currentProfile=ps.exists()?(ps.val()||{}):{};
+ }catch(e){currentProfile={};}
+ draw();
+ try{ if(packageCode && packageCode!=="FREE"){ $("packageCodeInput").value=""; } }catch(e){}
+});
+</script>
+</body>
+</html>
